@@ -11,7 +11,7 @@ I have them installed in extensions schema:
 CREATE EXTENSION btree_gist WITH SCHEMA extensions;
 
 ## Test data
-In [test-data](primose-test-data) is located [data.json](primose-test-data/data.json) with some example data for testing. If you run backend server you can execute: 
+In [test-data](primrose-test-data) is located [data.json](primrose-test-data/data.json) with some example data for testing. If you run backend server you can execute: 
 '''
 npm install
 npm run post
