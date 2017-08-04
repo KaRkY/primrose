@@ -1,0 +1,38 @@
+[
+  {
+    'repeat(5, 10)': {
+      type: '{{random("Customer", "Partner", "Investor", "Reseller")}}',
+      isCompany: '{{bool()}}',
+      firstName: '{{firstName()}}',
+      surname: '{{surname()}}',
+      company: '{{company()}}',
+      domain: '{{domainZone()}}',
+      phone: '{{phone("xxxxxxxxx")}}',
+      addresses: [{
+        'repeat(1, 4)': {
+          type: '{{random("Billing", "Shipping")}}',
+          street: '{{street()}}',
+          city: '{{city()}}',
+          postalCode: '{{integer(1000, 99999)}}',
+          state: '{{state()}}',
+          country: '{{country()}}'
+        }
+      }],
+      contacts: [{
+		'repeat(0, 5)': {
+          type: '{{random("Seller", "Sales Manager", "Personal Manager", "Manager","IT Developer","Consultant")}}',
+          firstName: '{{firstName()}}',
+          surname: '{{surname()}}',
+          phone: '{{phone("xxxxxxxxx")}}',
+          address: {
+            street: '{{street()}}',
+            city: '{{city()}}',
+            postalCode: '{{integer(1000, 99999)}}',
+            state: '{{state()}}',
+            country: '{{country()}}'
+          }
+        }
+      }]
+    }
+  }
+]

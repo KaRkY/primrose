@@ -1,0 +1,35 @@
+##Default settings
+server:
+  port: 9080
+spring:
+  jooq:
+    sql-dialect: Postgres
+  jackson:
+    serialization:
+      writeDatesAsTimestamps: false
+    defaultPropertyInclusion: nonEmpty
+
+
+---
+##Development settings
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5439/postgres?currentSchema=primrose,extensions
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+logging:
+  level:
+    org:
+      jooq: debug
+
+---
+##Test settings
+spring:
+  profiles: test
+
+---
+##Production settings
+spring:
+  profiles: prod

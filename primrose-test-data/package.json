@@ -1,0 +1,12 @@
+{
+  "name": "transform",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "transform": "node transform",
+    "post": "node post"
+  },
+  "dependencies": {
+    "request": "^2.81.0"
+  }
+}
