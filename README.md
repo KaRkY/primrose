@@ -12,10 +12,10 @@ CREATE EXTENSION btree_gist WITH SCHEMA extensions;
 
 ## Test data
 In [test-data](primrose-test-data) is located [data.json](primrose-test-data/data.json) with some example data for testing. If you run backend server you can execute: 
-'''
+```bash
 npm install
 npm run post
-'''
+```
 and all the data will be transformed and posted to http://localhost:9080/import
 
 ## Backend
