@@ -27,11 +27,7 @@ export default combineReducers({
       },
     }, null),
 
-    current: combineReducers({
-      page: handleAction(AccountActions.types.LOAD_ACCOUNTS_PAGE_RESPONDED, (state, action) => action.meta.headers["search-page-number"] || null, null),
-      size: handleAction(AccountActions.types.LOAD_ACCOUNTS_PAGE_RESPONDED, (state, action) => action.meta.headers["search-requested-page-size"] || null, null),
-      search: handleAction(AccountActions.types.LOAD_ACCOUNTS_PAGE_RESPONDED, (state, action) => action.meta.headers["search-query"] ? action.meta.headers["search-query"] : null, null),
-    }),
+    headers: handleAction(AccountActions.types.LOAD_ACCOUNTS_PAGE_RESPONDED, (state, action) => !action.error && action.meta.headers, {}),
 
     pages: handleAction(
       AccountActions.types.LOAD_ACCOUNTS_PAGE_RESPONDED, {

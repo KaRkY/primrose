@@ -12,6 +12,10 @@ const query = createSelector(
   SettingsSelectors.accountsSearchDefaultPagging,
   (query, defaultQuery) => query || defaultQuery
 );
+const headers = createSelector(
+  search,
+  search => search.headers
+);
 
 const page = createSelector(
   pages, 
@@ -21,6 +25,10 @@ const page = createSelector(
 const lastUpdated = createSelector(page, page => page && page.lastUpdated);
 const results = createSelector(page, page => page && page.results);
 const loading = createSelector(search, search => search.loading);
+const isFirst = createSelector(query, headers, (query, headers) => parseInt(query.page) === 1);
+const isLast = createSelector(query, headers, (query, headers) => parseInt(headers["search-number-of-pages"]) === query.page);
+const currentPageNumber = createSelector(headers, headers => parseInt(headers["search-page-number"]) || 0);
+const numberOfPages = createSelector(headers, headers => parseInt(headers["search-number-of-pages"]) || 0);
 const currentPageData = createSelector(results, EntitiesSelectors.accounts, (results, entities) => results && results.map(id => entities[id]));
 
 export default {
@@ -30,5 +38,9 @@ export default {
     query,
     loading,
     lastUpdated,
+    isFirst,
+    isLast,
+    currentPageNumber,
+    numberOfPages
   }
 };

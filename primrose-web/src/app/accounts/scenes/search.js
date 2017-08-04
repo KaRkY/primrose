@@ -6,6 +6,7 @@ import compose from "recompose/compose";
 import { createStructuredSelector } from "reselect";
 import classnames from "classnames";
 import Link from "redux-first-router-link";
+import { Pager } from "@/components/pagination";
 
 import AccountActions from "../actions";
 import AccountSelectors from "../selectors";
@@ -15,6 +16,10 @@ import AccountSelectors from "../selectors";
 const Search = ({
   data,
   query,
+  isFirst,
+  isLast,
+  currentPageNumber,
+  numberOfPages
 }) => (
     <div>
       <table className="table is-fullwidth is-striped">
@@ -43,21 +48,18 @@ const Search = ({
         <Link
           className="pagination-previous"
           to={AccountActions.creators.requestAccountsScene(Object.assign({}, query, { page: query.page - 1 }))}
-          disabled={query.page - 1 < 1}
+          disabled={isFirst}
         >Previous</Link>
         <Link
           className="pagination-next"
           to={AccountActions.creators.requestAccountsScene(Object.assign({}, query, { page: parseInt(query.page) + 1 }))}
+          disabled={isLast}
         >Next page</Link>
-        <ul className="pagination-list">
-          <li><a className="pagination-link">1</a></li>
-          <li><span className="pagination-ellipsis">&hellip;</span></li>
-          <li><a className="pagination-link">45</a></li>
-          <li><a className="pagination-link is-current">46</a></li>
-          <li><a className="pagination-link">47</a></li>
-          <li><span className="pagination-ellipsis">&hellip;</span></li>
-          <li><a className="pagination-link">86</a></li>
-        </ul>
+        {query && numberOfPages !== 0 && <Pager
+          size={numberOfPages}
+          page={parseInt(query.page)}
+          step={1}
+        />}
       </nav>
     </div>
   )
@@ -69,7 +71,11 @@ export default compose(
   connect(
     createStructuredSelector({
       data: AccountSelectors.search.currentPageData,
-      query: AccountSelectors.search.query
+      query: AccountSelectors.search.query,
+      isFirst: AccountSelectors.search.isFirst,
+      isLast: AccountSelectors.search.isLast,
+      currentPageNumber: AccountSelectors.search.currentPageNumber,
+      numberOfPages: AccountSelectors.search.numberOfPages,
     }),
     dispatch => bindActionCreators({
     }, dispatch)
