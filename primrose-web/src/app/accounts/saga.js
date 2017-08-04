@@ -16,15 +16,15 @@ const processLoadAccountsPageDataRequest = function* (query) {
 }
 
 const processAccountSceneRequest = function* (action) {
-  const lastUpdated = yield select(AccountsSelectors.search.lastUpdated);
-  const query = yield action.meta.location.current.query || select(SettingsSelectors.accountsSearchDefaultPagging);
 
-  if (!(lastUpdated && moment().subtract(1, "minute").isBefore(lastUpdated))) {
-    yield processLoadAccountsPageDataRequest(query);
-    yield put(AccountsActions.creators.requestAccountsScene(yield select(AccountsSelectors.search.query)));
+  let query = yield select(LocationSelectors.query);
+  if (!query) {
+    query = yield select(SettingsSelectors.accountsSearchDefaultPagging);
+    yield put(AccountsActions.creators.requestAccountsScene(query));
   } else {
-    if(!action.meta || !action.meta.location || !action.meta.location.current || !action.meta.location.current.query) {
-      yield put(AccountsActions.creators.requestAccountsScene(yield select(AccountsSelectors.search.query)));
+    const lastUpdated = yield select(AccountsSelectors.search.lastUpdated);
+    if (!(lastUpdated && moment().subtract(1, "minute").isBefore(lastUpdated))) {
+      yield processLoadAccountsPageDataRequest(query);
     }
   }
 };

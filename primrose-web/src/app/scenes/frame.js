@@ -6,6 +6,7 @@ import compose from "recompose/compose";
 import { createStructuredSelector } from "reselect";
 import classnames from "classnames";
 import withHandlers from "recompose/withHandlers";
+import SceneMap from "../scene-map";
 
 import { Navbar, NavbarBrand, NavbarItem, NavbarBurger } from "@/components/navbar";
 import { Menu, MenuItem, MenuLabel, MenuList, MenuLink } from "@/components/menu";
@@ -19,6 +20,7 @@ import ContactsActions from "../contacts/actions";
 
 const Frame = ({
   drawerOpen,
+  location,
   toggleDrawer,
   onRequestDrawerClose,
   onRequestDashboard,
@@ -61,7 +63,9 @@ const Frame = ({
         </div>
         <div className="sidebar-overlay" onClick={onRequestDrawerClose} />
       </aside>
-      <main className="main">Main</main>
+      <main className="main">
+        {SceneMap[location] ? SceneMap[location] : location}
+      </main>
     </div>
   )
 
@@ -71,7 +75,8 @@ Frame.propTypes = {
 export default compose(
   connect(
     createStructuredSelector({
-      drawerOpen: AppSelectors.drawerOpen
+      drawerOpen: AppSelectors.drawerOpen,
+      location: AppSelectors.location,
     }),
     dispatch => bindActionCreators({
       onRequestDrawerClose: AppActions.creators.requestDrawerClose,

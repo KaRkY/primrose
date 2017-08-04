@@ -12,17 +12,17 @@ export default combineReducers({
         small: {
           size: 8,
           page: 1,
-          search: null,
+          search: undefined,
         },
         medium: {
           size: 16,
           page: 1,
-          search: null,
+          search: undefined,
         },
         large: {
           size: 24,
           page: 1,
-          search: null,
+          search: undefined,
         }
       }),
   }),

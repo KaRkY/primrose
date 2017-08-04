@@ -17,8 +17,6 @@
     "classnames": "2.2.5",
     "history": "4.6.3",
     "lodash": "4.17.4",
-    "material-ui": "1.0.0-beta.2",
-    "material-ui-icons": "^1.0.0-alpha.19",
     "moment": "2.18.1",
     "normalizr": "3.2.3",
     "prop-types": "15.5.10",
