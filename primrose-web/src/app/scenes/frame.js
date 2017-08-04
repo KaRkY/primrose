@@ -32,7 +32,7 @@ const Frame = ({
         <Navbar shadow>
           <NavbarBrand>
             <NavbarItem>
-              <img src="http://bulma.io/images/bulma-logo.png" alt="Bulma: a modern CSS framework based on Flexbox" width="112" height="28" />
+              <img src="/images/logo.png" alt="Bulma: a modern CSS framework based on Flexbox" />
             </NavbarItem>
 
             <NavbarBurger onClick={toggleDrawer} />
