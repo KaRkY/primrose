@@ -8,7 +8,9 @@ Primrose uses Postgresql for its database. All creation scripts and scripts for 
 For creation scripts to work you must have few extensions installed: btree_gist and pgcrypto.
 
 I have them installed in extensions schema:
+```bash
 CREATE EXTENSION btree_gist WITH SCHEMA extensions;
+```
 
 ## Test data
 In [test-data](primrose-test-data) is located [data.json](primrose-test-data/data.json) with some example data for testing. If you run backend server you can execute: 
