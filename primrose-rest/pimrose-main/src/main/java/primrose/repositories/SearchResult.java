@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class SearchResult<T> {
-  private final int     count;
+  private final int count;
   private final List<T> results;
 
   private SearchResult(final int count, final List<T> results) {
@@ -40,9 +40,7 @@ public class SearchResult<T> {
       numberOfRecords = entry.getKey();
       records = entry.getValue();
 
-      if (entries.hasNext()) {
-        throw new RuntimeException("Result contains more than 1 count.");
-      }
+      if (entries.hasNext()) { throw new RuntimeException("Result contains more than 1 count."); }
     }
     return new SearchResult<>(numberOfRecords, records);
   }

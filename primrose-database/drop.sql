@@ -38,6 +38,7 @@ drop constraint if exists fk_account_contact_contact_title;
  * FUNCTIONS
  * 
  */
+drop function if exists generate_random_string_base36(size int);
 drop function if exists account_search_vector(account t_accounts);
 drop function if exists address_search_vector(address t_addresses);
 drop function if exists contact_search_vector(contact t_contacts);
@@ -48,9 +49,9 @@ drop function if exists contact_search_vector(contact t_contacts);
  * 
  */
 drop index if exists idx_account_contact_title;
-drop index if exists idx_account_url;
-drop index if exists idx_address_url;
-drop index if exists idx_contact_url;
+drop index if exists idx_account_code;
+drop index if exists idx_address_code;
+drop index if exists idx_contact_code;
 drop index if exists idx_accounts_full_text_search;
 drop index if exists idx_addresses_full_text_search;
 drop index if exists idx_contacts_full_text_search;
@@ -77,7 +78,7 @@ drop table if exists t_account_contact_titles;
  * SEQUENCES
  * 
  */
-drop sequence if exists s_account_code;
+drop sequence if exists s_account;
 drop sequence if exists s_address;
 drop sequence if exists s_contact;
 drop sequence if exists s_contact_titles;
@@ -93,6 +94,6 @@ drop function if exists address_full_text_search_insert();
 drop function if exists address_full_text_search_update();
 drop function if exists contact_full_text_search_insert();
 drop function if exists contact_full_text_search_update();
-drop function if exists account_unique_url();
-drop function if exists address_unique_url();
-drop function if exists contact_unique_url();
+drop function if exists account_unique_code();
+drop function if exists address_unique_code();
+drop function if exists contact_unique_code();

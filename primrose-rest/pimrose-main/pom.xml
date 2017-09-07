@@ -3,6 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>pimrose-main</artifactId>
+  <packaging>war</packaging>
 
   <parent>
     <groupId>primrose</groupId>
@@ -20,6 +21,9 @@
             <goals>
               <goal>repackage</goal>
             </goals>
+            <configuration>
+              <mainClass>primrose.Main</mainClass>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -35,6 +39,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

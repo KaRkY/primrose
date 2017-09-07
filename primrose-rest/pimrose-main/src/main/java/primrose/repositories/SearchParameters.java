@@ -5,7 +5,7 @@ import primrose.util.SearchRequest;
 public class SearchParameters {
   private final Integer page;
   private final Integer size;
-  private final String  query;
+  private final String query;
 
   private SearchParameters(final Integer page, final Integer size, final String query) {
     super();

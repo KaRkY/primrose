@@ -6,13 +6,9 @@ public class Mod {
   }
 
   public static int mod11(final String id) {
-    if (id == null) {
-      throw new IllegalArgumentException();
-    }
+    if (id == null) { throw new IllegalArgumentException(); }
 
-    if (id.length() < 2 || id.length() > 15) {
-      throw new IllegalArgumentException();
-    }
+    if (id.length() < 2 || id.length() > 15) { throw new IllegalArgumentException(); }
 
     int sum = 0;
     for (int i = id.length() - 1; i > 0; i--) {
@@ -23,13 +19,9 @@ public class Mod {
   }
 
   public static boolean checkMod11(final String id) {
-    if (id == null) {
-      throw new IllegalArgumentException();
-    }
+    if (id == null) { throw new IllegalArgumentException(); }
 
-    if (id.length() < 2 || id.length() > 11) {
-      throw new IllegalArgumentException();
-    }
+    if (id.length() < 2 || id.length() > 11) { throw new IllegalArgumentException(); }
 
     int sum = 0;
     for (int i = id.length() - 1; i > 0; i--) {

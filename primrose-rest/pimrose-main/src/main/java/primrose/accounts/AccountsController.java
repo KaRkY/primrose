@@ -23,7 +23,7 @@ import primrose.util.SearchResponse;
 @RequestMapping(path = "/accounts")
 public class AccountsController {
 
-  private final AccountsService    accountsService;
+  private final AccountsService accountsService;
   private final AccountsRepository accountsRepository;
 
   public AccountsController(final AccountsService accountsService, final AccountsRepository accountsRepository) {
@@ -42,9 +42,9 @@ public class AccountsController {
       .buildResponse();
   }
 
-  @GetMapping("/{url_code}")
-  public ResponseEntity<Account> search(@PathVariable("url_code") final String urlCode) {
-    return ResponseEntity.ok(accountsRepository.getByUrl(urlCode));
+  @GetMapping("/{code}")
+  public ResponseEntity<Account> getByCode(@PathVariable("code") final String code) {
+    return ResponseEntity.ok(accountsRepository.getByCode(code));
   }
 
   @PostMapping

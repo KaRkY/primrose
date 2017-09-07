@@ -23,4 +23,16 @@ public class AddressesService {
 
     return addressesRepository.get(addressId);
   }
+
+  @Transactional
+  public Address save(final long accountId, final String addressType, final Address address) {
+    final long addressId = addressesRepository.getNewId();
+
+    address.setId(addressId);
+
+    addressesRepository.insert(address);
+    addressesRepository.insert(addressType, addressId, accountId);
+
+    return addressesRepository.get(addressId);
+  }
 }

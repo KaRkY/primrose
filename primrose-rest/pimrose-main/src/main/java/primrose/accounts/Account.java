@@ -10,20 +10,28 @@ import primrose.addresses.Address;
 import primrose.contacts.Contact;
 
 public class Account {
-  private String                     code;
-  private String                     urlCode;
-  private String                     parentCode;
-  private String                     parentName;
-  private String                     type;
-  private String                     displayName;
-  private String                     fullName;
-  private String                     email;
-  private String                     phone;
-  private String                     website;
-  private LocalDateTime              validFrom;
-  private LocalDateTime              validTo;
+  private long id;
+  private String code;
+  private Long parentId;
+  private String parentName;
+  private String type;
+  private String displayName;
+  private String fullName;
+  private String email;
+  private String phone;
+  private String website;
+  private LocalDateTime validFrom;
+  private LocalDateTime validTo;
   private Map<String, List<Address>> addresses;
   private Map<String, List<Contact>> contacts;
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(final long id) {
+    this.id = id;
+  }
 
   public String getCode() {
     return code;
@@ -33,20 +41,12 @@ public class Account {
     this.code = code;
   }
 
-  public String getUrlCode() {
-    return urlCode;
+  public Long getParentId() {
+    return parentId;
   }
 
-  public void setUrlCode(final String urlCode) {
-    this.urlCode = urlCode;
-  }
-
-  public String getParentCode() {
-    return parentCode;
-  }
-
-  public void setParentCode(final String parentCode) {
-    this.parentCode = parentCode;
+  public void setParentId(final Long parentId) {
+    this.parentId = parentId;
   }
 
   public String getParentName() {
@@ -141,9 +141,9 @@ public class Account {
   public String toString() {
     final ToStringBuilder builder = new ToStringBuilder(this);
     builder
+      .append("id", id)
       .append("code", code)
-      .append("urlCode", urlCode)
-      .append("parentCode", parentCode)
+      .append("parentID", parentId)
       .append("parentName", parentName)
       .append("type", type)
       .append("displayName", displayName)

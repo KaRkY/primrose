@@ -3,8 +3,8 @@ package primrose.addresses;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class Address {
-  private Long   id;
-  private String urlCode;
+  private Long id;
+  private String code;
   private String street;
   private String city;
   private String postalCode;
@@ -19,12 +19,12 @@ public class Address {
     this.id = id;
   }
 
-  public String getUrlCode() {
-    return urlCode;
+  public String getCode() {
+    return code;
   }
 
-  public void setUrlCode(final String urlCode) {
-    this.urlCode = urlCode;
+  public void setCode(final String code) {
+    this.code = code;
   }
 
   public String getStreet() {
@@ -72,7 +72,7 @@ public class Address {
     final ToStringBuilder builder = new ToStringBuilder(this);
     builder
       .append("id", id)
-      .append("urlCode", urlCode)
+      .append("code", code)
       .append("street", street)
       .append("city", city)
       .append("postalCode", postalCode)

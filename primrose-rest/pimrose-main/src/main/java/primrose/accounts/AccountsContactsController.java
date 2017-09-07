@@ -23,6 +23,6 @@ public class AccountsContactsController {
 
   @GetMapping()
   public ResponseEntity<Map<String, List<Contact>>> search(@PathVariable("account") final String account) {
-    return ResponseEntity.ok(contactsRepository.getByAccountUrl(account));
+    return ResponseEntity.ok(contactsRepository.getByAccountCode(account));
   }
 }

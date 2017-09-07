@@ -3,7 +3,7 @@ package primrose.util;
 public class SearchRequest {
   private Integer page;
   private Integer size;
-  private String  query;
+  private String query;
 
   public Integer getPage() {
     return page;

@@ -33,7 +33,7 @@ export default combineReducers({
         paging: handleAction(
           SettingsActions.types.SETTINGS_UPDATE_REQUESTED, {
             next: (state, action) => action.payload,
-          }, "large"),
+          }, "medium"),
       }),
     }),
   }),

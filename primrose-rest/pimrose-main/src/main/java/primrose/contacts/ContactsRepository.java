@@ -26,14 +26,14 @@ import primrose.repositories.SearchResult;
 
 @Repository
 public class ContactsRepository {
-  private static final Primrose              PRIMROSE              = DefaultCatalog.DEFAULT_CATALOG.PRIMROSE;
-  private static final TContacts             CONTACT               = PRIMROSE.T_CONTACTS.as("contact");
-  private static final TAccounts             ACCOUNT               = PRIMROSE.T_ACCOUNTS.as("account");
-  private static final TAccountContacts      ACCOUNT_CONTACT       = PRIMROSE.T_ACCOUNT_CONTACTS.as("account_contact");
+  private static final Primrose PRIMROSE = DefaultCatalog.DEFAULT_CATALOG.PRIMROSE;
+  private static final TContacts CONTACT = PRIMROSE.T_CONTACTS.as("contact");
+  private static final TAccounts ACCOUNT = PRIMROSE.T_ACCOUNTS.as("account");
+  private static final TAccountContacts ACCOUNT_CONTACT = PRIMROSE.T_ACCOUNT_CONTACTS.as("account_contact");
   private static final TAccountContactTitles ACCOUNT_CONTACT_TITLE = PRIMROSE.T_ACCOUNT_CONTACT_TITLES
     .as("account_contact_title");
-  private static final TContactSearch        CONTACT_SEARCH        = PRIMROSE.T_CONTACT_SEARCH.as("contact_search");
-  private final DSLContext                   create;
+  private static final TContactSearch CONTACT_SEARCH = PRIMROSE.T_CONTACT_SEARCH.as("contact_search");
+  private final DSLContext create;
 
   public ContactsRepository(final DSLContext create) {
     this.create = create;
@@ -100,15 +100,35 @@ public class ContactsRepository {
       .execute();
   }
 
+  public void insert(final String contactTitle, final long contactId, final long accountId) {
+    create
+      .insertInto(PRIMROSE.T_ACCOUNT_CONTACTS)
+      .columns(
+        PRIMROSE.T_ACCOUNT_CONTACTS.ACCOUNT_ID,
+        PRIMROSE.T_ACCOUNT_CONTACTS.CONTACT_ID,
+        PRIMROSE.T_ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TITLE_ID)
+      .values(
+        DSL.value(accountId),
+        DSL.value(contactId),
+        create.select(PRIMROSE.T_ACCOUNT_CONTACT_TITLES.ACCOUNT_CONTACT_TITLE_ID)
+          .from(PRIMROSE.T_ACCOUNT_CONTACT_TITLES)
+          .where(PRIMROSE.T_ACCOUNT_CONTACT_TITLES.ACCOUNT_CONTACT_TITLE.eq(DSL.value(contactTitle)))
+          .asField())
+      .execute();
+  }
+
   public void insert(final String contactTitle, final long contactId, final String accountCode) {
     create
       .insertInto(PRIMROSE.T_ACCOUNT_CONTACTS)
       .columns(
-        PRIMROSE.T_ACCOUNT_CONTACTS.ACCOUNT_CODE,
+        PRIMROSE.T_ACCOUNT_CONTACTS.ACCOUNT_ID,
         PRIMROSE.T_ACCOUNT_CONTACTS.CONTACT_ID,
         PRIMROSE.T_ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TITLE_ID)
       .values(
-        DSL.value(accountCode),
+        create.select(PRIMROSE.T_ACCOUNTS.ACCOUNT_ID)
+        .from(PRIMROSE.T_ACCOUNTS)
+        .where(PRIMROSE.T_ACCOUNTS.ACCOUNT_CODE.eq(DSL.value(accountCode)))
+        .asField(),
         DSL.value(contactId),
         create.select(PRIMROSE.T_ACCOUNT_CONTACT_TITLES.ACCOUNT_CONTACT_TITLE_ID)
           .from(PRIMROSE.T_ACCOUNT_CONTACT_TITLES)
@@ -137,20 +157,38 @@ public class ContactsRepository {
       .fetchOptional(PRIMROSE.T_ACCOUNT_CONTACT_TITLES.ACCOUNT_CONTACT_TITLE_ID);
   }
 
-  public Map<String, List<Contact>> getByAccountUrl(final String account) {
+  public Map<String, List<Contact>> getByAccountId(final long accountId) {
     return create
       .select(
         CONTACT.CONTACT_ID,
-        CONTACT.CONTACT_URL,
+        CONTACT.CONTACT_CODE,
         CONTACT.PERSON_NAME,
         CONTACT.EMAIL,
         CONTACT.PHONE,
         ACCOUNT_CONTACT_TITLE.ACCOUNT_CONTACT_TITLE)
       .from(CONTACT)
       .leftJoin(ACCOUNT_CONTACT).on(ACCOUNT_CONTACT.CONTACT_ID.eq(CONTACT.CONTACT_ID))
-      .leftJoin(ACCOUNT).on(ACCOUNT.ACCOUNT_CODE.eq(ACCOUNT_CONTACT.ACCOUNT_CODE))
-      .leftJoin(ACCOUNT_CONTACT_TITLE).on(ACCOUNT_CONTACT_TITLE.ACCOUNT_CONTACT_TITLE_ID.eq(ACCOUNT_CONTACT.ACCOUNT_CONTACT_TITLE_ID))
-      .where(ACCOUNT.ACCOUNT_URL.eq(DSL.value(account)))
+      .leftJoin(ACCOUNT_CONTACT_TITLE)
+      .on(ACCOUNT_CONTACT_TITLE.ACCOUNT_CONTACT_TITLE_ID.eq(ACCOUNT_CONTACT.ACCOUNT_CONTACT_TITLE_ID))
+      .where(ACCOUNT_CONTACT.ACCOUNT_ID.eq(DSL.val(accountId)))
+      .fetchGroups(ACCOUNT_CONTACT_TITLE.ACCOUNT_CONTACT_TITLE, this::map);
+  }
+
+  public Map<String, List<Contact>> getByAccountCode(final String accountCode) {
+    return create
+      .select(
+        CONTACT.CONTACT_ID,
+        CONTACT.CONTACT_CODE,
+        CONTACT.PERSON_NAME,
+        CONTACT.EMAIL,
+        CONTACT.PHONE,
+        ACCOUNT_CONTACT_TITLE.ACCOUNT_CONTACT_TITLE)
+      .from(CONTACT)
+      .leftJoin(ACCOUNT_CONTACT).on(ACCOUNT_CONTACT.CONTACT_ID.eq(CONTACT.CONTACT_ID))
+      .leftJoin(ACCOUNT).on(ACCOUNT.ACCOUNT_ID.eq(ACCOUNT_CONTACT.ACCOUNT_ID))
+      .leftJoin(ACCOUNT_CONTACT_TITLE)
+      .on(ACCOUNT_CONTACT_TITLE.ACCOUNT_CONTACT_TITLE_ID.eq(ACCOUNT_CONTACT.ACCOUNT_CONTACT_TITLE_ID))
+      .where(ACCOUNT.ACCOUNT_CODE.eq(DSL.value(accountCode)))
       .fetchGroups(ACCOUNT_CONTACT_TITLE.ACCOUNT_CONTACT_TITLE, this::map);
   }
 
@@ -158,7 +196,7 @@ public class ContactsRepository {
     final Contact con = new Contact();
 
     con.setId(record.getValue(PRIMROSE.T_CONTACTS.CONTACT_ID));
-    con.setUrlCode(record.getValue(PRIMROSE.T_CONTACTS.CONTACT_URL));
+    con.setCode(record.getValue(PRIMROSE.T_CONTACTS.CONTACT_CODE));
     con.setPersonName(record.getValue(PRIMROSE.T_CONTACTS.PERSON_NAME));
     con.setEmail(record.getValue(PRIMROSE.T_CONTACTS.EMAIL));
     con.setPhone(record.getValue(PRIMROSE.T_CONTACTS.PHONE));

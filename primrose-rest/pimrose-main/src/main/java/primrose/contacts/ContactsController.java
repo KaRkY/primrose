@@ -20,7 +20,7 @@ import primrose.util.SearchResponse;
 @RequestMapping(path = "/contacts")
 public class ContactsController {
 
-  private final ContactsService    contactsService;
+  private final ContactsService contactsService;
   private final ContactsRepository contactsRepository;
 
   public ContactsController(final ContactsService contactsService, final ContactsRepository contactsRepository) {

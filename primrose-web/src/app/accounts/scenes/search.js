@@ -7,6 +7,7 @@ import { createStructuredSelector } from "reselect";
 import classnames from "classnames";
 import Link from "redux-first-router-link";
 import { Pager } from "@/components/pagination";
+import range from "lodash/range";
 
 import AccountActions from "../actions";
 import AccountSelectors from "../selectors";
@@ -28,18 +29,30 @@ const Search = ({
             <th>Code</th>
             <th>Display name</th>
             <th>Email</th>
+            <th>sdiofh</th>
             <th>Website</th>
             <th>Phone</th>
           </tr>
         </thead>
         <tbody>{
-          data && data.map(item => (
+          data ? 
+          data.map(item => (
             <tr key={item.code}>
               <td><Link to={AccountActions.creators.requestAccountsViewScene({ account: item.urlCode })}>{item.code}</Link></td>
               <td>{item.displayName}</td>
+              <td><div style={{ display: "inline-block", backgroundColor: "rgb(224, 224, 224)", width: "100%", height: "100%" }} /></td>
               <td><a href={`mailto:${item.email}`}>{item.email}</a></td>
               <td><a href={`//${item.website}`}>{item.website}</a></td>
               <td>{item.phone}</td>
+            </tr>
+          )) : 
+          range(16).map(item => (
+            <tr key={item.code}>
+              <td><div style={{ backgroundColor: "rgb(224, 224, 224)", width: "100%", height: "1rem", content: " " }} /></td>
+              <td><div style={{ backgroundColor: "rgb(224, 224, 224)", width: "100%", height: "1rem", content: " " }} /></td>
+              <td><div style={{ backgroundColor: "rgb(224, 224, 224)", width: "100%", height: "1rem", content: " " }} /></td>
+              <td><div style={{ backgroundColor: "rgb(224, 224, 224)", width: "100%", height: "1rem", content: " " }} /></td>
+              <td><div style={{ backgroundColor: "rgb(224, 224, 224)", width: "100%", height: "1rem", content: " " }} /></td>
             </tr>
           ))
         }</tbody>

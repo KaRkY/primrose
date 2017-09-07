@@ -5,11 +5,11 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import primrose.addresses.Address;
 
 public class Contact {
-  private long    id;
-  private String                     urlCode;
-  private String  personName;
-  private String  email;
-  private String  phone;
+  private long id;
+  private String code;
+  private String personName;
+  private String email;
+  private String phone;
   private Address address;
 
   public long getId() {
@@ -20,12 +20,12 @@ public class Contact {
     this.id = id;
   }
 
-  public String getUrlCode() {
-    return urlCode;
+  public String getCode() {
+    return code;
   }
 
-  public void setUrlCode(final String urlCode) {
-    this.urlCode = urlCode;
+  public void setCode(final String code) {
+    this.code = code;
   }
 
   public String getPersonName() {
@@ -65,7 +65,7 @@ public class Contact {
     final ToStringBuilder builder = new ToStringBuilder(this);
     builder
       .append("id", id)
-      .append("urlCode", urlCode)
+      .append("code", code)
       .append("personName", personName)
       .append("email", email)
       .append("phone", phone)

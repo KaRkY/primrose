@@ -8,11 +8,11 @@ import org.springframework.http.ResponseEntity;
 import primrose.repositories.SearchResult;
 
 public class SearchResponse<T> {
-  private final int     page;
-  private final int     requestedSize;
-  private final int     actualSize;
-  private final int     numberOfRecords;
-  private final int     numberOfPages;
+  private final int page;
+  private final int requestedSize;
+  private final int actualSize;
+  private final int numberOfRecords;
+  private final int numberOfPages;
   private final String query;
   private final List<T> records;
 

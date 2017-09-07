@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class RandomIdGenerator {
   private static final String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  private static final Random RND   = new SecureRandom();
+  private static final Random RND = new SecureRandom();
 
   public static String next64(final int length) {
     final StringBuilder builder = new StringBuilder();

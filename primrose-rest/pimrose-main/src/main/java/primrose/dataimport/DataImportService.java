@@ -19,10 +19,10 @@ import primrose.contacts.ContactsService;
 
 @Service
 public class DataImportService {
-  private final Logger           logger = LoggerFactory.getLogger(getClass());
-  private final AccountsService  accountsService;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final AccountsService accountsService;
   private final AddressesService addressService;
-  private final ContactsService  contactsService;
+  private final ContactsService contactsService;
 
   public DataImportService(final AccountsService accountsService, final AddressesService addressService,
     final ContactsService contactsService) {
@@ -49,7 +49,7 @@ public class DataImportService {
               .computeIfAbsent(
                 entry.getKey(),
                 key -> new ArrayList<>())
-              .add(addressService.save(account.getCode(), entry.getKey(), address));
+              .add(addressService.save(account.getId(), entry.getKey(), address));
           }
         }
 
@@ -59,7 +59,7 @@ public class DataImportService {
             importAccount
               .getContacts()
               .computeIfAbsent(entry.getKey(), key -> new ArrayList<>())
-              .add(contactsService.save(account.getCode(), entry.getKey(), contact));
+              .add(contactsService.save(account.getId(), entry.getKey(), contact));
           }
         }
       }
