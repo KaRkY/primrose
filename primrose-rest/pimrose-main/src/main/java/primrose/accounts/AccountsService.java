@@ -14,11 +14,9 @@ public class AccountsService {
 
   @Transactional
   public Account save(final Account account) {
-    final long id = accountsRepository.getNewId();
-    account.setId(id);
-    accountsRepository.insert(account);
-
-    return accountsRepository.getById(id);
+    final long accountId = accountsRepository.getNewId();
+    accountsRepository.insert(accountId, account);
+    return accountsRepository.getById(accountId);
   }
 
 }

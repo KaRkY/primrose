@@ -28,6 +28,9 @@
     <database.password>postgres</database.password>
 
     <jooq.version>3.9.4</jooq.version>
+    <guava.version>23.0</guava.version>
+    <immutables.version>2.5.5</immutables.version>
+    <jackson.version>2.9.1</jackson.version>
   </properties>
 
   <build>
@@ -65,6 +68,22 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.immutables</groupId>
+        <artifactId>value</artifactId>
+        <version>${immutables.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <repositories>
     <repository>

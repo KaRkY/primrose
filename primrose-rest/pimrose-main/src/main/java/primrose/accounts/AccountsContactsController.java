@@ -1,15 +1,15 @@
 package primrose.accounts;
 
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.Multimap;
+
 import primrose.contacts.Contact;
+import primrose.contacts.ContactType;
 import primrose.contacts.ContactsRepository;
 
 @RestController
@@ -22,7 +22,7 @@ public class AccountsContactsController {
   }
 
   @GetMapping()
-  public ResponseEntity<Map<String, List<Contact>>> search(@PathVariable("account") final String account) {
+  public ResponseEntity<Multimap<ContactType, Contact>> search(@PathVariable("account") final String account) {
     return ResponseEntity.ok(contactsRepository.getByAccountCode(account));
   }
 }

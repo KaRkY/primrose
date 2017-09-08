@@ -1,9 +1,7 @@
 package primrose.dataimport;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import primrose.accounts.Account;
 import primrose.accounts.AccountsService;
-import primrose.addresses.Address;
+import primrose.accounts.ImmutableAccount;
+import primrose.accounts.ImmutableAccount.Builder;
 import primrose.addresses.AddressesService;
-import primrose.contacts.Contact;
 import primrose.contacts.ContactsService;
 
 @Service
@@ -38,33 +36,17 @@ public class DataImportService {
     int current = 0;
 
     for (final Account account : accounts) {
-      final Account importAccount = accountsService.save(account);
+      final Builder accountBuilder = ImmutableAccount.builder().from(accountsService.save(account));
 
-      if (account.getAddresses() != null) {
-        importAccount.setAddresses(new HashMap<>());
-        for (final Map.Entry<String, List<Address>> entry : account.getAddresses().entrySet()) {
-          for (final Address address : entry.getValue()) {
-            importAccount
-              .getAddresses()
-              .computeIfAbsent(
-                entry.getKey(),
-                key -> new ArrayList<>())
-              .add(addressService.save(account.getId(), entry.getKey(), address));
-          }
-        }
+      account.addresses().forEach((key, value) -> {
+        accountBuilder.putAddresses(key, addressService.save(account.code(), key, value));
+      });
 
-        importAccount.setContacts(new HashMap<>());
-        for (final Map.Entry<String, List<Contact>> entry : account.getContacts().entrySet()) {
-          for (final Contact contact : entry.getValue()) {
-            importAccount
-              .getContacts()
-              .computeIfAbsent(entry.getKey(), key -> new ArrayList<>())
-              .add(contactsService.save(account.getId(), entry.getKey(), contact));
-          }
-        }
-      }
+      account.contacts().forEach((key, value) -> {
+        accountBuilder.putContacts(key, contactsService.save(account.code(), key, value));
+      });
 
-      result.add(importAccount);
+      result.add(accountBuilder.build());
       current++;
 
       if (current % 100 == 0) {

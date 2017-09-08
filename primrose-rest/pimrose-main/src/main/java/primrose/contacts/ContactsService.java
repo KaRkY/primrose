@@ -23,14 +23,12 @@ public class ContactsService {
     final long contactId = contactsRepository.getNewId();
     final long addressId = addressesRepository.getNewId();
 
-    contact.setId(contactId);
-    contact.getAddress().setId(addressId);
-    addressesRepository.insert(contact.getAddress());
-    contactsRepository.insert(contact, addressId);
+    addressesRepository.insert(addressId, contact.address());
+    contactsRepository.insert(contactId, contact, addressId);
 
-    Optional<Long> contactTitleId = contactsRepository.getContactTitle(contactTitle);
+    Optional<Long> contactTitleId = contactsRepository.getContactType(contactTitle);
     if (!contactTitleId.isPresent()) {
-      contactTitleId = Optional.of(contactsRepository.getNewContactTitleId());
+      contactTitleId = Optional.of(contactsRepository.getNewContactTypeId());
 
       contactsRepository.insert(contactTitleId.get(), contactTitle);
     }
@@ -41,23 +39,21 @@ public class ContactsService {
   }
 
   @Transactional
-  public Contact save(final long accountId, final String contactTitle, final Contact contact) {
+  public Contact save(final long accountId, final String contactType, final Contact contact) {
     final long contactId = contactsRepository.getNewId();
     final long addressId = addressesRepository.getNewId();
 
-    contact.setId(contactId);
-    contact.getAddress().setId(addressId);
-    addressesRepository.insert(contact.getAddress());
-    contactsRepository.insert(contact, addressId);
+    addressesRepository.insert(addressId, contact.address());
+    contactsRepository.insert(contactId, contact, addressId);
 
-    Optional<Long> contactTitleId = contactsRepository.getContactTitle(contactTitle);
+    Optional<Long> contactTitleId = contactsRepository.getContactType(contactType);
     if (!contactTitleId.isPresent()) {
-      contactTitleId = Optional.of(contactsRepository.getNewContactTitleId());
+      contactTitleId = Optional.of(contactsRepository.getNewContactTypeId());
 
-      contactsRepository.insert(contactTitleId.get(), contactTitle);
+      contactsRepository.insert(contactTitleId.get(), contactType);
     }
 
-    contactsRepository.insert(contactTitle, contactId, accountId);
+    contactsRepository.insert(contactType, contactId, accountId);
 
     return contact;
   }

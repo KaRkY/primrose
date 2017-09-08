@@ -4,8 +4,8 @@
  * 
  */
 create table t_account_types(
-  account_type_id   bigint  constraint nn_account_types_account_type_id not null,
-  account_type      text    constraint nn_account_types_account_type    not null,
+  account_type_id   bigint  constraint nn_account_types_account_type_id   not null,
+  account_type_code text    constraint nn_account_types_account_type_code not null,
   
   constraint pk_account_types primary key (account_type_id)
 );
@@ -65,8 +65,8 @@ create table t_address_search(
 comment on table t_account_search is 'Search index for Addresses with types.';
 
 create table t_account_address_types(
-  account_address_type_id bigint  constraint nn_account_address_types not null,
-  account_address_type    text,
+  account_address_type_id   bigint  constraint nn_account_address_type_id   not null,
+  account_address_type_code text    constraint nn_account_address_type_code not null,
   
   constraint pk_account_address_types primary key (account_address_type_id)
 );
@@ -105,35 +105,37 @@ create table t_contact_search(
 );
 comment on table t_account_search is 'Search index for Addresses with types.';
 
-create table t_account_contact_titles(
-  account_contact_title_id  bigint  constraint nn_account_contact_titles_account_contact_title_id not null,
-  account_contact_title     text,
+create table t_account_contact_types(
+  account_contact_type_id     bigint  constraint nn_account_contact_types_account_contact_type_id   not null,
+  account_contact_type_code   text    constraint nn_account_contact_types_account_contact_type_code not null,
+  account_contact_type_parent bigint,
   
-  constraint pk_account_contact_titles  primary key (account_contact_title_id)
+  constraint pk_account_contact_types       primary key (account_contact_type_id),
+  constraint fk_account_contact_type_parent foreign key (account_contact_type_parent) references t_account_contact_types(account_contact_type_id)
 );
-comment on table t_account_contact_titles is 'Enumeration of contact titles.';
+comment on table t_account_contact_types is 'Enumeration of contact types.';
 
 create table t_account_contacts(
   account_id                bigint  constraint nn_account_contacts_account_id   not null,
   contact_id                bigint  constraint nn_account_contacts_contact_id   not null,
-  account_contact_title_id  bigint,
+  account_contact_type_id  bigint,
   
   constraint pk_account_contacts              primary key (account_id, contact_id),
   constraint fk_account_contact_account       foreign key (account_id)              references t_accounts(account_id),
-  constraint fk_account_contact_contact       foreign key (contact_id)                references t_contacts(contact_id),
-  constraint fk_account_contact_contact_title foreign key (account_contact_title_id)  references t_account_contact_titles(account_contact_title_id)
+  constraint fk_account_contact_contact       foreign key (contact_id)              references t_contacts(contact_id),
+  constraint fk_account_contact_contact_type  foreign key (account_contact_type_id) references t_account_contact_types(account_contact_type_id)
 );
-comment on table t_account_contacts is 'Account contacts by title.';
+comment on table t_account_contacts is 'Account contacts by type.';
 
 /*
  * 
  * INDEXES
  * 
  */
-create unique index idx_account_contact_title on t_account_contact_titles(account_contact_title);
-create unique index idx_account_code           on t_accounts(account_code);
-create unique index idx_address_code           on t_addresses(address_code);
-create unique index idx_contact_code           on t_contacts(contact_code);
+create unique index idx_account_contact_type  on t_account_contact_types(account_contact_type_code);
+create unique index idx_account_code          on t_accounts(account_code);
+create unique index idx_address_code          on t_addresses(address_code);
+create unique index idx_contact_code          on t_contacts(contact_code);
 create index idx_accounts_full_text_search    on t_account_search using GIN (full_text_search);
 create index idx_addresses_full_text_search   on t_address_search using GIN (full_text_search);
 create index idx_contacts_full_text_search    on t_address_search using GIN (full_text_search);
@@ -143,10 +145,10 @@ create index idx_contacts_full_text_search    on t_address_search using GIN (ful
  * SEQUENCES
  * 
  */
-create sequence s_account         start with 1  increment by 1;
-create sequence s_address         start with 1  increment by 1;
-create sequence s_contact         start with 1  increment by 1;
-create sequence s_contact_titles  start with 1  increment by 1;
+create sequence s_account       start with 1  increment by 1;
+create sequence s_address       start with 1  increment by 1;
+create sequence s_contact       start with 1  increment by 1;
+create sequence s_contact_types start with 1  increment by 1;
 
 
 /*
@@ -154,15 +156,21 @@ create sequence s_contact_titles  start with 1  increment by 1;
  * DATA
  * 
  */
-insert into t_account_types(account_type_id, account_type) values 
-(1, 'Customer'),
-(2, 'Partner'),
-(3, 'Investor'),
-(4, 'Reseller');
+insert into t_account_types(account_type_id, account_type_code) values 
+(1, 'customer'),
+(2, 'partner'),
+(3, 'investor'),
+(4, 'reseller');
 
-insert into t_account_address_types(account_address_type_id, account_address_type) values
-(1, 'Billing'),
-(2, 'Shipping');
+insert into t_account_address_types(account_address_type_id, account_address_type_code) values
+(1, 'billing'),
+(2, 'shipping');
+
+insert into t_account_contact_types(account_contact_type_id, account_contact_type_parent, account_contact_type_code) values
+(1, null, 'seller'),
+(2, null, 'manager'),
+(5, null, 'developer'),
+(6, null, 'consultant');
 
 /*
  *
@@ -193,7 +201,7 @@ declare
   account_type text;
   result tsvector;
 begin
-  select aty.account_type into account_type
+  select aty.account_type_code into account_type
   from t_account_types aty
   where account_type_id = account.account_type_id;
 
@@ -369,6 +377,6 @@ create trigger search_insert  after   insert on t_addresses for each row execute
 create trigger search_update  after   update on t_addresses for each row execute procedure address_full_text_search_update();
 create trigger search_insert  after   insert on t_contacts  for each row execute procedure contact_full_text_search_insert();
 create trigger search_update  after   update on t_contacts  for each row execute procedure contact_full_text_search_update();
-create trigger account_code    before  insert on t_accounts  for each row execute procedure account_unique_code();
-create trigger address_code    before  insert on t_addresses for each row execute procedure address_unique_code();
-create trigger contact_code    before  insert on t_contacts  for each row execute procedure contact_unique_code();
+create trigger account_code   before  insert on t_accounts  for each row execute procedure account_unique_code();
+create trigger address_code   before  insert on t_addresses for each row execute procedure address_unique_code();
+create trigger contact_code   before  insert on t_contacts  for each row execute procedure contact_unique_code();

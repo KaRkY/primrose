@@ -1,6 +1,6 @@
 [
   '{{repeat(20000, 20000)}}',{
-    type: '{{random("Customer", "Partner", "Investor", "Reseller")}}',
+    type: '{{random("customer", "partner", "investor", "reseller")}}',
     isCompany: '{{bool()}}',
     firstName: '{{firstName()}}',
     surname: '{{surname()}}',
@@ -9,7 +9,7 @@
     phone: '{{phone("xxxxxxxxx")}}',
     addresses: [
       '{{repeat(1, 4)}}', {
-        type: '{{random("Billing", "Shipping")}}',
+        type: '{{random("billing", "shipping")}}',
         street: '{{street()}}',
         city: '{{city()}}',
         postalCode: '{{integer(1000, 99999)}}',
@@ -19,7 +19,7 @@
     ],
     contacts: [
       '{{repeat(0, 5)}}', {
-        type: '{{random("Seller", "Sales Manager", "Personal Manager", "Manager","IT Developer","Consultant")}}',
+        type: '{{random("seller", "manager", "developer", "consultant")}}',
         firstName: '{{firstName()}}',
         surname: '{{surname()}}',
         phone: '{{phone("xxxxxxxxx")}}',

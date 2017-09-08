@@ -1,13 +1,16 @@
 package primrose.addresses;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collector;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.exception.NoDataFoundException;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import pimrose.jooq.DefaultCatalog;
 import pimrose.jooq.Primrose;
@@ -47,7 +50,7 @@ public class AddressesRepository {
         DSL.value(addressId),
         create.select(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES.ACCOUNT_ADDRESS_TYPE_ID)
           .from(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES)
-          .where(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES.ACCOUNT_ADDRESS_TYPE.eq(DSL.value(addressType)))
+          .where(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES.ACCOUNT_ADDRESS_TYPE_CODE.eq(DSL.value(addressType)))
           .asField())
       .execute();
   }
@@ -67,12 +70,12 @@ public class AddressesRepository {
         DSL.value(addressId),
         create.select(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES.ACCOUNT_ADDRESS_TYPE_ID)
           .from(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES)
-          .where(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES.ACCOUNT_ADDRESS_TYPE.eq(DSL.value(addressType)))
+          .where(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES.ACCOUNT_ADDRESS_TYPE_CODE.eq(DSL.value(addressType)))
           .asField())
       .execute();
   }
 
-  public void insert(final Address address) {
+  public void insert(final long addressId, final Address address) {
     create.insertInto(PRIMROSE.T_ADDRESSES)
       .columns(
         PRIMROSE.T_ADDRESSES.ADDRESS_ID,
@@ -82,19 +85,18 @@ public class AddressesRepository {
         PRIMROSE.T_ADDRESSES.COUNTRY,
         PRIMROSE.T_ADDRESSES.CITY)
       .values(
-        DSL.value(address.getId()),
-        DSL.value(address.getStreet()),
-        DSL.value(address.getState()),
-        DSL.value(address.getPostalCode()),
-        DSL.value(address.getCountry()),
-        DSL.value(address.getCity()))
+        DSL.value(addressId),
+        DSL.value(address.street()),
+        DSL.value(address.state()),
+        DSL.value(address.postalCode()),
+        DSL.value(address.country()),
+        DSL.value(address.city()))
       .execute();
   }
 
   public Address get(final long addressId) {
     return create
       .select(
-        ADDRESS.ADDRESS_ID,
         ADDRESS.ADDRESS_CODE,
         ADDRESS.STREET,
         ADDRESS.STATE,
@@ -107,56 +109,74 @@ public class AddressesRepository {
       .orElseThrow(() -> new NoDataFoundException("Cursor did not return any result"));
   }
 
-  public Map<String, List<Address>> getByAccountId(final long accountId) {
+  public Multimap<AddressType, Address> getByAccountId(final long accountId) {
     return create
       .select(
-        ADDRESS.ADDRESS_ID,
         ADDRESS.ADDRESS_CODE,
         ADDRESS.STREET,
         ADDRESS.STATE,
         ADDRESS.POSTAL_CODE,
         ADDRESS.COUNTRY,
         ADDRESS.CITY,
-        ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE)
+        ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)
       .from(ADDRESS)
       .leftJoin(ACCOUNT_ADDRESS).on(ACCOUNT_ADDRESS.ADDRESS_ID.eq(ADDRESS.ADDRESS_ID))
       .leftJoin(ACCOUNT_ADDRESS_TYPE)
       .on(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_ID.eq(ACCOUNT_ADDRESS.ACCOUNT_ADDRESS_TYPE_ID))
       .where(ACCOUNT_ADDRESS.ACCOUNT_ID.eq(DSL.value(accountId)))
-      .fetchGroups(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES.ACCOUNT_ADDRESS_TYPE, this::map);
+      .fetch()
+      .stream()
+      .collect(Collector.of(
+        HashMultimap::create,
+        (map, row) -> map.put(AddressType.of(row.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)), map(row)),
+        (map1, map2) -> {
+          map1.putAll(map2);
+          return map1;
+        }));
   }
 
-  public Map<String, List<Address>> getByAccountCode(final String accountCode) {
+  public Multimap<AddressType, Address> getByAccountCode(final String accountCode) {
     return create
       .select(
-        ADDRESS.ADDRESS_ID,
         ADDRESS.ADDRESS_CODE,
         ADDRESS.STREET,
         ADDRESS.STATE,
         ADDRESS.POSTAL_CODE,
         ADDRESS.COUNTRY,
         ADDRESS.CITY,
-        ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE)
+        ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)
       .from(ADDRESS)
       .leftJoin(ACCOUNT_ADDRESS).on(ACCOUNT_ADDRESS.ADDRESS_ID.eq(ADDRESS.ADDRESS_ID))
       .leftJoin(ACCOUNT).on(ACCOUNT.ACCOUNT_ID.eq(ACCOUNT_ADDRESS.ACCOUNT_ID))
       .leftJoin(ACCOUNT_ADDRESS_TYPE)
       .on(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_ID.eq(ACCOUNT_ADDRESS.ACCOUNT_ADDRESS_TYPE_ID))
       .where(ACCOUNT.ACCOUNT_CODE.eq(DSL.value(accountCode)))
-      .fetchGroups(PRIMROSE.T_ACCOUNT_ADDRESS_TYPES.ACCOUNT_ADDRESS_TYPE, this::map);
+      .fetch()
+      .stream()
+      .collect(Collector.of(
+        HashMultimap::create,
+        (map, row) -> map.put(AddressType.of(row.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)), map(row)),
+        (map1, map2) -> {
+          map1.putAll(map2);
+          return map1;
+        }));
+  }
+
+  public List<AddressType> getTypes() {
+    return create
+      .select(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)
+      .from(ACCOUNT_ADDRESS_TYPE)
+      .fetch(record -> AddressType.of(record.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)));
   }
 
   private Address map(final Record record) {
-    final Address result = new Address();
-
-    result.setId(record.getValue(PRIMROSE.T_ADDRESSES.ADDRESS_ID));
-    result.setCode(record.getValue(PRIMROSE.T_ADDRESSES.ADDRESS_CODE));
-    result.setStreet(record.getValue(PRIMROSE.T_ADDRESSES.STREET));
-    result.setState(record.getValue(PRIMROSE.T_ADDRESSES.STATE));
-    result.setPostalCode(record.getValue(PRIMROSE.T_ADDRESSES.POSTAL_CODE));
-    result.setCountry(record.getValue(PRIMROSE.T_ADDRESSES.COUNTRY));
-    result.setCity(record.getValue(PRIMROSE.T_ADDRESSES.CITY));
-
-    return result;
+    return ImmutableAddress.builder()
+      .code(record.getValue(PRIMROSE.T_ADDRESSES.ADDRESS_CODE))
+      .street(record.getValue(PRIMROSE.T_ADDRESSES.STREET))
+      .state(record.getValue(PRIMROSE.T_ADDRESSES.STATE))
+      .postalCode(record.getValue(PRIMROSE.T_ADDRESSES.POSTAL_CODE))
+      .country(record.getValue(PRIMROSE.T_ADDRESSES.COUNTRY))
+      .city(record.getValue(PRIMROSE.T_ADDRESSES.CITY))
+      .build();
   }
 }

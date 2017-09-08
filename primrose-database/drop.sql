@@ -24,6 +24,9 @@ drop constraint if exists fk_account_address_type;
 alter table if exists t_contact_search
 drop constraint if exists fk_contact_search_contact;
 
+alter table if exists t_account_contact_types
+drop constraint if exists fk_account_contact_type_parent;
+
 alter table if exists t_account_contacts
 drop constraint if exists fk_account_contact_account;
 
@@ -31,7 +34,7 @@ alter table if exists t_account_contacts
 drop constraint if exists fk_account_contact_contact;
 
 alter table if exists t_account_contacts
-drop constraint if exists fk_account_contact_contact_title;
+drop constraint if exists fk_account_contact_contact_type;
 
 /*
  * 
@@ -48,7 +51,7 @@ drop function if exists contact_search_vector(contact t_contacts);
  * INDEXES
  * 
  */
-drop index if exists idx_account_contact_title;
+drop index if exists idx_account_contact_type;
 drop index if exists idx_account_code;
 drop index if exists idx_address_code;
 drop index if exists idx_contact_code;
@@ -71,7 +74,7 @@ drop table if exists t_account_addresses;
 drop table if exists t_contacts;
 drop table if exists t_contact_search;
 drop table if exists t_account_contacts;
-drop table if exists t_account_contact_titles;
+drop table if exists t_account_contact_types;
 
 /*
  * 
@@ -81,7 +84,7 @@ drop table if exists t_account_contact_titles;
 drop sequence if exists s_account;
 drop sequence if exists s_address;
 drop sequence if exists s_contact;
-drop sequence if exists s_contact_titles;
+drop sequence if exists s_contact_types;
 
 /*
  * 
