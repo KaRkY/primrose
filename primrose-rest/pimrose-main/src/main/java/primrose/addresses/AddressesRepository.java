@@ -109,7 +109,7 @@ public class AddressesRepository {
       .orElseThrow(() -> new NoDataFoundException("Cursor did not return any result"));
   }
 
-  public Multimap<AddressType, Address> getByAccountId(final long accountId) {
+  public Multimap<String, Address> getByAccountId(final long accountId) {
     return create
       .select(
         ADDRESS.ADDRESS_CODE,
@@ -128,14 +128,14 @@ public class AddressesRepository {
       .stream()
       .collect(Collector.of(
         HashMultimap::create,
-        (map, row) -> map.put(AddressType.of(row.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)), map(row)),
+        (map, row) -> map.put(row.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE), map(row)),
         (map1, map2) -> {
           map1.putAll(map2);
           return map1;
         }));
   }
 
-  public Multimap<AddressType, Address> getByAccountCode(final String accountCode) {
+  public Multimap<String, Address> getByAccountCode(final String accountCode) {
     return create
       .select(
         ADDRESS.ADDRESS_CODE,
@@ -155,7 +155,7 @@ public class AddressesRepository {
       .stream()
       .collect(Collector.of(
         HashMultimap::create,
-        (map, row) -> map.put(AddressType.of(row.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)), map(row)),
+        (map, row) -> map.put(row.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE), map(row)),
         (map1, map2) -> {
           map1.putAll(map2);
           return map1;
@@ -166,7 +166,11 @@ public class AddressesRepository {
     return create
       .select(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)
       .from(ACCOUNT_ADDRESS_TYPE)
-      .fetch(record -> AddressType.of(record.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE)));
+      .fetch(record -> ImmutableAddressType
+        .builder()
+        .code(record.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_CODE))
+        .def(record.get(ACCOUNT_ADDRESS_TYPE.ACCOUNT_ADDRESS_TYPE_DEFAULT))
+        .build());
   }
 
   private Address map(final Record record) {

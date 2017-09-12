@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Multimap;
 
 import primrose.contacts.Contact;
-import primrose.contacts.ContactType;
 import primrose.contacts.ContactsRepository;
 
 @RestController
@@ -22,7 +21,7 @@ public class AccountsContactsController {
   }
 
   @GetMapping()
-  public ResponseEntity<Multimap<ContactType, Contact>> search(@PathVariable("account") final String account) {
+  public ResponseEntity<Multimap<String, Contact>> search(@PathVariable("account") final String account) {
     return ResponseEntity.ok(contactsRepository.getByAccountCode(account));
   }
 }

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Multimap;
 
 import primrose.addresses.Address;
-import primrose.addresses.AddressType;
 import primrose.addresses.AddressesRepository;
 
 @RestController
@@ -22,9 +21,7 @@ public class AccountsAddressesController {
   }
 
   @GetMapping()
-  public ResponseEntity<Multimap<AddressType, Address>> search(@PathVariable("account") final String account) {
-    final Multimap<AddressType, Address> byAccountCode = addressesRepository.getByAccountCode(account);
-    System.out.println(byAccountCode);
-    return ResponseEntity.ok(byAccountCode);
+  public ResponseEntity<Multimap<String, Address>> search(@PathVariable("account") final String account) {
+    return ResponseEntity.ok(addressesRepository.getByAccountCode(account));
   }
 }

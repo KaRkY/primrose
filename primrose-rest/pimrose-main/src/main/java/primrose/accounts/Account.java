@@ -20,7 +20,7 @@ public interface Account {
 
   String code();
 
-  AccountType type();
+  String type();
 
   String displayName();
 

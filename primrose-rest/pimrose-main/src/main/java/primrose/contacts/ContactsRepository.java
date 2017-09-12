@@ -1,15 +1,11 @@
 package primrose.contacts;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collector;
 
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record2;
-import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
@@ -22,10 +18,7 @@ import pimrose.jooq.Sequences;
 import pimrose.jooq.tables.TAccountContactTypes;
 import pimrose.jooq.tables.TAccountContacts;
 import pimrose.jooq.tables.TAccounts;
-import pimrose.jooq.tables.TContactSearch;
 import pimrose.jooq.tables.TContacts;
-import primrose.repositories.SearchParameters;
-import primrose.repositories.SearchResult;
 
 @Repository
 public class ContactsRepository {
@@ -35,7 +28,6 @@ public class ContactsRepository {
   private static final TAccountContacts ACCOUNT_CONTACT = PRIMROSE.T_ACCOUNT_CONTACTS.as("account_contact");
   private static final TAccountContactTypes ACCOUNT_CONTACT_TYPE = PRIMROSE.T_ACCOUNT_CONTACT_TYPES
     .as("account_contact_title");
-  private static final TContactSearch CONTACT_SEARCH = PRIMROSE.T_CONTACT_SEARCH.as("contact_search");
   private final DSLContext create;
 
   public ContactsRepository(final DSLContext create) {
@@ -48,42 +40,6 @@ public class ContactsRepository {
 
   public long getNewContactTypeId() {
     return create.select(Sequences.S_CONTACT_TYPES.nextval()).fetchOne().value1();
-  }
-
-  public SearchResult<Contact> search(final SearchParameters searchParameters) {
-    final List<Condition> conditions = new ArrayList<>();
-
-    // Create condition for full text search
-    if (searchParameters.getQuery() != null) {
-      conditions.add(DSL
-        .condition(
-          "{0} @@ plainto_tsquery('pg_catalog.english', {1})",
-          CONTACT_SEARCH.FULL_TEXT_SEARCH,
-          searchParameters.getQuery()));
-    }
-
-    final Integer size = searchParameters.getSize();
-    final Integer page = searchParameters.getPage();
-
-    final Table<Record2<Long, Integer>> filtered = create
-      .select(CONTACT.CONTACT_ID, DSL.count().over().as("count"))
-      .from(CONTACT)
-      .leftJoin(CONTACT_SEARCH).on(CONTACT_SEARCH.CONTACT_ID.eq(CONTACT.CONTACT_ID))
-      .where(conditions)
-      .limit(size == null ? Integer.MAX_VALUE : size)
-      .offset(page == null || size == null ? 0 : page * size - size)
-      .asTable("filtered_contact");
-
-    return SearchResult.of(create
-      .select(
-        filtered.field(1, Integer.class),
-        CONTACT.CONTACT_CODE,
-        CONTACT.PERSON_NAME,
-        CONTACT.EMAIL,
-        CONTACT.PHONE)
-      .from(filtered)
-      .leftJoin(CONTACT).on(CONTACT.CONTACT_ID.eq(filtered.field(0, Long.class)))
-      .fetchGroups(filtered.field(1, Integer.class), this::map));
   }
 
   public void insert(final long id, final Contact contact, final long addressId) {
@@ -161,7 +117,7 @@ public class ContactsRepository {
       .fetchOptional(PRIMROSE.T_ACCOUNT_CONTACT_TYPES.ACCOUNT_CONTACT_TYPE_ID);
   }
 
-  public Multimap<ContactType, Contact> getByAccountId(final long accountId) {
+  public Multimap<String, Contact> getByAccountId(final long accountId) {
     return create
       .select(
         CONTACT.CONTACT_CODE,
@@ -178,14 +134,14 @@ public class ContactsRepository {
       .stream()
       .collect(Collector.of(
         HashMultimap::create,
-        (map, row) -> map.put(ContactType.of(row.get(ACCOUNT_CONTACT_TYPE.ACCOUNT_CONTACT_TYPE_CODE)), map(row)),
+        (map, row) -> map.put(row.get(ACCOUNT_CONTACT_TYPE.ACCOUNT_CONTACT_TYPE_CODE), map(row)),
         (map1, map2) -> {
           map1.putAll(map2);
           return map1;
         }));
   }
 
-  public Multimap<ContactType, Contact> getByAccountCode(final String accountCode) {
+  public Multimap<String, Contact> getByAccountCode(final String accountCode) {
     return create
       .select(
         CONTACT.CONTACT_CODE,
@@ -203,7 +159,7 @@ public class ContactsRepository {
       .stream()
       .collect(Collector.of(
         HashMultimap::create,
-        (map, row) -> map.put(ContactType.of(row.get(ACCOUNT_CONTACT_TYPE.ACCOUNT_CONTACT_TYPE_CODE)), map(row)),
+        (map, row) -> map.put(row.get(ACCOUNT_CONTACT_TYPE.ACCOUNT_CONTACT_TYPE_CODE), map(row)),
         (map1, map2) -> {
           map1.putAll(map2);
           return map1;
@@ -214,7 +170,11 @@ public class ContactsRepository {
     return create
       .select(ACCOUNT_CONTACT_TYPE.ACCOUNT_CONTACT_TYPE_CODE)
       .from(ACCOUNT_CONTACT_TYPE)
-      .fetch(record -> ContactType.of(record.get(ACCOUNT_CONTACT_TYPE.ACCOUNT_CONTACT_TYPE_CODE)));
+      .fetch(record -> ImmutableContactType
+        .builder()
+        .code(record.get(ACCOUNT_CONTACT_TYPE.ACCOUNT_CONTACT_TYPE_CODE))
+        .def(record.get(ACCOUNT_CONTACT_TYPE.ACCOUNT_CONTACT_TYPE_DEFAULT))
+        .build());
   }
 
   private Contact map(final Record record) {

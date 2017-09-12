@@ -1,29 +1,16 @@
 package primrose.contacts;
 
-import java.util.Objects;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ValidationMethod;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class ContactType {
-  private final String code;
-
-  private ContactType(final String code) {
-    this.code = code;
-  }
-
-  public String getCode() {
-    return code;
-  }
-
-  @Override
-  @JsonValue
-  public String toString() {
-    return code;
-  }
-
-  @JsonCreator
-  public static ContactType of(final String code) {
-    return new ContactType(Objects.requireNonNull(code, "code"));
-  }
+@Value.Immutable
+@Value.Style(validationMethod = ValidationMethod.NONE)
+@JsonSerialize(as = ImmutableContactType.class)
+@JsonDeserialize(as = ImmutableContactType.class)
+public interface ContactType {
+  String code();
+  String def();
 }

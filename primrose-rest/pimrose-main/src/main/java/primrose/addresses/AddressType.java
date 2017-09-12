@@ -1,29 +1,16 @@
 package primrose.addresses;
 
-import java.util.Objects;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ValidationMethod;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class AddressType {
-  private final String code;
-
-  private AddressType(final String code) {
-    this.code = code;
-  }
-
-  public String getCode() {
-    return code;
-  }
-
-  @Override
-  @JsonValue
-  public String toString() {
-    return code;
-  }
-
-  @JsonCreator
-  public static AddressType of(final String code) {
-    return new AddressType(Objects.requireNonNull(code, "code"));
-  }
+@Value.Immutable
+@Value.Style(validationMethod = ValidationMethod.NONE)
+@JsonSerialize(as = ImmutableAddressType.class)
+@JsonDeserialize(as = ImmutableAddressType.class)
+public interface AddressType {
+  String code();
+  String def();
 }
