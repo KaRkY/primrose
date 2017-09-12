@@ -4,8 +4,9 @@
  * 
  */
 create table t_account_types(
-  account_type_id   bigint  constraint nn_account_types_account_type_id   not null,
-  account_type_code text    constraint nn_account_types_account_type_code not null,
+  account_type_id       bigint  constraint nn_account_types_account_type_id       not null,
+  account_type_code     text    constraint nn_account_types_account_type_code     not null,
+  account_type_default  text    constraint nn_account_types_account_type_default  not null,
   
   constraint pk_account_types primary key (account_type_id)
 );
@@ -33,15 +34,6 @@ create table t_accounts(
 );
 comment on table t_accounts is 'Actual account data.';
 
-create table t_account_search(
-  account_id        bigint      constraint nn_accounts_account_id not null,
-  full_text_search  tsvector,
-  
-  constraint pk_account_search          primary key (account_id),
-  constraint fk_account_search_account  foreign key (account_id)     references t_accounts(account_id)
-);
-comment on table t_account_search is 'Search index for Accounts with types.';
-
 create table t_addresses(
   address_id        bigint  constraint nn_addresses_address_id    not null,
   address_code      text    constraint nn_addresses_address_code  not null default '',
@@ -55,18 +47,10 @@ create table t_addresses(
 );
 comment on table t_addresses is 'Simple address data.';
 
-create table t_address_search(
-  address_id        bigint  constraint nn_addresses_address_id  not null,
-  full_text_search  tsvector,
-  
-  constraint pk_address_search          primary key (address_id),
-  constraint fk_address_search_address  foreign key (address_id)     references t_addresses(address_id)
-);
-comment on table t_account_search is 'Search index for Addresses with types.';
-
 create table t_account_address_types(
-  account_address_type_id   bigint  constraint nn_account_address_type_id   not null,
-  account_address_type_code text    constraint nn_account_address_type_code not null,
+  account_address_type_id       bigint  constraint nn_account_address_type_id       not null,
+  account_address_type_code     text    constraint nn_account_address_type_code     not null,
+  account_address_type_default  text    constraint nn_account_address_type_default  not null,
   
   constraint pk_account_address_types primary key (account_address_type_id)
 );
@@ -96,19 +80,11 @@ create table t_contacts(
 );
 comment on table t_contacts is 'Contact data.';
 
-create table t_contact_search(
-  contact_id        bigint  constraint nn_contacts_contact_id not null,
-  full_text_search  tsvector,
-  
-  constraint pk_contact_search          primary key (contact_id),
-  constraint fk_contact_search_contact  foreign key (contact_id)     references t_contacts(contact_id)
-);
-comment on table t_account_search is 'Search index for Addresses with types.';
-
 create table t_account_contact_types(
-  account_contact_type_id     bigint  constraint nn_account_contact_types_account_contact_type_id   not null,
-  account_contact_type_code   text    constraint nn_account_contact_types_account_contact_type_code not null,
-  account_contact_type_parent bigint,
+  account_contact_type_id       bigint  constraint nn_account_contact_types_account_contact_type_id       not null,
+  account_contact_type_code     text    constraint nn_account_contact_types_account_contact_type_code     not null,
+  account_contact_type_default  text    constraint nn_account_contact_types_account_contact_type_default  not null,
+  account_contact_type_parent   bigint,
   
   constraint pk_account_contact_types       primary key (account_contact_type_id),
   constraint fk_account_contact_type_parent foreign key (account_contact_type_parent) references t_account_contact_types(account_contact_type_id)
@@ -136,9 +112,6 @@ create unique index idx_account_contact_type  on t_account_contact_types(account
 create unique index idx_account_code          on t_accounts(account_code);
 create unique index idx_address_code          on t_addresses(address_code);
 create unique index idx_contact_code          on t_contacts(contact_code);
-create index idx_accounts_full_text_search    on t_account_search using GIN (full_text_search);
-create index idx_addresses_full_text_search   on t_address_search using GIN (full_text_search);
-create index idx_contacts_full_text_search    on t_address_search using GIN (full_text_search);
 
 /*
  * 
@@ -156,21 +129,21 @@ create sequence s_contact_types start with 1  increment by 1;
  * DATA
  * 
  */
-insert into t_account_types(account_type_id, account_type_code) values 
-(1, 'customer'),
-(2, 'partner'),
-(3, 'investor'),
-(4, 'reseller');
+insert into t_account_types(account_type_id, account_type_code, account_type_default) values 
+(1, 'customer', 'Customer'),
+(2, 'partner',  'Partner'),
+(3, 'investor', 'Investor'),
+(4, 'reseller', 'Reseller');
 
-insert into t_account_address_types(account_address_type_id, account_address_type_code) values
-(1, 'billing'),
-(2, 'shipping');
+insert into t_account_address_types(account_address_type_id, account_address_type_code, account_address_type_default) values
+(1, 'billing',  'Billing'),
+(2, 'shipping', 'Shipping');
 
-insert into t_account_contact_types(account_contact_type_id, account_contact_type_parent, account_contact_type_code) values
-(1, null, 'seller'),
-(2, null, 'manager'),
-(5, null, 'developer'),
-(6, null, 'consultant');
+insert into t_account_contact_types(account_contact_type_id, account_contact_type_parent, account_contact_type_code, account_contact_type_default) values
+(1, null, 'seller',     'Seller'),
+(2, null, 'manager',    'Manager'),
+(5, null, 'developer',  'Developer'),
+(6, null, 'consultant', 'Consultant');
 
 /*
  *
@@ -194,106 +167,6 @@ begin
 
   return result;
 end;
-$$ LANGUAGE plpgsql;
-
-create function account_search_vector(account t_accounts) returns tsvector as $$
-declare
-  account_type text;
-  result tsvector;
-begin
-  select aty.account_type_code into account_type
-  from t_account_types aty
-  where account_type_id = account.account_type_id;
-
-  result := 
-    to_tsvector('pg_catalog.english', account.account_id::text) ||
-    to_tsvector('pg_catalog.english', coalesce(account.display_name, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(account.full_name, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(account.email, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(account.phone, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(account.website, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(account.description, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(account_type, ''));
-    
-    return result;
-end
-$$ LANGUAGE plpgsql;
-
-create function address_search_vector(address t_addresses) returns tsvector as $$
-declare
-  result tsvector;
-begin
-  result := 
-    to_tsvector('pg_catalog.english', address.address_id::text) ||
-    to_tsvector('pg_catalog.english', coalesce(address.street, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(address.city, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(address.postal_code, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(address.state, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(address.country, ''));
-    
-    return result;
-end
-$$ LANGUAGE plpgsql;
-
-create function contact_search_vector(contact t_contacts) returns tsvector as $$
-declare
-  address t_addresses;
-  result tsvector;
-begin
-  
-  select * into address from t_addresses a where a.address_id = contact.address_id;
-  result := 
-    to_tsvector('pg_catalog.english', contact.contact_id::text) ||
-    to_tsvector('pg_catalog.english', coalesce(contact.person_name, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(contact.email, '')) ||
-    to_tsvector('pg_catalog.english', coalesce(contact.phone, '')) ||
-    address_search_vector(address);
-    
-    return result;
-end
-$$ LANGUAGE plpgsql;
-
-create function account_full_text_search_insert() returns trigger as $$
-begin
-  insert into t_account_search(account_id, full_text_search) values (new.account_id, account_search_vector(new));
-  return new;
-end
-$$ LANGUAGE plpgsql;
-
-create function account_full_text_search_update() returns trigger as $$
-begin
-	update t_account_search set full_text_search = account_search_vector(new) where account_id = new.account_id;
-  return new;
-end
-$$ LANGUAGE plpgsql;
-
-create function address_full_text_search_insert() returns trigger as $$
-begin
-  insert into t_address_search(address_id, full_text_search) values (new.address_id, address_search_vector(new));
-  return new;
-end
-$$ LANGUAGE plpgsql;
-
-create function address_full_text_search_update() returns trigger as $$
-begin
-  update t_address_search set full_text_search = address_search_vector(new) where address_id = new.address_id;
-  update t_contact_search c set full_text_search = contact_search_vector(c) where c.address_id = new.address_id;
-  return new;
-end
-$$ LANGUAGE plpgsql;
-
-create function contact_full_text_search_insert() returns trigger as $$
-begin
-  insert into t_contact_search(contact_id, full_text_search) values (new.contact_id, contact_search_vector(new));
-  return new;
-end
-$$ LANGUAGE plpgsql;
-
-create function contact_full_text_search_update() returns trigger as $$
-begin
-  update t_contact_search set full_text_search = contact_search_vector(new) where contact_id = new.contact_id;
-  return new;
-end
 $$ LANGUAGE plpgsql;
 
 create function account_unique_code() returns trigger as $$
@@ -371,12 +244,6 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create trigger search_insert  after   insert on t_accounts  for each row execute procedure account_full_text_search_insert();
-create trigger search_update  after   update on t_accounts  for each row execute procedure account_full_text_search_update();
-create trigger search_insert  after   insert on t_addresses for each row execute procedure address_full_text_search_insert();
-create trigger search_update  after   update on t_addresses for each row execute procedure address_full_text_search_update();
-create trigger search_insert  after   insert on t_contacts  for each row execute procedure contact_full_text_search_insert();
-create trigger search_update  after   update on t_contacts  for each row execute procedure contact_full_text_search_update();
 create trigger account_code   before  insert on t_accounts  for each row execute procedure account_unique_code();
 create trigger address_code   before  insert on t_addresses for each row execute procedure address_unique_code();
 create trigger contact_code   before  insert on t_contacts  for each row execute procedure contact_unique_code();

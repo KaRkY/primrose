@@ -6,12 +6,6 @@
 alter table if exists t_accounts
 drop constraint if exists fk_account_type;
 
-alter table if exists t_account_search
-drop constraint if exists fk_account_search_account;
-
-alter table if exists t_address_search
-drop constraint if exists fk_address_search_address;
-
 alter table if exists t_account_addresses
 drop constraint if exists fk_account_address_account;
 
@@ -20,9 +14,6 @@ drop constraint if exists fk_account_address_address;
 
 alter table if exists t_account_addresses
 drop constraint if exists fk_account_address_type;
-
-alter table if exists t_contact_search
-drop constraint if exists fk_contact_search_contact;
 
 alter table if exists t_account_contact_types
 drop constraint if exists fk_account_contact_type_parent;
@@ -55,9 +46,6 @@ drop index if exists idx_account_contact_type;
 drop index if exists idx_account_code;
 drop index if exists idx_address_code;
 drop index if exists idx_contact_code;
-drop index if exists idx_accounts_full_text_search;
-drop index if exists idx_addresses_full_text_search;
-drop index if exists idx_contacts_full_text_search;
 
 /*
  * 
@@ -91,12 +79,6 @@ drop sequence if exists s_contact_types;
  * TRIGGER FUNCTIONS
  * 
  */
-drop function if exists account_full_text_search_insert();
-drop function if exists account_full_text_search_update();
-drop function if exists address_full_text_search_insert();
-drop function if exists address_full_text_search_update();
-drop function if exists contact_full_text_search_insert();
-drop function if exists contact_full_text_search_update();
 drop function if exists account_unique_code();
 drop function if exists address_unique_code();
 drop function if exists contact_unique_code();
