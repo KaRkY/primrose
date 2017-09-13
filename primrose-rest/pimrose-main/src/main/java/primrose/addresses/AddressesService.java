@@ -16,17 +16,15 @@ public class AddressesService {
   public Address save(final String accountCode, final String addressType, final Address address) {
     final long addressId = addressesRepository.getNewId();
     addressesRepository.insert(addressId, address);
-    addressesRepository.insert(addressType, addressId, accountCode);
 
-    return addressesRepository.get(addressId);
+    return addressesRepository.getById(addressId);
   }
 
   @Transactional
   public Address save(final long accountId, final String addressType, final Address address) {
     final long addressId = addressesRepository.getNewId();
     addressesRepository.insert(addressId, address);
-    addressesRepository.insert(addressType, addressId, accountId);
 
-    return addressesRepository.get(addressId);
+    return addressesRepository.getById(addressId);
   }
 }

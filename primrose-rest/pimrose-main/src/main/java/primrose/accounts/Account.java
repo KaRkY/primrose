@@ -32,6 +32,8 @@ public interface Account {
 
   String website();
 
+  String description();
+
   LocalDateTime validFrom();
 
   LocalDateTime validTo();

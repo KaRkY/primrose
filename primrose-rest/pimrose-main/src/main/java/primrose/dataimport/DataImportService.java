@@ -36,14 +36,15 @@ public class DataImportService {
     int current = 0;
 
     for (final Account account : accounts) {
-      final Builder accountBuilder = ImmutableAccount.builder().from(accountsService.save(account));
+      final Account savedAccount = accountsService.save(account);
+      final Builder accountBuilder = ImmutableAccount.builder().from(savedAccount);
 
       account.addresses().forEach((key, value) -> {
-        accountBuilder.putAddresses(key, addressService.save(account.code(), key, value));
+        accountBuilder.putAddresses(key, addressService.save(savedAccount.code(), key, value));
       });
 
       account.contacts().forEach((key, value) -> {
-        accountBuilder.putContacts(key, contactsService.save(account.code(), key, value));
+        accountBuilder.putContacts(key, contactsService.save(savedAccount.code(), key, value));
       });
 
       result.add(accountBuilder.build());

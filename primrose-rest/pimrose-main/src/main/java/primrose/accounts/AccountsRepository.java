@@ -1,132 +1,96 @@
 package primrose.accounts;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.exception.NoDataFoundException;
-import org.jooq.impl.DSL;
+import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import pimrose.jooq.DefaultCatalog;
-import pimrose.jooq.Primrose;
-import pimrose.jooq.Sequences;
-import pimrose.jooq.tables.TAccountTypes;
-import pimrose.jooq.tables.TAccounts;
+import primrose.spring.JdbcUtil;
+import primrose.spring.SQLLoader;
 
 @Repository
 public class AccountsRepository {
-  private static final Primrose PRIMROSE = DefaultCatalog.DEFAULT_CATALOG.PRIMROSE;
-  private static final TAccounts ACCOUNT = PRIMROSE.T_ACCOUNTS.as("account");
-  private static final TAccounts PARENT_ACCOUNT = PRIMROSE.T_ACCOUNTS.as("parent_account");
-  private static final TAccountTypes ACCOUNT_TYPE = PRIMROSE.T_ACCOUNT_TYPES.as("account_type");
 
-  private final DSLContext create;
+  private final SQLLoader loader;
+  private final NamedParameterJdbcTemplate template;
 
-  public AccountsRepository(final DSLContext create) {
-    this.create = create;
+  public AccountsRepository(
+    final SQLLoader loader,
+    final NamedParameterJdbcTemplate template) {
+    this.loader = loader;
+    this.template = template;
   }
 
   public long getNewId() {
-    return create.select(Sequences.S_ACCOUNT.nextval()).fetchOne().value1();
+    return template.queryForObject(
+      loader.loadSQL("primrose.accounts.newId"),
+      EmptySqlParameterSource.INSTANCE,
+      (rs, rownum) -> rs.getLong(1));
   }
 
   public void insert(final long accountId, final Account account) {
-    create
-      .insertInto(PRIMROSE.T_ACCOUNTS)
-      .columns(
-        PRIMROSE.T_ACCOUNTS.ACCOUNT_ID,
-        PRIMROSE.T_ACCOUNTS.ACCOUNT_TYPE_ID,
-        PRIMROSE.T_ACCOUNTS.DISPLAY_NAME,
-        PRIMROSE.T_ACCOUNTS.FULL_NAME,
-        PRIMROSE.T_ACCOUNTS.EMAIL,
-        PRIMROSE.T_ACCOUNTS.PHONE,
-        PRIMROSE.T_ACCOUNTS.WEBSITE,
-        PRIMROSE.T_ACCOUNTS.VALID_FROM,
-        PRIMROSE.T_ACCOUNTS.VALID_TO)
-      .values(
-        DSL.value(accountId),
-        create.select(PRIMROSE.T_ACCOUNT_TYPES.ACCOUNT_TYPE_ID)
-          .from(PRIMROSE.T_ACCOUNT_TYPES)
-          .where(PRIMROSE.T_ACCOUNT_TYPES.ACCOUNT_TYPE_CODE.eq(DSL.value(account.type()))).asField(),
-        DSL.value(account.displayName()),
-        DSL.val(account.fullName()),
-        DSL.value(account.email()),
-        DSL.value(account.phone()),
-        DSL.value(account.website()),
-        account.validFrom() != null ? DSL.value(account.validTo()) : DSL.currentLocalDateTime(),
-        DSL.value(account.validTo()))
-      .execute();
+    template.update(
+      loader.loadSQL("primrose.accounts.insert"),
+      new MapSqlParameterSource()
+        .addValue("account_id", accountId)
+        .addValue("account_type_code", account.type())
+        .addValue("display_name", account.displayName())
+        .addValue("full_name", account.fullName())
+        .addValue("email", account.email())
+        .addValue("phone", account.phone())
+        .addValue("website", account.website())
+        .addValue("description", account.description()));
   }
 
   public Account getById(final long accountId) {
-    return create
-      .select(
-        ACCOUNT.ACCOUNT_CODE,
-        ACCOUNT_TYPE.ACCOUNT_TYPE_CODE,
-        PARENT_ACCOUNT.DISPLAY_NAME.as("parent_display_name"),
-        ACCOUNT.PARENT_ACCOUNT_ID,
-        ACCOUNT.DISPLAY_NAME,
-        ACCOUNT.FULL_NAME,
-        ACCOUNT.EMAIL,
-        ACCOUNT.PHONE,
-        ACCOUNT.WEBSITE,
-        ACCOUNT.VALID_FROM,
-        ACCOUNT.VALID_TO)
-      .from(ACCOUNT)
-      .leftJoin(PARENT_ACCOUNT).on(PARENT_ACCOUNT.ACCOUNT_ID.eq(ACCOUNT.PARENT_ACCOUNT_ID))
-      .leftJoin(ACCOUNT_TYPE).on(ACCOUNT_TYPE.ACCOUNT_TYPE_ID.eq(ACCOUNT.ACCOUNT_TYPE_ID))
-      .where(ACCOUNT.ACCOUNT_ID.eq(DSL.value(accountId)))
-      .fetchOptional(this::map)
-      .orElseThrow(() -> new NoDataFoundException("Cursor did not return any result"));
-
+    return template
+      .queryForObject(
+        loader.loadSQL("primrose.accounts.getById"),
+        new MapSqlParameterSource()
+          .addValue("id", accountId),
+        this::map);
   }
 
   public Account getByCode(final String code) {
-    return create
-      .select(
-        ACCOUNT.ACCOUNT_CODE,
-        ACCOUNT_TYPE.ACCOUNT_TYPE_CODE,
-        PARENT_ACCOUNT.DISPLAY_NAME.as("parent_display_name"),
-        ACCOUNT.PARENT_ACCOUNT_ID,
-        ACCOUNT.DISPLAY_NAME,
-        ACCOUNT.FULL_NAME,
-        ACCOUNT.EMAIL,
-        ACCOUNT.PHONE,
-        ACCOUNT.WEBSITE,
-        ACCOUNT.VALID_FROM,
-        ACCOUNT.VALID_TO)
-      .from(ACCOUNT)
-      .leftJoin(PARENT_ACCOUNT).on(PARENT_ACCOUNT.ACCOUNT_ID.eq(ACCOUNT.PARENT_ACCOUNT_ID))
-      .leftJoin(ACCOUNT_TYPE).on(ACCOUNT_TYPE.ACCOUNT_TYPE_ID.eq(ACCOUNT.ACCOUNT_TYPE_ID))
-      .where(ACCOUNT.ACCOUNT_CODE.eq(DSL.value(code)))
-      .fetchOptional(this::map)
-      .orElseThrow(() -> new NoDataFoundException("Cursor did not return any result"));
+    return template
+      .queryForObject(
+        loader.loadSQL("primrose.accounts.getByCode"),
+        new MapSqlParameterSource()
+          .addValue("code", code),
+        this::map);
   }
 
   public List<AccountType> getTypes() {
-    return create
-      .select(ACCOUNT_TYPE.ACCOUNT_TYPE_CODE, ACCOUNT_TYPE.ACCOUNT_TYPE_DEFAULT)
-      .from(ACCOUNT_TYPE)
-      .fetch(record -> ImmutableAccountType
-        .builder()
-        .code(record.get(ACCOUNT_TYPE.ACCOUNT_TYPE_CODE))
-        .def(record.get(ACCOUNT_TYPE.ACCOUNT_TYPE_DEFAULT))
-        .build());
+    return template
+      .query(
+        loader.loadSQL("primrose.accounts.getTypes"),
+        EmptySqlParameterSource.INSTANCE,
+        this::mapType);
   }
 
-  private Account map(final Record record) {
-
+  private Account map(final ResultSet rs, final int rownum) throws SQLException {
     return ImmutableAccount.builder()
-      .code(record.getValue(PRIMROSE.T_ACCOUNTS.ACCOUNT_CODE))
-      .type(record.getValue(PRIMROSE.T_ACCOUNT_TYPES.ACCOUNT_TYPE_CODE))
-      .displayName(record.getValue(PRIMROSE.T_ACCOUNTS.DISPLAY_NAME))
-      .fullName(record.getValue(PRIMROSE.T_ACCOUNTS.FULL_NAME))
-      .email(record.getValue(PRIMROSE.T_ACCOUNTS.EMAIL))
-      .phone(record.getValue(PRIMROSE.T_ACCOUNTS.PHONE))
-      .website(record.getValue(PRIMROSE.T_ACCOUNTS.WEBSITE))
-      .validFrom(record.getValue(PRIMROSE.T_ACCOUNTS.VALID_FROM))
-      .validTo(record.getValue(PRIMROSE.T_ACCOUNTS.VALID_TO))
+      .code(rs.getString("account_code"))
+      .type(rs.getString("account_type_code"))
+      .displayName(rs.getString("display_name"))
+      .fullName(rs.getString("full_name"))
+      .email(rs.getString("email"))
+      .phone(rs.getString("phone"))
+      .website(rs.getString("website"))
+      .description(rs.getString("description"))
+      .validFrom(JdbcUtil.toLocalDateTime(rs.getTimestamp("valid_from")))
+      .validTo(JdbcUtil.toLocalDateTime(rs.getTimestamp("valid_to")))
+      .build();
+  }
+
+  private AccountType mapType(final ResultSet rs, final int rownum) throws SQLException {
+    return ImmutableAccountType.builder()
+      .code(rs.getString("account_type_code"))
+      .def(rs.getString("account_type_default"))
       .build();
   }
 }

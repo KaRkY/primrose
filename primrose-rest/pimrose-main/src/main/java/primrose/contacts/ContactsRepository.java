@@ -42,7 +42,7 @@ public class ContactsRepository {
     return create.select(Sequences.S_CONTACT_TYPES.nextval()).fetchOne().value1();
   }
 
-  public void insert(final long id, final Contact contact, final long addressId) {
+  public void insert(final long contactId, final Contact contact, final long addressId) {
     create
       .insertInto(PRIMROSE.T_CONTACTS)
       .columns(
