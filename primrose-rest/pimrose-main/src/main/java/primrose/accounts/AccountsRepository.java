@@ -25,13 +25,6 @@ public class AccountsRepository {
     this.template = template;
   }
 
-  public long getNewId() {
-    return template.queryForObject(
-      loader.loadSQL("primrose.accounts.newId"),
-      EmptySqlParameterSource.INSTANCE,
-      (rs, rownum) -> rs.getLong(1));
-  }
-
   public void insert(final long accountId, final Account account) {
     template.update(
       loader.loadSQL("primrose.accounts.insert"),
@@ -51,17 +44,35 @@ public class AccountsRepository {
       .queryForObject(
         loader.loadSQL("primrose.accounts.getById"),
         new MapSqlParameterSource()
-          .addValue("id", accountId),
+          .addValue("account_id", accountId),
         this::map);
   }
 
-  public Account getByCode(final String code) {
+  public Account getByCode(final String accountCode) {
     return template
       .queryForObject(
         loader.loadSQL("primrose.accounts.getByCode"),
         new MapSqlParameterSource()
-          .addValue("code", code),
+          .addValue("account_code", accountCode),
         this::map);
+  }
+
+  public List<Account> getAllPaginated(final long pageNumber, final long pageSize) {
+    return template
+      .query(
+        loader.loadSQL("primrose.accounts.getAllPaginated"),
+        new MapSqlParameterSource()
+          .addValue("page_number", pageNumber)
+          .addValue("page_size", pageSize),
+        this::map);
+  }
+
+  public long countAll() {
+    return template
+      .queryForObject(
+        loader.loadSQL("primrose.accounts.countAll"),
+        EmptySqlParameterSource.INSTANCE,
+        (rs, rownum) -> rs.getLong(1));
   }
 
   public List<AccountType> getTypes() {

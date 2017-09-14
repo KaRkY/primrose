@@ -9,19 +9,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Multimap;
 
 import primrose.contacts.Contact;
-import primrose.contacts.ContactsRepository;
 
 @RestController
 @RequestMapping(path = "/accounts/{account}/contacts")
 public class AccountsContactsController {
-  private final ContactsRepository contactsRepository;
+  private final AccountsContactsRepository accountsContactsRepository;
 
-  public AccountsContactsController(final ContactsRepository contactsRepository) {
-    this.contactsRepository = contactsRepository;
+  public AccountsContactsController(final AccountsContactsRepository accountsContactsRepository) {
+    this.accountsContactsRepository = accountsContactsRepository;
   }
 
   @GetMapping()
   public ResponseEntity<Multimap<String, Contact>> search(@PathVariable("account") final String account) {
-    return ResponseEntity.ok(contactsRepository.getByAccountCode(account));
+    return ResponseEntity.ok(accountsContactsRepository.getByAccountCode(account));
   }
 }

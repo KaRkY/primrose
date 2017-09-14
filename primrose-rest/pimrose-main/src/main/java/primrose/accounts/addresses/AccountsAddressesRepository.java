@@ -2,8 +2,10 @@ package primrose.accounts.addresses;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -28,9 +30,27 @@ public class AccountsAddressesRepository {
     this.template = template;
   }
 
+  public void insert(final String addressType, final String addressCode, final long accountId) {
+    template.update(
+      loader.loadSQL("primrose.accounts.addresses.insertAddressCodeAccountId"),
+      new MapSqlParameterSource()
+        .addValue("account_id", accountId)
+        .addValue("address_code", addressCode)
+        .addValue("account_address_type_code", addressType));
+  }
+
+  public void insert(final String addressType, final String addressCode, final String accountCode) {
+    template.update(
+      loader.loadSQL("primrose.accounts.addresses.insertAddressCodeAccountCode"),
+      new MapSqlParameterSource()
+        .addValue("account_code", accountCode)
+        .addValue("address_code", addressCode)
+        .addValue("account_address_type_code", addressType));
+  }
+
   public void insert(final String addressType, final long addressId, final long accountId) {
     template.update(
-      loader.loadSQL("primrose.accounts.addresses.insertByAccountId"),
+      loader.loadSQL("primrose.accounts.addresses.insertAddressIdAccountId"),
       new MapSqlParameterSource()
         .addValue("account_id", accountId)
         .addValue("address_id", addressId)
@@ -39,7 +59,7 @@ public class AccountsAddressesRepository {
 
   public void insert(final String addressType, final long addressId, final String accountCode) {
     template.update(
-      loader.loadSQL("primrose.accounts.addresses.insertByAccountCode"),
+      loader.loadSQL("primrose.accounts.addresses.insertAddressIdAccountCode"),
       new MapSqlParameterSource()
         .addValue("account_code", accountCode)
         .addValue("address_id", addressId)
@@ -66,6 +86,14 @@ public class AccountsAddressesRepository {
         rse);
   }
 
+  public List<AddressType> getTypes() {
+    return template
+      .query(
+        loader.loadSQL("primrose.accounts.addresses.getTypes"),
+        EmptySqlParameterSource.INSTANCE,
+        this::mapType);
+  }
+
   private Multimap<String, Address> map(final ResultSet rs) throws SQLException {
     final Multimap<String, Address> result = HashMultimap.create();
 
@@ -85,6 +113,13 @@ public class AccountsAddressesRepository {
       .postalCode(rs.getString("postal_code"))
       .country(rs.getString("country"))
       .city(rs.getString("city"))
+      .build();
+  }
+
+  private AddressType mapType(final ResultSet rs, final int rownum) throws SQLException {
+    return ImmutableAddressType.builder()
+      .code(rs.getString("account_address_type_code"))
+      .def(rs.getString("account_address_type_default"))
       .build();
   }
 }

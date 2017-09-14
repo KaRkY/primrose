@@ -1,4 +1,4 @@
-package primrose.contacts;
+package primrose.accounts.addresses;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableContactType.class)
-@JsonDeserialize(as = ImmutableContactType.class)
-public interface ContactType {
+@JsonSerialize(as = ImmutableAddressType.class)
+@JsonDeserialize(as = ImmutableAddressType.class)
+public interface AddressType {
   String code();
   String def();
 }

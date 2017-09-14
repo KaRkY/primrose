@@ -13,6 +13,16 @@ public class AccountsAddressesService {
   }
 
   @Transactional
+  public void save(final String accountCode, final String addressType, final String addressCode) {
+    accountsAddressesRepository.insert(addressType, addressCode, accountCode);
+  }
+
+  @Transactional
+  public void save(final long accountId, final String addressType, final String addressCode) {
+    accountsAddressesRepository.insert(addressType, addressCode, accountId);
+  }
+
+  @Transactional
   public void save(final String accountCode, final String addressType, final long addressId) {
     accountsAddressesRepository.insert(addressType, addressId, accountCode);
   }

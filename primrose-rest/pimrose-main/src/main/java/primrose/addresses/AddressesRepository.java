@@ -2,9 +2,7 @@ package primrose.addresses;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
-import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -21,13 +19,6 @@ public class AddressesRepository {
     final NamedParameterJdbcTemplate template) {
     this.loader = loader;
     this.template = template;
-  }
-
-  public long getNewId() {
-    return template.queryForObject(
-      loader.loadSQL("primrose.addresses.newId"),
-      EmptySqlParameterSource.INSTANCE,
-      (rs, rownum) -> rs.getLong(1));
   }
 
   public void insert(final long addressId, final Address address) {
@@ -51,14 +42,13 @@ public class AddressesRepository {
         this::map);
   }
 
-
-
-  public List<AddressType> getTypes() {
+  public Address getByCode(final long addressCode) {
     return template
-      .query(
-        loader.loadSQL("primrose.addresses.getTypes"),
-        EmptySqlParameterSource.INSTANCE,
-        this::mapType);
+      .queryForObject(
+        loader.loadSQL("primrose.addresses.getByCode"),
+        new MapSqlParameterSource()
+          .addValue("address_code", addressCode),
+        this::map);
   }
 
   private Address map(final ResultSet rs, final int rownum) throws SQLException {
@@ -72,10 +62,4 @@ public class AddressesRepository {
       .build();
   }
 
-  private AddressType mapType(final ResultSet rs, final int rownum) throws SQLException {
-    return ImmutableAddressType.builder()
-      .code(rs.getString("account_address_type_code"))
-      .def(rs.getString("account_address_type_default"))
-      .build();
-  }
 }

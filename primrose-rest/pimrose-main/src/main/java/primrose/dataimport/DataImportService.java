@@ -12,7 +12,11 @@ import primrose.accounts.Account;
 import primrose.accounts.AccountsService;
 import primrose.accounts.ImmutableAccount;
 import primrose.accounts.ImmutableAccount.Builder;
+import primrose.accounts.addresses.AccountsAddressesService;
+import primrose.accounts.contacts.AccountsContactsService;
+import primrose.addresses.Address;
 import primrose.addresses.AddressesService;
+import primrose.contacts.Contact;
 import primrose.contacts.ContactsService;
 
 @Service
@@ -20,13 +24,22 @@ public class DataImportService {
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final AccountsService accountsService;
   private final AddressesService addressService;
+  private final AccountsAddressesService accountsAddressesService;
   private final ContactsService contactsService;
+  private final AccountsContactsService accountsContactsService;
 
-  public DataImportService(final AccountsService accountsService, final AddressesService addressService,
-    final ContactsService contactsService) {
+  public DataImportService(
+    final AccountsService accountsService,
+    final AddressesService addressService,
+    final AccountsAddressesService accountsAddressesService,
+    final ContactsService contactsService,
+    final AccountsContactsService accountsContactsService) {
     this.accountsService = accountsService;
     this.addressService = addressService;
+    this.accountsAddressesService = accountsAddressesService;
     this.contactsService = contactsService;
+    this.accountsContactsService = accountsContactsService;
+
   }
 
   @Transactional
@@ -40,11 +53,15 @@ public class DataImportService {
       final Builder accountBuilder = ImmutableAccount.builder().from(savedAccount);
 
       account.addresses().forEach((key, value) -> {
-        accountBuilder.putAddresses(key, addressService.save(savedAccount.code(), key, value));
+        final Address address = addressService.save(value);
+        accountsAddressesService.save(savedAccount.code(), key, address.code());
+        accountBuilder.putAddresses(key, address);
       });
 
       account.contacts().forEach((key, value) -> {
-        accountBuilder.putContacts(key, contactsService.save(savedAccount.code(), key, value));
+        final Contact contact = contactsService.save(value);
+        accountsContactsService.save(savedAccount.code(), key, contact.code());
+        accountBuilder.putContacts(key, contact);
       });
 
       result.add(accountBuilder.build());

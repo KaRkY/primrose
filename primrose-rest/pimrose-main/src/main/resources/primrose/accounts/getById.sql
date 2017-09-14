@@ -13,4 +13,4 @@ select
 from t_accounts a
 left join t_accounts pa on pa.account_id = a.parent_account_id
 left join t_account_types act on act.account_type_id = a.account_type_id
-where a.account_id = :id
+where a.account_id = :account_id

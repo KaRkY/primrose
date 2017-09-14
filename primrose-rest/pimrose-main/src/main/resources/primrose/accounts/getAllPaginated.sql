@@ -13,4 +13,5 @@ select
 from t_accounts a
 left join t_accounts pa on pa.account_id = a.parent_account_id
 left join t_account_types act on act.account_type_id = a.account_type_id
-where a.account_code = :account_code
+limit :page_size
+offset (:page_number - 1) * :page_size

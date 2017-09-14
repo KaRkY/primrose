@@ -22,7 +22,10 @@ spring:
 logging:
   level:
     org:
-      jooq: debug
+      springframework:
+        jdbc: info
+    primrose:
+      spring: debug
 
 ---
 ##Test settings

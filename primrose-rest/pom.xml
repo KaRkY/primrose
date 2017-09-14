@@ -124,7 +124,6 @@
   </pluginRepositories>
 
   <modules>
-    <module>pimrose-jooq</module>
     <module>pimrose-main</module>
   </modules>
 
