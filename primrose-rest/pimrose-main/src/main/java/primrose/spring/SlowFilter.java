@@ -13,9 +13,7 @@ import javax.servlet.ServletResponse;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
-@Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Profile("dev")
 public class SlowFilter implements Filter {

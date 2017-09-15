@@ -31,6 +31,7 @@
     <guava.version>23.0</guava.version>
     <immutables.version>2.5.5</immutables.version>
     <jackson.version>2.9.1</jackson.version>
+    <jjwt.version>0.7.0</jjwt.version>
   </properties>
 
   <build>
@@ -47,6 +48,7 @@
                 <goal>jar</goal>
               </goals>
               <configuration>
+                <sourcepath>${project.basedir}/src;${project.basedir}/target/generated-sources/annotations</sourcepath>
               </configuration>
             </execution>
           </executions>
@@ -81,6 +83,12 @@
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
         <version>${immutables.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>${jjwt.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

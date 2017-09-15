@@ -3,6 +3,84 @@
  * TABLES
  * 
  */
+create table t_users(
+  user_id       bigint  constraint nn_users_user_id       not null,
+  user_code     text    constraint nn_users_user_code     not null,
+  user_name     text    constraint nn_users_user_name     not null,
+  user_enabled  bool    constraint nn_users_user_enabled  not null,
+  user_locked   bool    constraint nn_users_user_locked   not null,
+  
+  constraint pk_users primary key (user_id)
+);
+comment on table t_users is 'Users table for authentication';
+
+create table t_user_usernames(
+  user_username_id  bigint                    constraint nn_user_usernames_user_name_id   not null,
+  user_user_id      bigint                    constraint nn_user_usernames_user_id        not null,
+  user_username     text                      constraint nn_user_usernames_user_username  not null,
+  
+  valid_from        timestamp with time zone  constraint nn_user_usernames_valid_from     not null  default current_timestamp,
+  valid_to          timestamp with time zone  constraint nn_user_usernames_valid_to       not null  default 'infinity'::timestamp,
+  
+  constraint pk_user_usernames              primary key (user_username_id, user_user_id),
+  constraint fk_user_usernames_user_user_id foreign key (user_user_id)  references t_users(user_id)
+);
+comment on table t_user_usernames is 'User usernames';
+
+create table t_user_passwords(
+  user_password_id  bigint                    constraint nn_user_passwords_user_name_id   not null,
+  user_user_id      bigint                    constraint nn_user_passwords_user_id        not null,
+  user_password     text                      constraint nn_user_passwords_user_password  not null,
+  
+  valid_from        timestamp with time zone  constraint nn_user_usernames_valid_from     not null  default current_timestamp,
+  valid_to          timestamp with time zone  constraint nn_user_usernames_valid_to       not null  default 'infinity'::timestamp,
+  
+  constraint pk_user_passwords              primary key (user_password_id, user_user_id),
+  constraint fk_user_passwords_user_user_id foreign key (user_user_id)  references t_users(user_id)
+);
+comment on table t_user_passwords is 'User passwords';
+
+create table t_groups(
+  group_id      bigint  constraint nn_groups_group_id   not null,
+  group_code    text    constraint nn_groups_group_code not null,
+  group_name    text    constraint nn_groups_group_name not null,
+  group_parent  bigint,
+  
+  constraint pk_groups              primary key (group_id),
+  constraint fk_groups_group_parent foreign key (group_parent)  references t_groups(group_id)
+);
+comment on table t_groups is 'Groups';
+
+create table t_user_groups(
+  user_group_user_id  bigint  constraint nn_user_groups_user_group_user_id  not null,
+  user_group_group_id bigint  constraint nn_user_groups_user_group_group_id not null,
+  
+  constraint pk_user_groups                     primary key (user_group_user_id, user_group_group_id),
+  constraint fk_user_groups_user_group_user_id  foreign key (user_group_user_id)  references t_users(user_id),
+  constraint fk_user_groups_user_group_group_id foreign key (user_group_group_id)  references t_groups(group_id)
+);
+comment on table t_user_groups is 'User groups';
+
+create table t_permissions(
+  permission_id      bigint  constraint nn_permissions_permission_id   not null,
+  permission_code    text    constraint nn_permissions_permission_code not null,
+  permission_name    text    constraint nn_permissions_permission_name not null,
+  permission_parent  bigint,
+  
+  constraint pk_permissions primary key (permission_id)
+);
+comment on table t_permissions is 'Permissions';
+
+create table t_group_permissions(
+  group_permission_group_id     bigint  constraint nn_group_permissions_group_permission_group_id       not null,
+  group_permission_permisson_id bigint  constraint nn_group_permissions_group_permission_permission_id  not null,
+  
+  constraint pk_group_permissions                               primary key (group_permission_group_id, group_permission_permisson_id),
+  constraint fk_group_permissions_group_permission_group_id     foreign key (group_permission_group_id)     references t_groups(group_id),
+  constraint fk_group_permissions_group_permission_permisson_id foreign key (group_permission_permisson_id) references t_permissions(permission_id)
+);
+comment on table t_group_permissions is 'Group permissions';
+
 create table t_account_types(
   account_type_id       bigint  constraint nn_account_types_account_type_id       not null,
   account_type_code     text    constraint nn_account_types_account_type_code     not null,
@@ -24,8 +102,8 @@ create table t_accounts(
   website             text,
   description         text,
   
-  valid_from          timestamp with time zone  constraint nn_accounts_valid_from   not null,
-  valid_to            timestamp with time zone,
+  valid_from        timestamp with time zone  constraint nn_user_usernames_valid_from     not null  default current_timestamp,
+  valid_to          timestamp with time zone  constraint nn_user_usernames_valid_to       not null  default 'infinity'::timestamp,
   
   constraint pk_accounts                primary key (account_id),
   constraint ck_accounts_positive_range check (valid_to > valid_from),
@@ -74,7 +152,6 @@ create table t_contacts(
   person_name       text,
   email             text,
   phone             text,
-  address_id        bigint,
   
   constraint pk_contacts  primary key (contact_id)
 );
@@ -92,9 +169,9 @@ create table t_account_contact_types(
 comment on table t_account_contact_types is 'Enumeration of contact types.';
 
 create table t_account_contacts(
-  account_id                bigint  constraint nn_account_contacts_account_id   not null,
-  contact_id                bigint  constraint nn_account_contacts_contact_id   not null,
-  account_contact_type_id  bigint,
+  account_id              bigint  constraint nn_account_contacts_account_id   not null,
+  contact_id              bigint  constraint nn_account_contacts_contact_id   not null,
+  account_contact_type_id bigint,
   
   constraint pk_account_contacts              primary key (account_id, contact_id),
   constraint fk_account_contact_account       foreign key (account_id)              references t_accounts(account_id),
@@ -118,32 +195,15 @@ create unique index idx_contact_code          on t_contacts(contact_code);
  * SEQUENCES
  * 
  */
+create sequence s_user          start with 1  increment by 1;
+create sequence s_group         start with 1  increment by 1;
+create sequence s_permission    start with 1  increment by 1;
+create sequence s_user_username start with 1  increment by 1;
+create sequence s_user_password start with 1  increment by 1;
 create sequence s_account       start with 1  increment by 1;
 create sequence s_address       start with 1  increment by 1;
 create sequence s_contact       start with 1  increment by 1;
 create sequence s_contact_types start with 1  increment by 1;
-
-
-/*
- * 
- * DATA
- * 
- */
-insert into t_account_types(account_type_id, account_type_code, account_type_default) values 
-(1, 'customer', 'Customer'),
-(2, 'partner',  'Partner'),
-(3, 'investor', 'Investor'),
-(4, 'reseller', 'Reseller');
-
-insert into t_account_address_types(account_address_type_id, account_address_type_code, account_address_type_default) values
-(1, 'billing',  'Billing'),
-(2, 'shipping', 'Shipping');
-
-insert into t_account_contact_types(account_contact_type_id, account_contact_type_parent, account_contact_type_code, account_contact_type_default) values
-(1, null, 'seller',     'Seller'),
-(2, null, 'manager',    'Manager'),
-(5, null, 'developer',  'Developer'),
-(6, null, 'consultant', 'Consultant');
 
 /*
  *
@@ -166,6 +226,81 @@ begin
   end loop;
 
   return result;
+end;
+$$ LANGUAGE plpgsql;
+
+create function user_unique_code() returns trigger as $$
+declare
+  key text;
+  qry text;
+  found text;
+  min_size int;
+begin
+  min_size = 6;
+  
+  loop
+    key := generate_random_string_base36(min_size);
+    
+    if not exists( select 1 from t_users where user_code = key) then
+      exit;
+    end if;
+    
+    min_size = min_size + 1;
+  end loop;
+
+  new.user_code = key;
+
+  return new;
+end;
+$$ LANGUAGE plpgsql;
+
+create function group_unique_code() returns trigger as $$
+declare
+  key text;
+  qry text;
+  found text;
+  min_size int;
+begin
+  min_size = 6;
+  
+  loop
+    key := generate_random_string_base36(min_size);
+    
+    if not exists( select 1 from t_groups where group_code = key) then
+      exit;
+    end if;
+    
+    min_size = min_size + 1;
+  end loop;
+
+  new.group_code = key;
+
+  return new;
+end;
+$$ LANGUAGE plpgsql;
+
+create function permission_unique_code() returns trigger as $$
+declare
+  key text;
+  qry text;
+  found text;
+  min_size int;
+begin
+  min_size = 6;
+  
+  loop
+    key := generate_random_string_base36(min_size);
+    
+    if not exists( select 1 from t_permissions where permission_code = key) then
+      exit;
+    end if;
+    
+    min_size = min_size + 1;
+  end loop;
+
+  new.permission_code = key;
+
+  return new;
 end;
 $$ LANGUAGE plpgsql;
 
@@ -244,6 +379,58 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create trigger account_code   before  insert on t_accounts  for each row execute procedure account_unique_code();
-create trigger address_code   before  insert on t_addresses for each row execute procedure address_unique_code();
-create trigger contact_code   before  insert on t_contacts  for each row execute procedure contact_unique_code();
+create trigger user_code        before  insert on t_users       for each row execute procedure user_unique_code();
+create trigger group_code       before  insert on t_groups      for each row execute procedure group_unique_code();
+create trigger permission_code  before  insert on t_permissions for each row execute procedure permission_unique_code();
+create trigger account_code     before  insert on t_accounts    for each row execute procedure account_unique_code();
+create trigger address_code     before  insert on t_addresses   for each row execute procedure address_unique_code();
+create trigger contact_code     before  insert on t_contacts    for each row execute procedure contact_unique_code();
+
+/*
+ * 
+ * DATA
+ * 
+ */
+insert into t_permissions(permission_id, permission_name) values
+(nextval('s_permission'), 'account_view'),
+(nextval('s_permission'), 'account_create'),
+(nextval('s_permission'), 'account_edit'),
+(nextval('s_permission'), 'account_delete'),
+(nextval('s_permission'), 'contact_view'),
+(nextval('s_permission'), 'contact_create'),
+(nextval('s_permission'), 'contact_edit'),
+(nextval('s_permission'), 'contact_delete');
+
+insert into t_groups(group_id, group_name, group_parent) values
+(nextval('s_group'), 'admin', null);
+
+insert into t_group_permissions(group_permission_group_id, group_permission_permisson_id)
+(select currval('s_group'), permission_id from t_permissions);
+
+insert into t_users(user_id, user_name, user_locked, user_enabled) values
+(nextval('s_user'), 'Admin', false, true);
+
+insert into t_user_groups(user_group_group_id, user_group_user_id) values
+(currval('s_group'), currval('s_user'));
+
+insert into t_user_usernames(user_username_id, user_user_id, user_username) values
+(nextval('s_user_username'), currval('s_user'), 'admin');
+
+insert into t_user_passwords(user_password_id, user_user_id, user_password) values
+(nextval('s_user_password'), currval('s_user'), '$2a$10$0JKQjjbqE8uriuKuV7WvOefW3h.ZfhhEu9hr1G0ZSDwyR91ahNEOi');
+
+insert into t_account_types(account_type_id, account_type_code, account_type_default) values 
+(1, 'customer', 'Customer'),
+(2, 'partner',  'Partner'),
+(3, 'investor', 'Investor'),
+(4, 'reseller', 'Reseller');
+
+insert into t_account_address_types(account_address_type_id, account_address_type_code, account_address_type_default) values
+(1, 'billing',  'Billing'),
+(2, 'shipping', 'Shipping');
+
+insert into t_account_contact_types(account_contact_type_id, account_contact_type_parent, account_contact_type_code, account_contact_type_default) values
+(1, null, 'seller',     'Seller'),
+(2, null, 'manager',    'Manager'),
+(5, null, 'developer',  'Developer'),
+(6, null, 'consultant', 'Consultant');

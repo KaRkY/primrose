@@ -3,6 +3,21 @@
  * FOREIGN KEYS
  * 
  */
+alter table if exists t_user_groups
+drop constraint if exists fk_user_groups_user_group_user_id;
+
+alter table if exists t_user_groups
+drop constraint if exists fk_user_groups_user_group_group_id;
+
+alter table if exists t_group_permissions
+drop constraint if exists fk_group_permissions_group_permission_group_id;
+
+alter table if exists t_group_permissions
+drop constraint if exists fk_group_permissions_group_permission_permisson_id;
+
+alter table if exists t_user_usernames
+drop constraint if exists fk_user_usernames_user_user_id;
+
 alter table if exists t_accounts
 drop constraint if exists fk_account_type;
 
@@ -52,6 +67,13 @@ drop index if exists idx_contact_code;
  * TABLES
  * 
  */
+drop table if exists t_user_usernames;
+drop table if exists t_user_passwords;
+drop table if exists t_user_groups;
+drop table if exists t_group_permissions;
+drop table if exists t_groups;
+drop table if exists t_permissions;
+drop table if exists t_users;
 drop table if exists t_account_types;
 drop table if exists t_accounts;
 drop table if exists t_account_search;
@@ -69,6 +91,11 @@ drop table if exists t_account_contact_types;
  * SEQUENCES
  * 
  */
+drop sequence if exists s_user;
+drop sequence if exists s_group;
+drop sequence if exists s_permission;
+drop sequence if exists s_user_username;
+drop sequence if exists s_user_password;
 drop sequence if exists s_account;
 drop sequence if exists s_address;
 drop sequence if exists s_contact;
@@ -79,6 +106,9 @@ drop sequence if exists s_contact_types;
  * TRIGGER FUNCTIONS
  * 
  */
+drop function if exists user_unique_code();
+drop function if exists group_unique_code();
+drop function if exists permission_unique_code();
 drop function if exists account_unique_code();
 drop function if exists address_unique_code();
 drop function if exists contact_unique_code();
