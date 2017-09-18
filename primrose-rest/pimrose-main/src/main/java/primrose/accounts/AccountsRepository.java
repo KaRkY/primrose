@@ -75,10 +75,10 @@ public class AccountsRepository {
         (rs, rownum) -> rs.getLong(1));
   }
 
-  public List<AccountType> getTypes() {
+  public List<AccountType> listTypes() {
     return template
       .query(
-        loader.loadSQL("primrose.accounts.getTypes"),
+        loader.loadSQL("primrose.accounts.listTypes"),
         EmptySqlParameterSource.INSTANCE,
         this::mapType);
   }

@@ -65,30 +65,30 @@ public class AccountsContactsRepository {
         .addValue("account_contact_type_code", contactType));
   }
 
-  public Multimap<String, Contact> getByAccountId(final long accountId) {
+  public Multimap<String, Contact> listByAccountId(final long accountId) {
     final ResultSetExtractor<Multimap<String, Contact>> rse = this::map;
     return template
       .query(
-        loader.loadSQL("primrose.accounts.contacts.getByAccountCode"),
+        loader.loadSQL("primrose.accounts.contacts.listByAccountCode"),
         new MapSqlParameterSource()
           .addValue("account_id", accountId),
         rse);
   }
 
-  public Multimap<String, Contact> getByAccountCode(final String accountCode) {
+  public Multimap<String, Contact> listByAccountCode(final String accountCode) {
     final ResultSetExtractor<Multimap<String, Contact>> rse = this::map;
     return template
       .query(
-        loader.loadSQL("primrose.accounts.contacts.getByAccountCode"),
+        loader.loadSQL("primrose.accounts.contacts.listByAccountCode"),
         new MapSqlParameterSource()
           .addValue("account_code", accountCode),
         rse);
   }
 
-  public List<ContactType> getTypes() {
+  public List<ContactType> listTypes() {
     return template
       .query(
-        loader.loadSQL("primrose.accounts.contacts.getTypes"),
+        loader.loadSQL("primrose.accounts.contacts.listTypes"),
         EmptySqlParameterSource.INSTANCE,
         this::mapType);
   }

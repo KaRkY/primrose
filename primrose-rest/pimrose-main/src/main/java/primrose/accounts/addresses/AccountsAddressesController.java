@@ -21,7 +21,7 @@ public class AccountsAddressesController {
   }
 
   @GetMapping()
-  public ResponseEntity<Multimap<String, Address>> search(@PathVariable("account") final String account) {
-    return ResponseEntity.ok(accountsAddressesRepository.getByAccountCode(account));
+  public ResponseEntity<Multimap<String, Address>> listByAccountCode(@PathVariable("account") final String account) {
+    return ResponseEntity.ok(accountsAddressesRepository.listByAccountCode(account));
   }
 }

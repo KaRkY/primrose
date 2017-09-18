@@ -20,7 +20,7 @@ public class AccountsContactsController {
   }
 
   @GetMapping()
-  public ResponseEntity<Multimap<String, Contact>> search(@PathVariable("account") final String account) {
-    return ResponseEntity.ok(accountsContactsRepository.getByAccountCode(account));
+  public ResponseEntity<Multimap<String, Contact>> listByAccountCode(@PathVariable("account") final String account) {
+    return ResponseEntity.ok(accountsContactsRepository.listByAccountCode(account));
   }
 }

@@ -18,7 +18,7 @@ public class AccountsContactsMetadataController {
   }
 
   @GetMapping("/types")
-  public ResponseEntity<List<ContactType>> getTypes() {
-    return ResponseEntity.ok(accountsContactsRepository.getTypes());
+  public ResponseEntity<List<ContactType>> listTypes() {
+    return ResponseEntity.ok(accountsContactsRepository.listTypes());
   }
 }
