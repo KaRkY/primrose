@@ -3,48 +3,38 @@
  * TABLES
  * 
  */
-create table t_users(
-  user_id       bigint  constraint nn_users_user_id       not null,
-  user_code     text    constraint nn_users_user_code     not null,
-  user_name     text    constraint nn_users_user_name     not null,
-  user_enabled  bool    constraint nn_users_user_enabled  not null,
-  user_locked   bool    constraint nn_users_user_locked   not null,
+create table principals(
+  id      bigint  constraint  nn_users_id       not null,
+  code    text    constraint  nn_users_code     not null,
+  name    text    constraint  nn_users_name     not null,
+  enabled bool    constraint  nn_users_enabled  not null,
+  locked  bool    constraint  nn_users_locked   not null,
   
-  constraint pk_users primary key (user_id)
+  created_by  bigint                    constraint  nn_users_created_by       not null,
+  created_at  timestamp with time zone  constraint  nn_user_users_valid_from  not null  default current_timestamp,
+  edited_by   bigint,
+  created_at  timestamp with time zone,
+  owner_user  bigint constraint  nn_users_owner_user  not null,
+  owner_group bigint constraint  nn_users_owner_group not null,
+  
+  constraint pk_users primary key (id)
 );
-comment on table t_users is 'Users table for authentication';
+comment on table principals is 'Principals table for authentication';
 
-create table t_user_usernames(
-  user_username_id  bigint                    constraint nn_user_usernames_user_name_id   not null,
-  user_user_id      bigint                    constraint nn_user_usernames_user_id        not null,
-  user_username     text                      constraint nn_user_usernames_user_username  not null,
+create table credidentials(
+  id        bigint                    constraint  nn_credidentials_id         not null,
+  principal bigint                    constraint  nn_credidentials_principal  not null,
+  value     text                      constraint  nn_credidentials_value      not null,
   
-  valid_from        timestamp with time zone  constraint nn_user_usernames_valid_from     not null  default current_timestamp,
-  valid_to          timestamp with time zone  constraint nn_user_usernames_valid_to       not null  default 'infinity'::timestamp,
-  
-  constraint pk_user_usernames              primary key (user_username_id, user_user_id),
-  constraint fk_user_usernames_user_user_id foreign key (user_user_id)  references t_users(user_id)
+  constraint pk_credidentials primary key (id)
 );
-comment on table t_user_usernames is 'User usernames';
+comment on table credidentials is 'User credidentials';
 
-create table t_user_passwords(
-  user_password_id  bigint                    constraint nn_user_passwords_user_name_id   not null,
-  user_user_id      bigint                    constraint nn_user_passwords_user_id        not null,
-  user_password     text                      constraint nn_user_passwords_user_password  not null,
-  
-  valid_from        timestamp with time zone  constraint nn_user_usernames_valid_from     not null  default current_timestamp,
-  valid_to          timestamp with time zone  constraint nn_user_usernames_valid_to       not null  default 'infinity'::timestamp,
-  
-  constraint pk_user_passwords              primary key (user_password_id, user_user_id),
-  constraint fk_user_passwords_user_user_id foreign key (user_user_id)  references t_users(user_id)
-);
-comment on table t_user_passwords is 'User passwords';
-
-create table t_groups(
-  group_id      bigint  constraint nn_groups_group_id   not null,
-  group_code    text    constraint nn_groups_group_code not null,
-  group_name    text    constraint nn_groups_group_name not null,
-  group_parent  bigint,
+create table groups(
+  id      bigint  constraint nn_groups_group_id   not null,
+  code    text    constraint nn_groups_group_code not null,
+  name    text    constraint nn_groups_group_name not null,
+  parent  bigint,
   
   constraint pk_groups              primary key (group_id),
   constraint fk_groups_group_parent foreign key (group_parent)  references t_groups(group_id)
