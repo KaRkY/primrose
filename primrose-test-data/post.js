@@ -48,15 +48,29 @@ fs.readFile("./data.json", function(err, data) {
     };
   }, this);
   
-  var options = {
-    uri: "http://localhost:9080/import",
+  request({
+    uri: "http://localhost:9080/login",
     method: "POST",
-    json: transformedAccounts
-  };
-
-  request(options, function (error, response, body) {
+    json: {
+      username: "admin",
+      password: "admin"
+    }
+  }, function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      console.log("Transfere comlete") // Print the shortened url.
+      request({
+        uri: "http://localhost:9080/import",
+        method: "POST",
+        headers: {
+          authorization: response.headers["authorization"]
+        },
+        json: transformedAccounts
+      }, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          console.log("Transfere comlete") // Print the shortened url.
+        } else {
+          console.error(error);
+        }
+      });
     } else {
       console.error(error);
     }

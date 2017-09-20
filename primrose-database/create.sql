@@ -14,10 +14,10 @@ create table principals(
   created_at  timestamp with time zone  constraint  nn_user_users_valid_from  not null  default current_timestamp,
   edited_by   bigint,
   created_at  timestamp with time zone,
-  owner_user  bigint constraint  nn_users_owner_user  not null,
-  owner_group bigint constraint  nn_users_owner_group not null,
   
-  constraint pk_users primary key (id)
+  constraint pk_users                 primary key (id),
+  constraint fk_principals_created_by foreign key (created_by)  references principals(id),
+  constraint fk_principals_edited_by  foreign key (edited_by)   references principals(id)
 );
 comment on table principals is 'Principals table for authentication';
 
@@ -26,7 +26,15 @@ create table credidentials(
   principal bigint                    constraint  nn_credidentials_principal  not null,
   value     text                      constraint  nn_credidentials_value      not null,
   
-  constraint pk_credidentials primary key (id)
+  created_by  bigint                    constraint  nn_users_created_by       not null,
+  created_at  timestamp with time zone  constraint  nn_user_users_valid_from  not null  default current_timestamp,
+  edited_by   bigint,
+  created_at  timestamp with time zone,
+  
+  constraint pk_credidentials             primary key (id)
+  constraint fk_credidentials_principal   foreign key (principal)   references principals(id),
+  constraint fk_credidentials_created_by  foreign key (created_by)  references principals(id),
+  constraint fk_credidentials_edited_by   foreign key (edited_by)   references principals(id)
 );
 comment on table credidentials is 'User credidentials';
 
@@ -36,10 +44,10 @@ create table groups(
   name    text    constraint nn_groups_group_name not null,
   parent  bigint,
   
-  constraint pk_groups              primary key (group_id),
-  constraint fk_groups_group_parent foreign key (group_parent)  references t_groups(group_id)
+  constraint pk_groups        primary key (group_id),
+  constraint fk_groups_parent foreign key (parent)  references groups(id)
 );
-comment on table t_groups is 'Groups';
+comment on table groups is 'Groups';
 
 create table t_user_groups(
   user_group_user_id  bigint  constraint nn_user_groups_user_group_user_id  not null,
