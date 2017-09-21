@@ -38,19 +38,19 @@ create table credidentials(
 );
 comment on table credidentials is 'User credidentials';
 
-create table groups(
-  id      bigint  constraint nn_groups_group_id   not null,
-  code    text    constraint nn_groups_group_code not null,
-  name    text    constraint nn_groups_group_name not null,
+create table roles(
+  id      bigint  constraint nn_roles_id    not null,
+  code    text    constraint nn_roles_code  not null,
+  name    text    constraint nn_roles_name  not null,
   parent  bigint,
   
-  constraint pk_groups        primary key (group_id),
-  constraint fk_groups_parent foreign key (parent)  references groups(id)
+  constraint pk_roles        primary key (id),
+  constraint fk_roles_parent foreign key (parent)  references roles(id)
 );
-comment on table groups is 'Groups';
+comment on table roles is 'Roles';
 
-create table t_user_groups(
-  user_group_user_id  bigint  constraint nn_user_groups_user_group_user_id  not null,
+create table group_members(
+  role  bigint  constraint nn_user_groups_user_group_user_id  not null,
   user_group_group_id bigint  constraint nn_user_groups_user_group_group_id not null,
   
   constraint pk_user_groups                     primary key (user_group_user_id, user_group_group_id),
