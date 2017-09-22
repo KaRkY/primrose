@@ -1,3 +1,5 @@
+drop schema if exists primrose cascade;
+create schema primrose;
 /*
  * 
  * TABLES
@@ -5,15 +7,14 @@
  */
 create table principals(
   id      bigint  constraint  nn_users_id       not null,
-  code    text    constraint  nn_users_code     not null,
-  name    text    constraint  nn_users_name     not null,
+  name    text    constraint  nn_users_name     not null constraint uq_principals_name unique,
   enabled bool    constraint  nn_users_enabled  not null,
   locked  bool    constraint  nn_users_locked   not null,
   
   created_by  bigint                    constraint  nn_users_created_by       not null,
   created_at  timestamp with time zone  constraint  nn_user_users_valid_from  not null  default current_timestamp,
   edited_by   bigint,
-  created_at  timestamp with time zone,
+  edited_at   timestamp with time zone,
   
   constraint pk_users                 primary key (id),
   constraint fk_principals_created_by foreign key (created_by)  references principals(id),
@@ -29,55 +30,80 @@ create table credidentials(
   created_by  bigint                    constraint  nn_users_created_by       not null,
   created_at  timestamp with time zone  constraint  nn_user_users_valid_from  not null  default current_timestamp,
   edited_by   bigint,
-  created_at  timestamp with time zone,
+  edited_at   timestamp with time zone,
   
-  constraint pk_credidentials             primary key (id)
+  constraint pk_credidentials             primary key (id),
   constraint fk_credidentials_principal   foreign key (principal)   references principals(id),
   constraint fk_credidentials_created_by  foreign key (created_by)  references principals(id),
   constraint fk_credidentials_edited_by   foreign key (edited_by)   references principals(id)
 );
 comment on table credidentials is 'User credidentials';
 
-create table roles(
-  id      bigint  constraint nn_roles_id    not null,
-  code    text    constraint nn_roles_code  not null,
-  name    text    constraint nn_roles_name  not null,
+create table principal_groups(
+  id      bigint  constraint nn_principal_groups_id   not null,
+  name    text    constraint nn_principal_groups_name not null constraint uq_principal_groups_name unique,
   parent  bigint,
   
-  constraint pk_roles        primary key (id),
-  constraint fk_roles_parent foreign key (parent)  references roles(id)
+  constraint pk_principal_groups        primary key (id),
+  constraint fk_principal_groups_parent foreign key (parent)  references principal_groups(id)
 );
-comment on table roles is 'Roles';
+comment on table principal_groups is 'Groups';
 
-create table group_members(
-  role  bigint  constraint nn_user_groups_user_group_user_id  not null,
-  user_group_group_id bigint  constraint nn_user_groups_user_group_group_id not null,
+create table principal_roles(
+  id      bigint  constraint nn_roles_id    not null,
+  name    text    constraint nn_roles_name  not null constraint uq_principal_roles_name unique,
   
-  constraint pk_user_groups                     primary key (user_group_user_id, user_group_group_id),
-  constraint fk_user_groups_user_group_user_id  foreign key (user_group_user_id)  references t_users(user_id),
-  constraint fk_user_groups_user_group_group_id foreign key (user_group_group_id)  references t_groups(group_id)
+  constraint pk_principal_roles primary key (id)
 );
-comment on table t_user_groups is 'User groups';
+comment on table principal_roles is 'Roles';
 
-create table t_permissions(
-  permission_id      bigint  constraint nn_permissions_permission_id   not null,
-  permission_code    text    constraint nn_permissions_permission_code not null,
-  permission_name    text    constraint nn_permissions_permission_name not null,
-  permission_parent  bigint,
+create table permissions(
+  id    bigint  constraint nn_permissions_id    not null,
+  name  text    constraint nn_permissions_name  not null constraint uq_permissions_name unique,
   
-  constraint pk_permissions primary key (permission_id)
+  constraint pk_permissions primary key (id)
 );
-comment on table t_permissions is 'Permissions';
+comment on table permissions is 'Permissions';
 
-create table t_group_permissions(
-  group_permission_group_id     bigint  constraint nn_group_permissions_group_permission_group_id       not null,
-  group_permission_permisson_id bigint  constraint nn_group_permissions_group_permission_permission_id  not null,
+create table principal_group_memberships(
+  principal_group bigint  constraint nn_principal_group_memberships_principal_group  not null,
+  principal       bigint  constraint nn_principal_group_memberships_principal        not null,
   
-  constraint pk_group_permissions                               primary key (group_permission_group_id, group_permission_permisson_id),
-  constraint fk_group_permissions_group_permission_group_id     foreign key (group_permission_group_id)     references t_groups(group_id),
-  constraint fk_group_permissions_group_permission_permisson_id foreign key (group_permission_permisson_id) references t_permissions(permission_id)
+  constraint pk_principal_group_memberships                 primary key (principal_group, principal),
+  constraint fk_principal_group_memberships_principal_group foreign key (principal_group) references principal_groups(id),
+  constraint fk_principal_group_memberships_principal       foreign key (principal)       references principals(id)
 );
-comment on table t_group_permissions is 'Group permissions';
+comment on table principal_group_memberships is 'Principal group memberships';
+
+create table principal_role_memberships(
+  principal_role  bigint  constraint nn_principal_role_memberships_principal_role not null,
+  principal       bigint  constraint nn_principal_role_memberships_principal      not null,
+  
+  constraint pk_principal_role_memberships                  primary key (principal_role, principal),
+  constraint fk_principal_role_memberships_principal_group  foreign key (principal_role)  references principal_roles(id),
+  constraint fk_principal_role_memberships_principal        foreign key (principal)       references principals(id)
+);
+comment on table principal_role_memberships is 'Principal role memberhips';
+
+create table group_role_memberships(
+  principal_group bigint  constraint nn_group_role_memberships_principal_group not null,
+  principal_role  bigint  constraint nn_group_role_memberships_principal_role  not null,
+  
+  constraint pk_group_role_memberships                  primary key (principal_group, principal_role),
+  constraint fk_group_role_memberships_principal_group  foreign key (principal_group) references principal_groups(id),
+  constraint fk_group_role_memberships_principal_role   foreign key (principal_role)  references principal_roles(id)
+);
+comment on table group_role_memberships is 'Group role membership';
+
+create table role_permissions(
+  permission      bigint  constraint nn_group_role_memberships_permission     not null,
+  principal_role  bigint  constraint nn_group_role_memberships_principal_role not null,
+  
+  constraint pk_role_permissions                primary key (permission, principal_role),
+  constraint fk_role_permissions_permission     foreign key (permission)      references permissions(id),
+  constraint fk_role_permissions_principal_role foreign key (principal_role)  references principal_roles(id)
+);
+comment on table role_permissions is 'Eole permissions';
 
 create table t_account_types(
   account_type_id       bigint  constraint nn_account_types_account_type_id       not null,
@@ -208,6 +234,64 @@ create sequence s_contact_types start with 1  increment by 1;
  * FUNCTIONS 
  *
  */
+create or replace function pseudo_encrypt(value int) returns int as $$
+declare
+l1 int;
+l2 int;
+r1 int;
+r2 int;
+i int:=0;
+begin
+ l1:= (value >> 16) & 65535;
+ r1:= value & 65535;
+ while i < 3 loop
+   l2 := r1;
+   r2 := l1 # ((((1366 * r1 + 150889) % 714025) / 714025.0) * 32767)::int;
+   l1 := l2;
+   r1 := r2;
+   i := i + 1;
+ end loop;
+ return ((r1 << 16) + l1);
+end;
+$$ LANGUAGE plpgsql;
+
+create or replace function pseudo_encrypt(value bigint) returns bigint as $$
+declare
+l1 bigint;
+l2 bigint;
+r1 bigint;
+r2 bigint;
+i int:=0;
+begin
+    l1:= (value >> 32) & 4294967295::bigint;
+    r1:= value & 4294967295;
+    while i < 3 loop
+        l2 := r1;
+        r2 := l1 # ((((1366.0 * r1 + 150889) % 714025) / 714025.0) * 32767*32767)::int;
+        l1 := l2;
+        r1 := r2;
+        i := i + 1;
+    end loop;
+return ((l1::bigint << 32) + r1);
+end;
+$$ language plpgsql;
+
+create or replace function stringify_bigint(n bigint) returns text as $$
+declare
+ alphabet text:='abcdefghijklmnopqrstuvwxyz0123456789';
+ base int:=length(alphabet); 
+ _n bigint:=abs(n);
+ output text:='';
+begin
+ loop
+   output := output || substr(alphabet, 1+(_n%base)::int, 1);
+   _n := _n / base; 
+   exit when _n=0;
+ end loop;
+ return output;
+end;
+$$ LANGUAGE plpgsql;
+
 create function generate_random_string_base36(size int) returns text as $$
 declare
   chars char[];
@@ -227,195 +311,26 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create function user_unique_code() returns trigger as $$
-declare
-  key text;
-  qry text;
-  found text;
-  min_size int;
+create function unique_code() returns trigger as $$
 begin
-  min_size = 6;
-  
-  loop
-    key := generate_random_string_base36(min_size);
-    
-    if not exists( select 1 from t_users where user_code = key) then
-      exit;
-    end if;
-    
-    min_size = min_size + 1;
-  end loop;
-
-  new.user_code = key;
-
+  new.code = stringify_bigint(pseudo_encrypt(new.id));
   return new;
 end;
 $$ LANGUAGE plpgsql;
 
-create function group_unique_code() returns trigger as $$
-declare
-  key text;
-  qry text;
-  found text;
-  min_size int;
-begin
-  min_size = 6;
-  
-  loop
-    key := generate_random_string_base36(min_size);
-    
-    if not exists( select 1 from t_groups where group_code = key) then
-      exit;
-    end if;
-    
-    min_size = min_size + 1;
-  end loop;
-
-  new.group_code = key;
-
-  return new;
-end;
-$$ LANGUAGE plpgsql;
-
-create function permission_unique_code() returns trigger as $$
-declare
-  key text;
-  qry text;
-  found text;
-  min_size int;
-begin
-  min_size = 6;
-  
-  loop
-    key := generate_random_string_base36(min_size);
-    
-    if not exists( select 1 from t_permissions where permission_code = key) then
-      exit;
-    end if;
-    
-    min_size = min_size + 1;
-  end loop;
-
-  new.permission_code = key;
-
-  return new;
-end;
-$$ LANGUAGE plpgsql;
-
-create function account_unique_code() returns trigger as $$
-declare
-  key text;
-  qry text;
-  found text;
-  min_size int;
-begin
-  min_size = 6;
-  
-  loop
-    key := generate_random_string_base36(min_size);
-    
-    if not exists( select 1 from t_accounts where account_code = key) then
-      exit;
-    end if;
-    
-    min_size = min_size + 1;
-  end loop;
-
-  new.account_code = key;
-
-  return new;
-end;
-$$ LANGUAGE plpgsql;
-
-create function address_unique_code() returns trigger as $$
-declare
-  key text;
-  qry text;
-  found text;
-  min_size int;
-begin
-  min_size = 6;
-  
-  loop
-    key := generate_random_string_base36(min_size);
-    
-    if not exists( select 1 from t_addresses where address_code = key) then
-      exit;
-    end if;
-    
-    min_size = min_size + 1;
-  end loop;
-
-  new.address_code = key;
-
-  return new;
-end;
-$$ LANGUAGE plpgsql;
-
-create function contact_unique_code() returns trigger as $$
-declare
-  key text;
-  qry text;
-  found text;
-  min_size int;
-begin
-  min_size = 6;
-  
-  loop
-    key := generate_random_string_base36(min_size);
-    
-    if not exists( select 1 from t_contacts where contact_code = key) then
-      exit;
-    end if;
-    
-    min_size = min_size + 1;
-  end loop;
-
-  new.contact_code = key;
-
-  return new;
-end;
-$$ LANGUAGE plpgsql;
-
-create trigger user_code        before  insert on t_users       for each row execute procedure user_unique_code();
-create trigger group_code       before  insert on t_groups      for each row execute procedure group_unique_code();
-create trigger permission_code  before  insert on t_permissions for each row execute procedure permission_unique_code();
-create trigger account_code     before  insert on t_accounts    for each row execute procedure account_unique_code();
-create trigger address_code     before  insert on t_addresses   for each row execute procedure address_unique_code();
-create trigger contact_code     before  insert on t_contacts    for each row execute procedure contact_unique_code();
+create trigger account_code           before  insert on t_accounts        for each row execute procedure unique_code();
+create trigger address_code           before  insert on t_addresses       for each row execute procedure unique_code();
+create trigger contact_code           before  insert on t_contacts        for each row execute procedure unique_code();
 
 /*
  * 
  * DATA
  * 
  */
-insert into t_permissions(permission_id, permission_name) values
-(nextval('s_permission'), 'account_view'),
-(nextval('s_permission'), 'account_create'),
-(nextval('s_permission'), 'account_edit'),
-(nextval('s_permission'), 'account_delete'),
-(nextval('s_permission'), 'contact_view'),
-(nextval('s_permission'), 'contact_create'),
-(nextval('s_permission'), 'contact_edit'),
-(nextval('s_permission'), 'contact_delete');
-
-insert into t_groups(group_id, group_name, group_parent) values
-(nextval('s_group'), 'admin', null);
-
-insert into t_group_permissions(group_permission_group_id, group_permission_permisson_id)
-(select currval('s_group'), permission_id from t_permissions);
-
-insert into t_users(user_id, user_name, user_locked, user_enabled) values
-(nextval('s_user'), 'Admin', false, true);
-
-insert into t_user_groups(user_group_group_id, user_group_user_id) values
-(currval('s_group'), currval('s_user'));
-
-insert into t_user_usernames(user_username_id, user_user_id, user_username) values
-(nextval('s_user_username'), currval('s_user'), 'admin');
-
-insert into t_user_passwords(user_password_id, user_user_id, user_password) values
-(nextval('s_user_password'), currval('s_user'), '$2a$10$0JKQjjbqE8uriuKuV7WvOefW3h.ZfhhEu9hr1G0ZSDwyR91ahNEOi');
+insert into permissions(id, name) values 
+(1, 'account_read'),
+(2, 'account_write'),
+(3, 'account_delete');
 
 insert into t_account_types(account_type_id, account_type_code, account_type_default) values 
 (1, 'customer', 'Customer'),
