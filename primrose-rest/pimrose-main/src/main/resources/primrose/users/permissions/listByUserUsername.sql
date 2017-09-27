@@ -1,31 +1,33 @@
-with recursive groups(group_id, group_code, group_name, group_parent) as (
-
-  select
-    g.group_id,
-    g.group_code,
-    g.group_name,
-    g.group_parent
-  from t_groups g
-  inner join t_user_groups ug on ug.user_group_group_id = g.group_id
-  inner join t_users u on u.user_id = ug.user_group_user_id
-  inner join t_user_usernames uu on uu.user_user_id = u.user_id and current_timestamp between uu.valid_from and uu.valid_to
-  where uu.user_username = :user_username
-  and   group_parent is null
+with recursive gr(id, name) as (
+  select principal_groups.id, principal_groups.name
+  from principal_groups
+  join principal_group_memberships on principal_group_memberships.principal_group = principal_groups.id
+  join principals on principals.id = principal_group_memberships.principal
+  where principals.name = 'root'
 
   union all
 
-  select
-    g.group_id,
-    g.group_code,
-    g.group_name,
-    g.group_parent
-  from t_groups g
-  inner join groups gg on gg.group_id = g.group_parent
+  select principal_groups.id, principal_groups.name
+  from principal_groups
+  join gr on gr.id = principal_groups.parent
 )
+select resources.name || ':' || operations.name as granted_authority
+from gr
+join group_role_memberships on group_role_memberships.principal_group = gr.id
+join principal_roles on principal_roles.id = group_role_memberships.principal_role
+join role_permissions on role_permissions.principal_role = principal_roles.id
+join operations on operations.id = role_permissions.operation
+join resources on resources.id = role_permissions.resource
 
-select distinct
-  p.permission_code,
-  p.permission_name
-from groups g
-inner join t_group_permissions gp on gp.group_permission_group_id = g.group_id
-inner join t_permissions p on p.permission_id = gp.group_permission_permisson_id
+union
+
+select resources.name || ':' || operations.name as granted_authority
+from principals
+join principal_role_memberships on principal_role_memberships.principal = principals.id
+join principal_roles on principal_roles.id = principal_role_memberships.principal_role
+join role_permissions on role_permissions.principal_role = principal_roles.id
+join operations on operations.id = role_permissions.operation
+join resources on resources.id = role_permissions.resource
+where principals.name = 'root';
+
+

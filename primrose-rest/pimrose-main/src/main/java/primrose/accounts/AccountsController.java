@@ -3,6 +3,7 @@ package primrose.accounts;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,7 @@ public class AccountsController {
   }
 
   @GetMapping
+  @Secured({"TEST"})
   public ResponseEntity<List<Account>> getAllPaginated(
     @RequestParam(value="page_size", required=false) final Long pageSize,
     @RequestParam(value="page_number", required=false) final Long pageNumber) {
