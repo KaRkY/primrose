@@ -27,7 +27,7 @@
     <database.user>postgres</database.user>
     <database.password>postgres</database.password>
 
-    <jooq.version>3.9.4</jooq.version>
+    <jooq.version>3.9.6</jooq.version>
     <guava.version>23.0</guava.version>
     <immutables.version>2.5.5</immutables.version>
     <jackson.version>2.9.1</jackson.version>
@@ -132,7 +132,8 @@
   </pluginRepositories>
 
   <modules>
-    <module>pimrose-main</module>
+    <module>primrose-main</module>
+    <module>primrose-jooq</module>
   </modules>
 
 </project>

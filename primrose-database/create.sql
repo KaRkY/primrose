@@ -21,22 +21,22 @@ create table principals(
 );
 comment on table principals is 'Principals table for authentication';
 
-create table credidentials(
-  id          bigint                    constraint  nn_credidentials_id         not null,
-  principal   bigint                    constraint  nn_credidentials_principal  not null,
-  value       text                      constraint  nn_credidentials_value      not null,
-  valid_from  timestamp with time zone  constraint  nn_credidentials_valid_from not null  default current_timestamp,
-  valid_to    timestamp with time zone  constraint  nn_credidentials_valid_to   not null  default 'infinity'::timestamp,
-  created_by  bigint                    constraint  nn_credidentials_created_by not null,
-  created_at  timestamp with time zone  constraint  nn_credidentials_created_at not null  default current_timestamp,
+create table credentials(
+  id          bigint                    constraint  nn_credentials_id         not null,
+  principal   bigint                    constraint  nn_credentials_principal  not null,
+  value       text                      constraint  nn_credentials_value      not null,
+  valid_from  timestamp with time zone  constraint  nn_credentials_valid_from not null  default current_timestamp,
+  valid_to    timestamp with time zone  constraint  nn_credentials_valid_to   not null  default 'infinity'::timestamp,
+  created_by  bigint                    constraint  nn_credentials_created_by not null,
+  created_at  timestamp with time zone  constraint  nn_credentials_created_at not null  default current_timestamp,
   edited_by   bigint,
   edited_at   timestamp with time zone,
   
-  constraint pk_credidentials             primary key (id),
-  constraint fk_credidentials_created_by  foreign key (created_by)  references principals(id),
-  constraint fk_credidentials_edited_by   foreign key (edited_by)   references principals(id)
+  constraint pk_credentials             primary key (id),
+  constraint fk_credentials_created_by  foreign key (created_by)  references principals(id),
+  constraint fk_credentials_edited_by   foreign key (edited_by)   references principals(id)
 );
-comment on table credidentials is 'User credidentials';
+comment on table credentials is 'User credentials';
 
 create table principal_groups(
   id          bigint                    constraint  nn_principal_groups_id          not null,
@@ -184,7 +184,7 @@ create table accounts(
   constraint pk_accounts                  primary key (id),
   constraint ck_accounts_positive_range   check (valid_to > valid_from),
   constraint fk_accounts_parent_account   foreign key (parent_account)  references accounts(id),
-  constraint fk_accounts_type             foreign key (account_type)    references account_types(id),
+  constraint fk_accounts_type_type        foreign key (account_type)    references account_types(id),
   constraint fk_accounts_type_created_by  foreign key (created_by)      references principals(id),
   constraint fk_accounts_type_edited_by   foreign key (edited_by)       references principals(id)
 );
@@ -301,7 +301,7 @@ comment on table account_contacts is 'Account contacts by type.';
  * 
  */
 create sequence principals_seq            start with 1  increment by 1;
-create sequence credidentials_seq         start with 1  increment by 1;
+create sequence credentials_seq         start with 1  increment by 1;
 create sequence principal_groups_seq      start with 1  increment by 1;
 create sequence principal_roles_seq       start with 1  increment by 1;
 create sequence account_types_seq         start with 1  increment by 1;
@@ -411,9 +411,16 @@ insert into principals(id, name, enabled, locked, created_by) values
 insert into principals(id, name, enabled, locked, created_by) values
 (nextval('principals_seq'), 'root', true, false, currval('principals_seq'));
 
+insert into principals(id, name, enabled, locked, created_by) values
+(nextval('principals_seq'), 'user', true, false, currval('principals_seq'));
+
 -- root:root
-insert into credidentials(id, principal, value, created_by) values
-(nextval('credidentials_seq'), (select id from principals where name = 'root'), '$2a$10$qLt58Ag/zJ9rOHfaP0AEPuE7pGZe7WY874CKMv/ZY5ZnzNqa1KH4C', (select id from principals where name = 'system'));
+insert into credentials(id, principal, value, created_by) values
+(nextval('credentials_seq'), (select id from principals where name = 'root'), '$2a$10$qLt58Ag/zJ9rOHfaP0AEPuE7pGZe7WY874CKMv/ZY5ZnzNqa1KH4C', (select id from principals where name = 'system'));
+
+-- user:user
+insert into credentials(id, principal, value, created_by) values
+(nextval('credentials_seq'), (select id from principals where name = 'user'), '$2a$10$XwyrDkFzhXuIThsSyqPy1euCxqP4jbItsbHW/xwCki4vXzqfKgyoq', (select id from principals where name = 'system'));
 
 insert into operations(id, name) values 
 (1, 'create'),
@@ -440,14 +447,26 @@ insert into resources(id, name) values
 insert into principal_groups(id, name, created_by) values
 (nextval('principal_groups_seq'), 'root', (select id from principals where name = 'system'));
 
+insert into principal_groups(id, name, created_by) values
+(nextval('principal_groups_seq'), 'users', (select id from principals where name = 'system'));
+
 insert into principal_roles(id, name, created_by) values
 (nextval('principal_roles_seq'), 'root', (select id from principals where name = 'system'));
+
+insert into principal_roles(id, name, created_by) values
+(nextval('principal_roles_seq'), 'Account readers', (select id from principals where name = 'system'));
 
 insert into group_role_memberships(principal_group, principal_role, created_by) values
 ((select id from principal_groups where name = 'root'), (select id from principal_roles where name = 'root'), (select id from principals where name = 'system'));
 
+insert into group_role_memberships(principal_group, principal_role, created_by) values
+((select id from principal_groups where name = 'users'), (select id from principal_roles where name = 'Account readers'), (select id from principals where name = 'system'));
+
 insert into principal_group_memberships(principal_group, principal, created_by) values
 ((select id from principal_groups where name = 'root'), (select id from principals where name = 'root'), (select id from principals where name = 'system'));
+
+insert into principal_group_memberships(principal_group, principal, created_by) values
+((select id from principal_groups where name = 'users'), (select id from principals where name = 'user'), (select id from principals where name = 'system'));
 
 insert into principal_role_memberships(principal_role, principal, created_by) values
 ((select id from principal_roles where name = 'root'), (select id from principals where name = 'root'), (select id from principals where name = 'system'));
@@ -460,6 +479,13 @@ select
   (select id from principals where name = 'system')
 from resources
 cross join operations;
+
+insert into role_permissions(principal_role, operation, resource, created_by) values
+(
+  (select id from principal_roles where name = 'Account readers'), 
+  (select id from operations where name = 'read'), 
+  (select id from resources where name = 'accounts'),
+  (select id from principals where name = 'system'));
 
 insert into account_types(id, name, created_by) values 
 (1, 'Customer', (select id from principals where name = 'system')),
