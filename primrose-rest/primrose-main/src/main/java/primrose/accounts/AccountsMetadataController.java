@@ -11,14 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/metadata/accounts")
 public class AccountsMetadataController {
 
-  private final AccountsRepository accountsRepository;
 
-  public AccountsMetadataController(final AccountsRepository accountsRepository) {
-    this.accountsRepository = accountsRepository;
+  private final AccountsService accountsService;
+
+  public AccountsMetadataController(final AccountsService accountsService) {
+    this.accountsService = accountsService;
   }
 
   @GetMapping("/types")
   public ResponseEntity<List<String>> listTypes() {
-    return ResponseEntity.ok(accountsRepository.loadTypes());
+    return ResponseEntity.ok(accountsService.loadTypes());
   }
 }

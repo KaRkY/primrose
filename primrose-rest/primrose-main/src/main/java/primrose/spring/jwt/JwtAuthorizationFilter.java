@@ -21,17 +21,20 @@ import io.jsonwebtoken.Jwts;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-  public JwtAuthorizationFilter(final AuthenticationManager authManager) {
+  private final JwtProperties jwtProperties;
+
+  public JwtAuthorizationFilter(final AuthenticationManager authManager, final JwtProperties jwtProperties) {
     super(authManager);
+    this.jwtProperties = jwtProperties;
   }
 
   @Override
   protected void doFilterInternal(final HttpServletRequest req,
     final HttpServletResponse res,
     final FilterChain chain) throws IOException, ServletException {
-    final String header = req.getHeader(SecurityConstants.HEADER_STRING);
+    final String header = req.getHeader(jwtProperties.getHeader());
 
-    if (header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
+    if (header == null || !header.startsWith(jwtProperties.getTokenPrefix())) {
       chain.doFilter(req, res);
       return;
     }
@@ -44,12 +47,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
   @SuppressWarnings("unchecked")
   private UsernamePasswordAuthenticationToken getAuthentication(final HttpServletRequest request) {
-    final String token = request.getHeader(SecurityConstants.HEADER_STRING);
+    final String token = request.getHeader(jwtProperties.getHeader());
     if (token != null) {
       // parse the token.
       final Claims body = Jwts.parser()
-        .setSigningKey(SecurityConstants.SECRET)
-        .parseClaimsJws(token.replace(SecurityConstants.TOKEN_PREFIX, ""))
+        .setSigningKey(jwtProperties.getSecret())
+        .parseClaimsJws(token.replace(jwtProperties.getTokenPrefix(), ""))
         .getBody();
 
       if (body.getSubject() != null) {

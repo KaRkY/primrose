@@ -1,4 +1,6 @@
-package primrose.users;
+package primrose.principals;
+
+import java.util.List;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
@@ -8,11 +10,17 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableLoginUser.class)
-@JsonDeserialize(as = ImmutableLoginUser.class)
-public interface LoginUser {
+@JsonSerialize(as = ImmutablePrincipal.class)
+@JsonDeserialize(as = ImmutablePrincipal.class)
+public interface Principal {
 
-  String username();
+  String name();
 
-  String password();
+  String credidentials();
+
+  boolean enabled();
+
+  boolean locked();
+
+  List<String> permissions();
 }

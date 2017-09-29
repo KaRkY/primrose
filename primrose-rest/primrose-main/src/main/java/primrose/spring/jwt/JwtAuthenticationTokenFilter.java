@@ -24,8 +24,11 @@ import io.jsonwebtoken.Jwts;
  */
 public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
 
-    public JwtAuthenticationTokenFilter() {
+    private final JwtProperties jwtProperties;
+
+    public JwtAuthenticationTokenFilter(final JwtProperties jwtProperties) {
         super("/**");
+        this.jwtProperties = jwtProperties;
     }
 
     /**
@@ -34,16 +37,16 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     @SuppressWarnings("unchecked")
     @Override
     public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
-        final String header = request.getHeader(SecurityConstants.HEADER_STRING);
+        final String header = request.getHeader(jwtProperties.getHeader());
 
-        if (header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
+        if (header == null || !header.startsWith(jwtProperties.getTokenPrefix())) {
             return null;
         }
 
-        final String authToken = header.replace(SecurityConstants.TOKEN_PREFIX, "");
+        final String authToken = header.replace(jwtProperties.getTokenPrefix(), "");
 
         final Claims body = Jwts.parser()
-          .setSigningKey(SecurityConstants.SECRET)
+          .setSigningKey(jwtProperties.getSecret())
           .parseClaimsJws(authToken)
           .getBody();
 

@@ -6,9 +6,9 @@ fs.readFile("./data.json", function(err, data) {
   
   var transformedAccounts = accounts.map(function(account) {
     return {
-      type: account.type,
+      accountType: account.type,
       displayName: account.isCompany ? account.company : account.firstName + " " + account.surname,
-      fullName: account.isCompany ? account.company : account.firstName + " " + account.surname,
+      name: account.isCompany ? account.company + " " + account.index : account.firstName + " " + account.surname + " " + account.index,
       email: (account.firstName + "." + account.surname + "@" + account.company.toLowerCase() + account.domain).toLowerCase(),
       phone: account.phone,
       website: (account.isCompany ? account.company + account.domain : account.firstName + "." + account.surname + account.domain).toLowerCase(),
@@ -18,6 +18,7 @@ fs.readFile("./data.json", function(err, data) {
         }
         acc[address.type].push({
           street: address.street,
+          streetNumber: address.streetNumber,
           city: address.city,
           postalCode: address.postalCode,
           state: address.state,
@@ -31,16 +32,9 @@ fs.readFile("./data.json", function(err, data) {
           acc[contact.type] = [];
         }
         acc[contact.type].push({
-          personName: contact.firstName + " " + contact.surname,
-          email: (contact.firstName + "." + contact.surname + "@" + account.company.toLowerCase() + account.domain).toLowerCase(),
-          phone: contact.phone,
-          address: {
-            street: contact.address.street,
-            city: contact.address.city,
-            postalCode: contact.address.postalCode,
-            state: contact.address.state,
-            country: contact.address.country
-          }
+          name: contact.firstName + " " + contact.surname + " " + account.index,
+          email: (contact.firstName + "." + contact.surname + " " + account.index + "@" + account.company.toLowerCase() + account.domain).toLowerCase(),
+          phone: contact.phone
         });
 
         return acc;
@@ -52,8 +46,8 @@ fs.readFile("./data.json", function(err, data) {
     uri: "http://localhost:9080/login",
     method: "POST",
     json: {
-      username: "admin",
-      password: "admin"
+      username: "user",
+      password: "user"
     }
   }, function (error, response, body) {
     if (!error && response.statusCode == 200) {
@@ -68,7 +62,8 @@ fs.readFile("./data.json", function(err, data) {
         if (!error && response.statusCode == 200) {
           console.log("Transfere comlete") // Print the shortened url.
         } else {
-          console.error(error);
+          console.error(response.statusCode);
+          console.error(body);
         }
       });
     } else {

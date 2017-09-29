@@ -1,4 +1,4 @@
-package primrose.security;
+package primrose.principals;
 
 import static org.jooq.impl.DSL.concat;
 import static org.jooq.impl.DSL.currentLocalDateTime;

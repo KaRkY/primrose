@@ -1,60 +1,141 @@
 package primrose.contacts;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import static org.jooq.impl.DSL.value;
+import static pimrose.jooq.Primrose.PRIMROSE;
+import static pimrose.jooq.Sequences.CONTACTS_SEQ;
 
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import java.util.List;
+import java.util.Map;
+
+import org.jooq.DSLContext;
+import org.jooq.exception.NoDataFoundException;
 import org.springframework.stereotype.Repository;
-
-import primrose.spring.SQLLoader;
 
 @Repository
 public class ContactsRepository {
-  private final SQLLoader loader;
-  private final NamedParameterJdbcTemplate template;
 
-  public ContactsRepository(
-    final SQLLoader loader,
-    final NamedParameterJdbcTemplate template) {
-    this.loader = loader;
-    this.template = template;
+  private final DSLContext create;
+
+  public ContactsRepository(final DSLContext create) {
+    this.create = create;
   }
 
-  public void insert(final long contactId, final Contact contact) {
-    template.update(
-      loader.loadSQL("primrose.contacts.insert"),
-      new MapSqlParameterSource()
-        .addValue("contact_id", contactId)
-        .addValue("email", contact.email())
-        .addValue("person_name", contact.personName())
-        .addValue("phone", contact.phone()));
+  public long nextValAddresses() {
+    return create
+      .select(CONTACTS_SEQ.nextval())
+      .fetchOne()
+      .value1();
   }
 
-  public Contact getById(final long contactId) {
-    return template
-      .queryForObject(
-        loader.loadSQL("primrose.contacts.getById"),
-        new MapSqlParameterSource()
-          .addValue("contact_id", contactId),
-        this::map);
+  public void insert(final long contactId, final Contact contact, final String user) {
+    create
+      .insertInto(PRIMROSE.CONTACTS)
+      .columns(
+        PRIMROSE.CONTACTS.ID,
+        PRIMROSE.CONTACTS.NAME,
+        PRIMROSE.CONTACTS.EMAIL,
+        PRIMROSE.CONTACTS.PHONE,
+        PRIMROSE.CONTACTS.CREATED_BY)
+      .values(
+        value(contactId),
+        value(contact.name()),
+        value(contact.email()),
+        value(contact.phone()),
+        create
+          .select(PRIMROSE.PRINCIPALS.ID)
+          .from(PRIMROSE.PRINCIPALS)
+          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
+          .asField())
+      .execute();
   }
 
-  public Contact getByCode(final String contactCode) {
-    return template
-      .queryForObject(
-        loader.loadSQL("primrose.contacts.getByCode"),
-        new MapSqlParameterSource()
-          .addValue("contact_code", contactCode),
-        this::map);
+  public void insert(final long accountId, final long contactId, final String contactType, final String user) {
+    create
+      .insertInto(PRIMROSE.ACCOUNT_CONTACTS)
+      .columns(
+        PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT,
+        PRIMROSE.ACCOUNT_CONTACTS.CONTACT,
+        PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE,
+        PRIMROSE.ACCOUNT_CONTACTS.CREATED_BY)
+      .values(
+        value(accountId),
+        value(contactId),
+        create
+          .select(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID)
+          .from(PRIMROSE.ACCOUNT_CONTACT_TYPES)
+          .where(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME.eq(contactType))
+          .asField(),
+        create
+          .select(PRIMROSE.PRINCIPALS.ID)
+          .from(PRIMROSE.PRINCIPALS)
+          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
+          .asField())
+      .execute();
   }
 
-  private Contact map(final ResultSet rs, final int rownum) throws SQLException {
-    return ImmutableContact.builder()
-      .code(rs.getString("contact_code"))
-      .personName(rs.getString("person_name"))
-      .phone(rs.getString("phone"))
-      .email(rs.getString("email"))
-      .build();
+  public Contact loadById(final long contactId) {
+    return create
+      .select(
+        PRIMROSE.CONTACTS.ID,
+        PRIMROSE.CONTACTS.NAME,
+        PRIMROSE.CONTACTS.EMAIL,
+        PRIMROSE.CONTACTS.PHONE)
+      .from(PRIMROSE.CONTACTS)
+      .where(PRIMROSE.CONTACTS.ID.eq(contactId))
+      .fetchOptional(record -> ImmutableContact
+        .builder()
+        .id(record.getValue(PRIMROSE.CONTACTS.ID))
+        .name(record.getValue(PRIMROSE.CONTACTS.NAME))
+        .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
+        .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
+        .build())
+      .orElseThrow(() -> new NoDataFoundException("No data"));
+  }
+
+  public Contact loadByName(final String contactName) {
+    return create
+      .select(
+        PRIMROSE.CONTACTS.ID,
+        PRIMROSE.CONTACTS.NAME,
+        PRIMROSE.CONTACTS.EMAIL,
+        PRIMROSE.CONTACTS.PHONE)
+      .from(PRIMROSE.CONTACTS)
+      .where(PRIMROSE.CONTACTS.NAME.eq(contactName))
+      .fetchOptional(record -> ImmutableContact
+        .builder()
+        .id(record.getValue(PRIMROSE.CONTACTS.ID))
+        .name(record.getValue(PRIMROSE.CONTACTS.NAME))
+        .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
+        .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
+        .build())
+      .orElseThrow(() -> new NoDataFoundException("No data"));
+  }
+
+  public Map<String, List<Contact>> loadByAccountId(final Long accountId) {
+    return create
+      .select(
+        PRIMROSE.CONTACTS.ID,
+        PRIMROSE.CONTACTS.NAME,
+        PRIMROSE.CONTACTS.EMAIL,
+        PRIMROSE.CONTACTS.PHONE,
+        PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME)
+      .from(PRIMROSE.CONTACTS)
+      .join(PRIMROSE.ACCOUNT_CONTACTS).on(PRIMROSE.ACCOUNT_CONTACTS.CONTACT.eq(PRIMROSE.CONTACTS.ID))
+      .join(PRIMROSE.ACCOUNT_CONTACT_TYPES).on(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE))
+      .where(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(accountId))
+      .fetchGroups(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME, record -> ImmutableContact
+        .builder()
+        .id(record.getValue(PRIMROSE.CONTACTS.ID))
+        .name(record.getValue(PRIMROSE.CONTACTS.NAME))
+        .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
+        .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
+        .build());
+  }
+
+  public List<String> loadContactTypes() {
+    return create
+      .select(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME)
+      .from(PRIMROSE.ACCOUNT_CONTACT_TYPES)
+      .fetch(0, String.class);
   }
 }

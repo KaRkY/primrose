@@ -1,65 +1,142 @@
 package primrose.addresses;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import static org.jooq.impl.DSL.value;
+import static pimrose.jooq.Primrose.PRIMROSE;
+import static pimrose.jooq.Sequences.ADDRESSES_SEQ;
 
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import java.util.List;
+import java.util.Map;
+
+import org.jooq.DSLContext;
+import org.jooq.exception.NoDataFoundException;
 import org.springframework.stereotype.Repository;
-
-import primrose.spring.SQLLoader;
 
 @Repository
 public class AddressesRepository {
-  private final SQLLoader loader;
-  private final NamedParameterJdbcTemplate template;
 
-  public AddressesRepository(
-    final SQLLoader loader,
-    final NamedParameterJdbcTemplate template) {
-    this.loader = loader;
-    this.template = template;
+  private final DSLContext create;
+
+  public AddressesRepository(final DSLContext create) {
+    this.create = create;
   }
 
-  public void insert(final long addressId, final Address address) {
-    template.update(
-      loader.loadSQL("primrose.addresses.insert"),
-      new MapSqlParameterSource()
-        .addValue("address_id", addressId)
-        .addValue("street", address.street())
-        .addValue("city", address.city())
-        .addValue("postal_code", address.postalCode())
-        .addValue("state", address.state())
-        .addValue("country", address.country()));
+  public long nextValAddresses() {
+    return create
+      .select(ADDRESSES_SEQ.nextval())
+      .fetchOne()
+      .value1();
   }
 
-  public Address getById(final long addressId) {
-    return template
-      .queryForObject(
-        loader.loadSQL("primrose.addresses.getById"),
-        new MapSqlParameterSource()
-          .addValue("address_id", addressId),
-        this::map);
+  public void insert(final long addressId, final Address address, final String user) {
+    create
+      .insertInto(PRIMROSE.ADDRESSES)
+      .columns(
+        PRIMROSE.ADDRESSES.ID,
+        PRIMROSE.ADDRESSES.STREET,
+        PRIMROSE.ADDRESSES.STREET_NUMBER,
+        PRIMROSE.ADDRESSES.CITY,
+        PRIMROSE.ADDRESSES.POSTAL_CODE,
+        PRIMROSE.ADDRESSES.STATE,
+        PRIMROSE.ADDRESSES.COUNTRY,
+        PRIMROSE.ADDRESSES.CREATED_BY)
+      .values(
+        value(addressId),
+        value(address.street()),
+        value(address.streetNumber()),
+        value(address.city()),
+        value(address.postalCode()),
+        value(address.state()),
+        value(address.country()),
+        create
+          .select(PRIMROSE.PRINCIPALS.ID)
+          .from(PRIMROSE.PRINCIPALS)
+          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
+          .asField())
+      .execute();
   }
 
-  public Address getByCode(final long addressCode) {
-    return template
-      .queryForObject(
-        loader.loadSQL("primrose.addresses.getByCode"),
-        new MapSqlParameterSource()
-          .addValue("address_code", addressCode),
-        this::map);
+  public void insert(final long accountId, final long addressId, final String addressType, final String user) {
+    create
+      .insertInto(PRIMROSE.ACCOUNT_ADDRESSES)
+      .columns(
+        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT,
+        PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS,
+        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE,
+        PRIMROSE.ACCOUNT_ADDRESSES.CREATED_BY)
+      .values(
+        value(accountId),
+        value(addressId),
+        create
+          .select(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID)
+          .from(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
+          .where(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(addressType))
+          .asField(),
+        create
+          .select(PRIMROSE.PRINCIPALS.ID)
+          .from(PRIMROSE.PRINCIPALS)
+          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
+          .asField())
+      .execute();
   }
 
-  private Address map(final ResultSet rs, final int rownum) throws SQLException {
-    return ImmutableAddress.builder()
-      .code(rs.getString("address_code"))
-      .street(rs.getString("street"))
-      .state(rs.getString("state"))
-      .postalCode(rs.getString("postal_code"))
-      .country(rs.getString("country"))
-      .city(rs.getString("city"))
-      .build();
+  public Address loadById(final long addressId) {
+    return create
+      .select(
+        PRIMROSE.ADDRESSES.ID,
+        PRIMROSE.ADDRESSES.STREET,
+        PRIMROSE.ADDRESSES.STREET_NUMBER,
+        PRIMROSE.ADDRESSES.CITY,
+        PRIMROSE.ADDRESSES.POSTAL_CODE,
+        PRIMROSE.ADDRESSES.STATE,
+        PRIMROSE.ADDRESSES.COUNTRY)
+      .from(PRIMROSE.ADDRESSES)
+      .where(PRIMROSE.ADDRESSES.ID.eq(addressId))
+      .fetchOptional(record -> ImmutableAddress
+        .builder()
+        .id(record.getValue(PRIMROSE.ADDRESSES.ID))
+        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
+        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
+        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
+        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
+        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
+        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
+        .build())
+      .orElseThrow(() -> new NoDataFoundException("No data"));
+  }
+
+  public Map<String, List<Address>> loadByAccountId(final long accountId) {
+    return create
+      .select(
+        PRIMROSE.ADDRESSES.ID,
+        PRIMROSE.ADDRESSES.STREET,
+        PRIMROSE.ADDRESSES.STREET_NUMBER,
+        PRIMROSE.ADDRESSES.CITY,
+        PRIMROSE.ADDRESSES.POSTAL_CODE,
+        PRIMROSE.ADDRESSES.STATE,
+        PRIMROSE.ADDRESSES.COUNTRY,
+        PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME)
+      .from(PRIMROSE.ADDRESSES)
+      .join(PRIMROSE.ACCOUNT_ADDRESSES).on(PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS.eq(PRIMROSE.ADDRESSES.ID))
+      .join(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
+      .on(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID.eq(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE))
+      .where(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(accountId))
+      .fetchGroups(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME, record -> ImmutableAddress
+        .builder()
+        .id(record.getValue(PRIMROSE.ADDRESSES.ID))
+        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
+        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
+        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
+        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
+        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
+        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
+        .build());
+  }
+
+  public List<String> loadAccountTypes() {
+    return create
+      .select(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME)
+      .from(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
+      .fetch(0, String.class);
   }
 
 }

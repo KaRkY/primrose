@@ -61,6 +61,7 @@ public class AccountsRepository {
   public Account loadById(final long accountId) {
     return create
       .select(
+        PRIMROSE.ACCOUNTS.ID,
         PRIMROSE.ACCOUNTS.NAME,
         PRIMROSE.ACCOUNTS.DISPLAY_NAME,
         PRIMROSE.ACCOUNTS.DESCRIPTION,
@@ -72,6 +73,7 @@ public class AccountsRepository {
       .where(PRIMROSE.ACCOUNTS.ID.eq(accountId))
       .fetchOptional(record -> ImmutableAccount
         .builder()
+        .id(record.getValue(PRIMROSE.ACCOUNTS.ID))
         .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
         .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
         .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))
@@ -85,6 +87,7 @@ public class AccountsRepository {
   public Account loadByName(final String accountName) {
     return create
       .select(
+        PRIMROSE.ACCOUNTS.ID,
         PRIMROSE.ACCOUNTS.NAME,
         PRIMROSE.ACCOUNTS.DISPLAY_NAME,
         PRIMROSE.ACCOUNTS.DESCRIPTION,
@@ -96,6 +99,7 @@ public class AccountsRepository {
       .where(PRIMROSE.ACCOUNTS.NAME.eq(accountName))
       .fetchOptional(record -> ImmutableAccount
         .builder()
+        .id(record.getValue(PRIMROSE.ACCOUNTS.ID))
         .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
         .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
         .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))

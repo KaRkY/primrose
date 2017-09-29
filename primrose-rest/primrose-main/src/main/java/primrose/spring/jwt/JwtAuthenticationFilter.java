@@ -21,14 +21,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import primrose.users.ImmutableLoginUser;
-import primrose.users.LoginUser;
+import primrose.principals.ImmutableLoginUser;
+import primrose.principals.LoginUser;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-  public JwtAuthenticationFilter() {
+  private final JwtProperties jwtProperties;
+
+  public JwtAuthenticationFilter(final JwtProperties jwtProperties) {
     super();
-    setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(SecurityConstants.SIGN_UP_URL));
+    this.jwtProperties = jwtProperties;
+    setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtProperties.getLoginUrl()));
   }
 
   @Override
@@ -56,9 +59,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
       .setSubject(auth.getName())
       .claim("permissons",
         auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()))
-      .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
-      .signWith(SignatureAlgorithm.HS512, SecurityConstants.SECRET)
+      .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationTime()))
+      .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret())
       .compact();
-    res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+    res.addHeader(jwtProperties.getHeader(), jwtProperties.getTokenPrefix() + token);
   }
 }

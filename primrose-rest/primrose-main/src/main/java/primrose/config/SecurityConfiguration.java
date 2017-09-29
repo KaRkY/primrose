@@ -9,19 +9,23 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import primrose.security.PrincipalUserDetailsService;
+import primrose.principals.PrincipalUserDetailsService;
 import primrose.spring.DefaultRolesPrefixPostProcessor;
 import primrose.spring.jwt.JwtAuthenticationFilter;
 import primrose.spring.jwt.JwtAuthorizationFilter;
-import primrose.spring.jwt.SecurityConstants;
+import primrose.spring.jwt.JwtProperties;
 
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   private final PrincipalUserDetailsService principalUserDetailsService;
+  private final JwtProperties jwtProperties;
 
-  public SecurityConfiguration(final PrincipalUserDetailsService principalUserDetailsService) {
+  public SecurityConfiguration(
+    final PrincipalUserDetailsService principalUserDetailsService,
+    final JwtProperties jwtProperties) {
     this.principalUserDetailsService = principalUserDetailsService;
+    this.jwtProperties = jwtProperties;
   }
 
   @Bean
@@ -36,14 +40,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Bean
   public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-    final JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
+    final JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtProperties);
     filter.setAuthenticationManager(authenticationManager());
     return filter;
   }
 
   @Bean
   public JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
-    return new JwtAuthorizationFilter(authenticationManager());
+    return new JwtAuthorizationFilter(authenticationManager(), jwtProperties);
   }
 
   @Override
@@ -56,7 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
       .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
       .and()
       .authorizeRequests()
-      .antMatchers(SecurityConstants.SIGN_UP_URL).permitAll()
+      .antMatchers(jwtProperties.getLoginUrl()).permitAll()
       .antMatchers("/error").permitAll()
       .anyRequest().authenticated()
       .and()

@@ -1,13 +1,14 @@
 package primrose.accounts;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.collect.Multimap;
 
 import primrose.addresses.Address;
 import primrose.contacts.Contact;
@@ -17,6 +18,10 @@ import primrose.contacts.Contact;
 @JsonSerialize(as = ImmutableAccount.class)
 @JsonDeserialize(as = ImmutableAccount.class)
 public interface Account {
+
+  long id();
+
+  String code();
 
   String accountType();
 
@@ -38,8 +43,8 @@ public interface Account {
 
   LocalDateTime validTo();
 
-  Multimap<String, Address> addresses();
+  Map<String, List<Address>> addresses();
 
-  Multimap<String, Contact> contacts();
+  Map<String, List<Contact>> contacts();
 
 }

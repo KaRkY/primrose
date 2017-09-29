@@ -5,9 +5,9 @@ fs.readFile("./data.json", function(err, data) {
 
   var transformedAccounts = accounts.map(function(account) {
     return {
-      type: account.type,
+      accountType: account.type,
       displayName: account.isCompany ? account.company : account.firstName + " " + account.surname,
-      fullName: account.isCompany ? account.company : account.firstName + " " + account.surname,
+      name: account.isCompany ? account.company : account.firstName + " " + account.surname,
       email: (account.firstName + "." + account.surname + "@" + account.company.toLowerCase() + account.domain).toLowerCase(),
       phone: account.phone,
       website: (account.isCompany ? account.company + account.domain : account.firstName + "." + account.surname + account.domain).toLowerCase(),
@@ -30,16 +30,9 @@ fs.readFile("./data.json", function(err, data) {
           acc[contact.type] = [];
         }
         acc[contact.type].push({
-          personName: contact.firstName + " " + contact.surname,
+          name: contact.firstName + " " + contact.surname,
           email: (contact.firstName + "." + contact.surname + "@" + account.company.toLowerCase() + account.domain).toLowerCase(),
-          phone: contact.phone,
-          address: {
-            street: contact.address.street,
-            city: contact.address.city,
-            postalCode: contact.address.postalCode,
-            state: contact.address.state,
-            country: contact.address.country
-          }
+          phone: contact.phone
         });
 
         return acc;

@@ -205,7 +205,8 @@ create table addresses(
   
   constraint pk_addresses             primary key (id),
   constraint fk_addresses_created_by  foreign key (created_by)  references principals(id),
-  constraint fk_addresses_edited_by   foreign key (edited_by)   references principals(id)
+  constraint fk_addresses_edited_by   foreign key (edited_by)   references principals(id),
+  constraint uq_addresses             unique (street, street_number, city, postal_code, state, country)
 );
 comment on table addresses is 'Simple address data.';
 
@@ -316,7 +317,7 @@ create sequence account_contact_types_seq start with 1  increment by 1;
  * FUNCTIONS 
  *
  */
-create or replace function pseudo_encrypt(value int) returns int as $$
+create function pseudo_encrypt(value int) returns int as $$
 declare
 l1 int;
 l2 int;
@@ -329,6 +330,7 @@ begin
  while i < 3 loop
    l2 := r1;
    r2 := l1 # ((((1366 * r1 + 150889) % 714025) / 714025.0) * 32767)::int;
+   raise notice 'test %', r2;
    l1 := l2;
    r1 := r2;
    i := i + 1;
@@ -337,7 +339,7 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create or replace function pseudo_encrypt(value bigint) returns bigint as $$
+create function pseudo_encrypt(value bigint) returns bigint as $$
 declare
 l1 bigint;
 l2 bigint;
@@ -349,30 +351,48 @@ begin
     r1:= value & 4294967295;
     while i < 3 loop
         l2 := r1;
-        r2 := l1 # ((((1366.0 * r1 + 150889) % 714025) / 714025.0) * 32767*32767)::int;
+        r2 := l1 # ((((1366.0 * r1 + 150889) % 714025) / 714025.0) * 2147483647)::int;
+        raise notice 'test %', r2;
         l1 := l2;
         r1 := r2;
         i := i + 1;
     end loop;
-return ((l1::bigint << 32) + r1);
+return ((r1::bigint << 32) + l1);
 end;
 $$ language plpgsql;
 
-create or replace function stringify_bigint(n bigint) returns text as $$
-declare
- alphabet text:='abcdefghijklmnopqrstuvwxyz0123456789';
- base int:=length(alphabet); 
- _n bigint:=abs(n);
- output text:='';
-begin
- loop
-   output := output || substr(alphabet, 1+(_n%base)::int, 1);
-   _n := _n / base; 
-   exit when _n=0;
- end loop;
- return output;
-end;
-$$ LANGUAGE plpgsql;
+create function number_to_base(num bigint, base integer) returns text as $$
+with recursive n(i, n, r) as (
+    select -1, num, 0
+  union all
+    select i + 1, n / base, (n % base)::int
+    from n
+    where n > 0
+)
+select string_agg(ch, '')
+from (
+  select case
+           when r between 0 and 9 then r::text
+           when r between 10 and 35 then chr(ascii('a') + r - 10)
+           else '%'
+         end ch
+  from n
+  where i >= 0
+  order by i desc
+) ch
+$$ language sql;
+
+create function number_from_base(num text, base integer) returns numeric as $$
+select sum(exp * cn)
+from (
+  select base::numeric ^ (row_number() over () - 1) exp,
+         case
+           when ch between '0' and '9' then ascii(ch) - ascii('0')
+           when ch between 'a' and 'z' then 10 + ascii(ch) - ascii('a')
+         end cn
+  from regexp_split_to_table(reverse(lower(num)), '') ch(ch)
+) sub
+$$ language sql;
 
 create function generate_random_string_base36(size int) returns text as $$
 declare
@@ -454,13 +474,16 @@ insert into principal_roles(id, name, created_by) values
 (nextval('principal_roles_seq'), 'root', (select id from principals where name = 'system'));
 
 insert into principal_roles(id, name, created_by) values
-(nextval('principal_roles_seq'), 'Account readers', (select id from principals where name = 'system'));
+(nextval('principal_roles_seq'), 'Account reader', (select id from principals where name = 'system'));
+
+insert into principal_roles(id, name, created_by) values
+(nextval('principal_roles_seq'), 'Data importer', (select id from principals where name = 'system'));
 
 insert into group_role_memberships(principal_group, principal_role, created_by) values
 ((select id from principal_groups where name = 'root'), (select id from principal_roles where name = 'root'), (select id from principals where name = 'system'));
 
 insert into group_role_memberships(principal_group, principal_role, created_by) values
-((select id from principal_groups where name = 'users'), (select id from principal_roles where name = 'Account readers'), (select id from principals where name = 'system'));
+((select id from principal_groups where name = 'users'), (select id from principal_roles where name = 'Account reader'), (select id from principals where name = 'system'));
 
 insert into principal_group_memberships(principal_group, principal, created_by) values
 ((select id from principal_groups where name = 'root'), (select id from principals where name = 'root'), (select id from principals where name = 'system'));
@@ -470,6 +493,9 @@ insert into principal_group_memberships(principal_group, principal, created_by) 
 
 insert into principal_role_memberships(principal_role, principal, created_by) values
 ((select id from principal_roles where name = 'root'), (select id from principals where name = 'root'), (select id from principals where name = 'system'));
+
+insert into principal_role_memberships(principal_role, principal, created_by) values
+((select id from principal_roles where name = 'Data importer'), (select id from principals where name = 'user'), (select id from principals where name = 'system'));
 
 insert into role_permissions(principal_role, operation, resource, created_by)
 select
@@ -482,10 +508,26 @@ cross join operations;
 
 insert into role_permissions(principal_role, operation, resource, created_by) values
 (
-  (select id from principal_roles where name = 'Account readers'), 
+  (select id from principal_roles where name = 'Account reader'), 
   (select id from operations where name = 'read'), 
   (select id from resources where name = 'accounts'),
   (select id from principals where name = 'system'));
+
+insert into role_permissions(principal_role, operation, resource, created_by)
+select 
+  (select id from principal_roles where name = 'Data importer'), 
+  (select id from operations where name = 'create'),
+  id,
+  (select id from principals where name = 'system')
+from resources;
+
+insert into role_permissions(principal_role, operation, resource, created_by)
+select 
+  (select id from principal_roles where name = 'Data importer'), 
+  (select id from operations where name = 'read'),
+  id,
+  (select id from principals where name = 'system')
+from resources;
 
 insert into account_types(id, name, created_by) values 
 (1, 'Customer', (select id from principals where name = 'system')),

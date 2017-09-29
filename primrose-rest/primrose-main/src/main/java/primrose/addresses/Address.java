@@ -11,9 +11,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableAddress.class)
 @JsonDeserialize(as = ImmutableAddress.class)
 public interface Address {
-  String code();
+
+  long id();
 
   String street();
+
+  String streetNumber();
 
   String city();
 

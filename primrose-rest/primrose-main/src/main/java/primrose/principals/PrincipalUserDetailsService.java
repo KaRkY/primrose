@@ -1,4 +1,4 @@
-package primrose.security;
+package primrose.principals;
 
 import static java.util.stream.Collectors.toList;
 
