@@ -330,7 +330,6 @@ begin
  while i < 3 loop
    l2 := r1;
    r2 := l1 # ((((1366 * r1 + 150889) % 714025) / 714025.0) * 32767)::int;
-   raise notice 'test %', r2;
    l1 := l2;
    r1 := r2;
    i := i + 1;

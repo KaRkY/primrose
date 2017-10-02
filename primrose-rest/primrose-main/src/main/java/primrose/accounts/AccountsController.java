@@ -20,12 +20,16 @@ public class AccountsController {
     this.accountsService = accountsService;
   }
 
-  @GetMapping("/{code}")
+  @GetMapping(
+    path = "/{code}",
+    produces = { "application/primrose.account.v.1.0+json" })
   public ResponseEntity<Account> loadByCode(@PathVariable("code") final String code) {
     return ResponseEntity.ok(accountsService.loadById(Encrypt.pseudo(Long.valueOf(code, 36))));
   }
 
-  @PostMapping
+  @PostMapping(
+    consumes = { "application/primrose.account.v.1.0+json" },
+    produces = { "application/primrose.account.v.1.0+json" })
   public ResponseEntity<Account> save(@RequestBody final Account account) {
     return ResponseEntity.ok(accountsService.save(account));
   }

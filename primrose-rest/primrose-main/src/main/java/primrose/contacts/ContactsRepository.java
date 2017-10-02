@@ -121,7 +121,8 @@ public class ContactsRepository {
         PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME)
       .from(PRIMROSE.CONTACTS)
       .join(PRIMROSE.ACCOUNT_CONTACTS).on(PRIMROSE.ACCOUNT_CONTACTS.CONTACT.eq(PRIMROSE.CONTACTS.ID))
-      .join(PRIMROSE.ACCOUNT_CONTACT_TYPES).on(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE))
+      .join(PRIMROSE.ACCOUNT_CONTACT_TYPES)
+      .on(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE))
       .where(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(accountId))
       .fetchGroups(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME, record -> ImmutableContact
         .builder()
@@ -132,10 +133,4 @@ public class ContactsRepository {
         .build());
   }
 
-  public List<String> loadContactTypes() {
-    return create
-      .select(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME)
-      .from(PRIMROSE.ACCOUNT_CONTACT_TYPES)
-      .fetch(0, String.class);
-  }
 }

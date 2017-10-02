@@ -18,6 +18,7 @@ import primrose.contacts.Contact;
 @JsonSerialize(as = ImmutableAccount.class)
 @JsonDeserialize(as = ImmutableAccount.class)
 public interface Account {
+  static final String MIME_TYPE = "application/primrose.account.v.1.0+json";
 
   long id();
 

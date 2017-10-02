@@ -23,8 +23,17 @@ public class AccountsAddressesController {
     this.addressesService = addressesService;
   }
 
-  @GetMapping()
+  @GetMapping(produces = { "application/primrose.account.address.list.v.1.0+json" })
   public ResponseEntity<Map<String, List<Address>>> listByAccount(@PathVariable("account") final String account) {
     return ResponseEntity.ok(addressesService.loadByAccountId(Encrypt.pseudo(Long.valueOf(account, 36))));
+  }
+
+  @GetMapping(path = "/{address}", produces = { "application/primrose.account.address.v.1.0+json" })
+  public ResponseEntity<Address> load(@PathVariable("account") final String account,
+    @PathVariable("address") final String address) {
+    return ResponseEntity.ok(
+      addressesService.loadById(
+        Encrypt.pseudo(Long.valueOf(account, 36)),
+        Encrypt.pseudo(Long.valueOf(address, 36))));
   }
 }

@@ -3,7 +3,6 @@ package primrose.contacts;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,11 +41,5 @@ public class ContactsService {
   @Secured({ "contacts:read", "account_contacts:read" })
   public Map<String, List<Contact>> loadByAccountId(final Long accountId) {
     return contactsRepository.loadByAccountId(accountId);
-  }
-
-  @Transactional(readOnly = true)
-  @Cacheable("contactTypes")
-  public List<String> loadContactTypes() {
-    return contactsRepository.loadContactTypes();
   }
 }

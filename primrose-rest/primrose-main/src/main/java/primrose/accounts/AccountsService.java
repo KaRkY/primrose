@@ -1,8 +1,5 @@
 package primrose.accounts;
 
-import java.util.List;
-
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -59,11 +56,5 @@ public class AccountsService {
   @Secured({ "accounts:read" })
   public Account loadById(final long accountId) {
     return accountsRepository.loadById(accountId);
-  }
-
-  @Transactional(readOnly = true)
-  @Cacheable("accountTypes")
-  public List<String> loadTypes() {
-    return accountsRepository.loadTypes();
   }
 }

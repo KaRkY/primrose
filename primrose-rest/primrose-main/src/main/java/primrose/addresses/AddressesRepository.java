@@ -104,6 +104,34 @@ public class AddressesRepository {
       .orElseThrow(() -> new NoDataFoundException("No data"));
   }
 
+  public Address loadById(final long accountId, final long addressId) {
+    return create
+      .select(
+        PRIMROSE.ADDRESSES.ID,
+        PRIMROSE.ADDRESSES.STREET,
+        PRIMROSE.ADDRESSES.STREET_NUMBER,
+        PRIMROSE.ADDRESSES.CITY,
+        PRIMROSE.ADDRESSES.POSTAL_CODE,
+        PRIMROSE.ADDRESSES.STATE,
+        PRIMROSE.ADDRESSES.COUNTRY)
+      .from(PRIMROSE.ADDRESSES)
+      .join(PRIMROSE.ACCOUNT_ADDRESSES).on(PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS.eq(PRIMROSE.ADDRESSES.ID))
+      .where(
+        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(accountId),
+        PRIMROSE.ADDRESSES.ID.eq(addressId))
+      .fetchOptional(record -> ImmutableAddress
+        .builder()
+        .id(record.getValue(PRIMROSE.ADDRESSES.ID))
+        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
+        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
+        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
+        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
+        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
+        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
+        .build())
+      .orElseThrow(() -> new NoDataFoundException("No data"));
+  }
+
   public Map<String, List<Address>> loadByAccountId(final long accountId) {
     return create
       .select(
@@ -130,13 +158,6 @@ public class AddressesRepository {
         .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
         .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
         .build());
-  }
-
-  public List<String> loadAccountTypes() {
-    return create
-      .select(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME)
-      .from(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
-      .fetch(0, String.class);
   }
 
 }

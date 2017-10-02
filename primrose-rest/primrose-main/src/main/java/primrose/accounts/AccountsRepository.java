@@ -4,8 +4,6 @@ import static org.jooq.impl.DSL.value;
 import static pimrose.jooq.Primrose.PRIMROSE;
 import static pimrose.jooq.Sequences.ACCOUNTS_SEQ;
 
-import java.util.List;
-
 import org.jooq.DSLContext;
 import org.jooq.exception.NoDataFoundException;
 import org.springframework.stereotype.Repository;
@@ -108,12 +106,5 @@ public class AccountsRepository {
         .accountType(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
         .build())
       .orElseThrow(() -> new NoDataFoundException("Missing data."));
-  }
-
-  public List<String> loadTypes() {
-    return create
-      .select(PRIMROSE.ACCOUNT_TYPES.NAME)
-      .from(PRIMROSE.ACCOUNT_TYPES)
-      .fetch(0, String.class);
   }
 }

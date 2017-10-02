@@ -3,7 +3,6 @@ package primrose.addresses;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,14 +32,14 @@ public class AddressesService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "account_addresses:read", "addresses:read" })
-  public Map<String, List<Address>> loadByAccountId(final long accountId) {
-    return addressesRepository.loadByAccountId(accountId);
+  @Secured({ "addresses:read" })
+  public Address loadById(final long accountId, final long addressId) {
+    return addressesRepository.loadById(accountId, addressId);
   }
 
   @Transactional(readOnly = true)
-  @Cacheable("accountTypes")
-  public List<String> loadAccountTypes() {
-    return addressesRepository.loadAccountTypes();
+  @Secured({ "account_addresses:read", "addresses:read" })
+  public Map<String, List<Address>> loadByAccountId(final long accountId) {
+    return addressesRepository.loadByAccountId(accountId);
   }
 }

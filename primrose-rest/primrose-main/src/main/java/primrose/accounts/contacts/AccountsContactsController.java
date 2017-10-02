@@ -23,7 +23,7 @@ public class AccountsContactsController {
     this.contactsService = contactsService;
   }
 
-  @GetMapping()
+  @GetMapping(produces = { "application/primrose.account.contact.v.1.0+json" })
   public ResponseEntity<Map<String, List<Contact>>> listByAccountCode(@PathVariable("account") final String account) {
     return ResponseEntity.ok(contactsService.loadByAccountId(Encrypt.pseudo(Long.valueOf(account, 36))));
   }
