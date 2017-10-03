@@ -8,9 +8,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import primrose.NoEntityFoundException;
+import primrose.util.IdUtil;
+
 @Service
 public class ContactsService {
-
   private final ContactsRepository contactsRepository;
 
   public ContactsService(final ContactsRepository contactsRepository) {
@@ -22,19 +24,31 @@ public class ContactsService {
   public Contact save(final Contact contact) {
     final long contactId = contactsRepository.nextValAddresses();
     contactsRepository.insert(contactId, contact, SecurityContextHolder.getContext().getAuthentication().getName());
-    return contactsRepository.loadById(contactId);
+    return contactsRepository
+      .loadById(contactId)
+      .orElseThrow(() -> new NoEntityFoundException(String
+        .format(
+          "Could not find contact %s",
+          Long.toString(IdUtil.pseudo(contactId), 36))));
   }
 
   @Transactional(readOnly = true)
   @Secured({ "contacts:read" })
   public Contact loadById(final long contactId) {
-    return contactsRepository.loadById(contactId);
+    return contactsRepository
+      .loadById(contactId)
+      .orElseThrow(NoEntityFoundException::new);
   }
 
   @Transactional(readOnly = true)
   @Secured({ "contacts:read" })
   public Contact loadByName(final String contactName) {
-    return contactsRepository.loadByName(contactName);
+    return contactsRepository
+      .loadByName(contactName)
+      .orElseThrow(() -> new NoEntityFoundException(String
+        .format(
+          "Could not find contact %s",
+          contactName)));
   }
 
   @Transactional(readOnly = true)

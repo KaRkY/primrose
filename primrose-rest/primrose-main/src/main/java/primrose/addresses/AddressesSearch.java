@@ -1,4 +1,4 @@
-package primrose.contacts;
+package primrose.addresses;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
@@ -6,17 +6,13 @@ import org.immutables.value.Value.Style.ValidationMethod;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import primrose.pagging.Pagging;
+
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableContact.class)
-@JsonDeserialize(as = ImmutableContact.class)
-public interface Contact {
+@JsonSerialize(as = ImmutableAddressesSearch.class)
+@JsonDeserialize(as = ImmutableAddressesSearch.class)
+public interface AddressesSearch extends Pagging {
 
-  String id();
-
-  String name();
-
-  String email();
-
-  String phone();
+  SearchAddress address();
 }

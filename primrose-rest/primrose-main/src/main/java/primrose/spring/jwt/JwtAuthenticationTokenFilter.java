@@ -1,4 +1,5 @@
 package primrose.spring.jwt;
+
 import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
@@ -23,59 +24,59 @@ import io.jsonwebtoken.Jwts;
  * @author pascal alma
  */
 public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
+  private final JwtProperties jwtProperties;
 
-    private final JwtProperties jwtProperties;
+  public JwtAuthenticationTokenFilter(final JwtProperties jwtProperties) {
+    super("/**");
+    this.jwtProperties = jwtProperties;
+  }
 
-    public JwtAuthenticationTokenFilter(final JwtProperties jwtProperties) {
-        super("/**");
-        this.jwtProperties = jwtProperties;
-    }
+  /**
+   * Attempt to authenticate request - basically just pass over to another
+   * method to authenticate request headers
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
+    final String header = request.getHeader(jwtProperties.getHeader());
 
-    /**
-     * Attempt to authenticate request - basically just pass over to another method to authenticate request headers
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
-        final String header = request.getHeader(jwtProperties.getHeader());
+    if (header == null || !header.startsWith(jwtProperties.getTokenPrefix())) { return null; }
 
-        if (header == null || !header.startsWith(jwtProperties.getTokenPrefix())) {
-            return null;
-        }
+    final String authToken = header.replace(jwtProperties.getTokenPrefix(), "");
 
-        final String authToken = header.replace(jwtProperties.getTokenPrefix(), "");
+    final Claims body = Jwts.parser()
+      .setSigningKey(jwtProperties.getSecret())
+      .parseClaimsJws(authToken)
+      .getBody();
 
-        final Claims body = Jwts.parser()
-          .setSigningKey(jwtProperties.getSecret())
-          .parseClaimsJws(authToken)
-          .getBody();
+    return new UsernamePasswordAuthenticationToken(body.getSubject(),
+      null,
+      ((List<Object>) body.get("permissons"))
+        .stream()
+        .map(Object::toString)
+        .map(SimpleGrantedAuthority::new)
+        .collect(toSet()));
+  }
 
-        return new UsernamePasswordAuthenticationToken(body.getSubject(),
-          null,
-          ((List<Object>) body.get("permissons"))
-          .stream()
-          .map(Object::toString)
-          .map(SimpleGrantedAuthority::new)
-          .collect(toSet()));
-    }
+  /**
+   * Make sure the rest of the filterchain is satisfied
+   *
+   * @param request
+   * @param response
+   * @param chain
+   * @param authResult
+   * @throws IOException
+   * @throws ServletException
+   */
+  @Override
+  protected void successfulAuthentication(final HttpServletRequest request, final HttpServletResponse response,
+    final FilterChain chain, final Authentication authResult)
+    throws IOException, ServletException {
+    super.successfulAuthentication(request, response, chain, authResult);
 
-    /**
-     * Make sure the rest of the filterchain is satisfied
-     *
-     * @param request
-     * @param response
-     * @param chain
-     * @param authResult
-     * @throws IOException
-     * @throws ServletException
-     */
-    @Override
-    protected void successfulAuthentication(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain, final Authentication authResult)
-            throws IOException, ServletException {
-        super.successfulAuthentication(request, response, chain, authResult);
-
-        // As this authentication is in HTTP header, after success we need to continue the request normally
-        // and return the response as if the resource was not secured at all
-        chain.doFilter(request, response);
-    }
+    // As this authentication is in HTTP header, after success we need to
+    // continue the request normally
+    // and return the response as if the resource was not secured at all
+    chain.doFilter(request, response);
+  }
 }

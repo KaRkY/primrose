@@ -17,7 +17,6 @@ import primrose.spring.jwt.JwtProperties;
 
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
   private final PrincipalUserDetailsService principalUserDetailsService;
   private final JwtProperties jwtProperties;
 

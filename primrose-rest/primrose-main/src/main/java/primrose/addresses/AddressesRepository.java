@@ -6,14 +6,15 @@ import static pimrose.jooq.Sequences.ADDRESSES_SEQ;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jooq.DSLContext;
-import org.jooq.exception.NoDataFoundException;
 import org.springframework.stereotype.Repository;
+
+import primrose.util.IdUtil;
 
 @Repository
 public class AddressesRepository {
-
   private final DSLContext create;
 
   public AddressesRepository(final DSLContext create) {
@@ -79,7 +80,7 @@ public class AddressesRepository {
       .execute();
   }
 
-  public Address loadById(final long addressId) {
+  public Optional<Address> loadById(final long addressId) {
     return create
       .select(
         PRIMROSE.ADDRESSES.ID,
@@ -93,18 +94,17 @@ public class AddressesRepository {
       .where(PRIMROSE.ADDRESSES.ID.eq(addressId))
       .fetchOptional(record -> ImmutableAddress
         .builder()
-        .id(record.getValue(PRIMROSE.ADDRESSES.ID))
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
         .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
         .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
         .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
         .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
         .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
         .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build())
-      .orElseThrow(() -> new NoDataFoundException("No data"));
+        .build());
   }
 
-  public Address loadById(final long accountId, final long addressId) {
+  public Optional<Address> loadById(final long accountId, final long addressId) {
     return create
       .select(
         PRIMROSE.ADDRESSES.ID,
@@ -121,15 +121,14 @@ public class AddressesRepository {
         PRIMROSE.ADDRESSES.ID.eq(addressId))
       .fetchOptional(record -> ImmutableAddress
         .builder()
-        .id(record.getValue(PRIMROSE.ADDRESSES.ID))
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
         .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
         .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
         .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
         .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
         .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
         .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build())
-      .orElseThrow(() -> new NoDataFoundException("No data"));
+        .build());
   }
 
   public Map<String, List<Address>> loadByAccountId(final long accountId) {
@@ -150,7 +149,7 @@ public class AddressesRepository {
       .where(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(accountId))
       .fetchGroups(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME, record -> ImmutableAddress
         .builder()
-        .id(record.getValue(PRIMROSE.ADDRESSES.ID))
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
         .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
         .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
         .city(record.getValue(PRIMROSE.ADDRESSES.CITY))

@@ -13,7 +13,6 @@ import primrose.accounts.Account;
 @RestController
 @RequestMapping(path = "/import")
 public class DataImportController {
-
   private final DataImportService dataImportService;
 
   public DataImportController(final DataImportService dataImportService) {

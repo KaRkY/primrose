@@ -17,6 +17,7 @@ import primrose.addresses.Address;
 import primrose.addresses.AddressesService;
 import primrose.contacts.Contact;
 import primrose.contacts.ContactsService;
+import primrose.util.IdUtil;
 
 @Service
 public class DataImportService {
@@ -48,7 +49,7 @@ public class DataImportService {
       account.addresses().forEach((key, value) -> {
         value.forEach(address -> {
           final Address savedAddress = addressService.save(address);
-          accountsService.addAddress(savedAccount.id(), savedAddress.id(), key);
+          accountsService.addAddress(IdUtil.valueOfLongId(savedAccount.id()), IdUtil.valueOfLongId(savedAddress.id()), key);
           addresses.computeIfAbsent(key, type -> new ArrayList<>()).add(savedAddress);
         });
       });
@@ -56,7 +57,7 @@ public class DataImportService {
       account.contacts().forEach((key, value) -> {
         value.forEach(contact -> {
           final Contact savedContact = contactsService.save(contact);
-          accountsService.addContact(savedAccount.id(), savedContact.id(), key);
+          accountsService.addContact(IdUtil.valueOfLongId(savedAccount.id()), IdUtil.valueOfLongId(savedContact.id()), key);
           contacts.computeIfAbsent(key, type -> new ArrayList<>()).add(savedContact);
         });
       });

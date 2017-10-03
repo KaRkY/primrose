@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import primrose.contacts.Contact;
 import primrose.contacts.ContactsService;
-import primrose.util.Encrypt;
+import primrose.util.IdUtil;
 
 @RestController
 @RequestMapping(path = "/accounts/{account}/contacts")
 public class AccountsContactsController {
-
   private final ContactsService contactsService;
 
   public AccountsContactsController(final ContactsService contactsService) {
@@ -25,6 +24,6 @@ public class AccountsContactsController {
 
   @GetMapping(produces = { "application/primrose.account.contact.v.1.0+json" })
   public ResponseEntity<Map<String, List<Contact>>> listByAccountCode(@PathVariable("account") final String account) {
-    return ResponseEntity.ok(contactsService.loadByAccountId(Encrypt.pseudo(Long.valueOf(account, 36))));
+    return ResponseEntity.ok(contactsService.loadByAccountId(IdUtil.pseudo(Long.valueOf(account, 36))));
   }
 }

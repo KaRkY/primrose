@@ -1,8 +1,9 @@
 package primrose.util;
 
-public final class Encrypt {
+public final class IdUtil {
+  private static final int ID_RADIX = 36;
 
-  private Encrypt() {
+  private IdUtil() {
     throw new UnsupportedOperationException();
   }
 
@@ -30,5 +31,21 @@ public final class Encrypt {
       r1 = r2;
     }
     return (r1 << 32) + l1;
+  }
+
+  public static String toStringId(final long value) {
+    return Long.toString(pseudo(value), ID_RADIX);
+  }
+
+  public static String toStringId(final int value) {
+    return Integer.toString(pseudo(value), ID_RADIX);
+  }
+
+  public static long valueOfLongId(final String value) {
+    return pseudo(Long.valueOf(value, ID_RADIX));
+  }
+
+  public static int valueOfIntegerId(final String value) {
+    return pseudo(Integer.valueOf(value, ID_RADIX));
   }
 }

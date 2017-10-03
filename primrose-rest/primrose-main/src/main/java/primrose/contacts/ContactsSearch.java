@@ -6,17 +6,14 @@ import org.immutables.value.Value.Style.ValidationMethod;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import primrose.pagging.Pagging;
+
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableContact.class)
-@JsonDeserialize(as = ImmutableContact.class)
-public interface Contact {
+@JsonSerialize(as = ImmutableContactsSearch.class)
+@JsonDeserialize(as = ImmutableContactsSearch.class)
+public interface ContactsSearch extends Pagging {
 
-  String id();
+  SearchContact contact();
 
-  String name();
-
-  String email();
-
-  String phone();
 }

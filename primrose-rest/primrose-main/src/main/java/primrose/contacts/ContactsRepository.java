@@ -6,14 +6,15 @@ import static pimrose.jooq.Sequences.CONTACTS_SEQ;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jooq.DSLContext;
-import org.jooq.exception.NoDataFoundException;
 import org.springframework.stereotype.Repository;
+
+import primrose.util.IdUtil;
 
 @Repository
 public class ContactsRepository {
-
   private final DSLContext create;
 
   public ContactsRepository(final DSLContext create) {
@@ -73,7 +74,7 @@ public class ContactsRepository {
       .execute();
   }
 
-  public Contact loadById(final long contactId) {
+  public Optional<Contact> loadById(final long contactId) {
     return create
       .select(
         PRIMROSE.CONTACTS.ID,
@@ -84,15 +85,14 @@ public class ContactsRepository {
       .where(PRIMROSE.CONTACTS.ID.eq(contactId))
       .fetchOptional(record -> ImmutableContact
         .builder()
-        .id(record.getValue(PRIMROSE.CONTACTS.ID))
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
         .name(record.getValue(PRIMROSE.CONTACTS.NAME))
         .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
         .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
-        .build())
-      .orElseThrow(() -> new NoDataFoundException("No data"));
+        .build());
   }
 
-  public Contact loadByName(final String contactName) {
+  public Optional<Contact> loadByName(final String contactName) {
     return create
       .select(
         PRIMROSE.CONTACTS.ID,
@@ -103,12 +103,11 @@ public class ContactsRepository {
       .where(PRIMROSE.CONTACTS.NAME.eq(contactName))
       .fetchOptional(record -> ImmutableContact
         .builder()
-        .id(record.getValue(PRIMROSE.CONTACTS.ID))
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
         .name(record.getValue(PRIMROSE.CONTACTS.NAME))
         .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
         .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
-        .build())
-      .orElseThrow(() -> new NoDataFoundException("No data"));
+        .build());
   }
 
   public Map<String, List<Contact>> loadByAccountId(final Long accountId) {
@@ -126,7 +125,7 @@ public class ContactsRepository {
       .where(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(accountId))
       .fetchGroups(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME, record -> ImmutableContact
         .builder()
-        .id(record.getValue(PRIMROSE.CONTACTS.ID))
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
         .name(record.getValue(PRIMROSE.CONTACTS.NAME))
         .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
         .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class AccountsMetadataRepository {
-
   private final DSLContext create;
 
   public AccountsMetadataRepository(final DSLContext create) {

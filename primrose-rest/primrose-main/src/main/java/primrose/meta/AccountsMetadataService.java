@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AccountsMetadataService {
-
   private final AccountsMetadataRepository accountsMetadataRepository;
 
   public AccountsMetadataService(final AccountsMetadataRepository accountsMetadataRepository) {

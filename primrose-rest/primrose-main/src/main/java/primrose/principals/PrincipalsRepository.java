@@ -21,7 +21,7 @@ public class PrincipalsRepository {
     this.create = create;
   }
 
-  //@Cacheable("principals")
+  // @Cacheable("principals")
   public Principal loadPrincipal(final String username) {
     return create
       .select(

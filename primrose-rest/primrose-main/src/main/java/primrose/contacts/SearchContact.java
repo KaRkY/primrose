@@ -8,15 +8,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableContact.class)
-@JsonDeserialize(as = ImmutableContact.class)
-public interface Contact {
-
-  String id();
+@JsonSerialize(as = ImmutableSearchContact.class)
+@JsonDeserialize(as = ImmutableSearchContact.class)
+public interface SearchContact {
 
   String name();
 
   String email();
 
   String phone();
+
 }

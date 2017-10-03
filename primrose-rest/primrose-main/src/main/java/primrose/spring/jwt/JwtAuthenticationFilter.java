@@ -25,7 +25,6 @@ import primrose.principals.ImmutableLoginUser;
 import primrose.principals.LoginUser;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
   private final JwtProperties jwtProperties;
 
   public JwtAuthenticationFilter(final JwtProperties jwtProperties) {

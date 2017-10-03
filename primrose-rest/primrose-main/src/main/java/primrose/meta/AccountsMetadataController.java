@@ -8,12 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(
-  path = "/metadata/accounts",
-  consumes = { "application/primrose.metadata.account.v.1.0+json" },
-  produces = { "application/primrose.metadata.account.v.1.0+json" })
+@RequestMapping(path = "/metadata/accounts")
 public class AccountsMetadataController {
-
   private final AccountsMetadataService accountsMetadataService;
 
   public AccountsMetadataController(final AccountsMetadataService accountsMetadataService) {

@@ -20,7 +20,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
-
   private final JwtProperties jwtProperties;
 
   public JwtAuthorizationFilter(final AuthenticationManager authManager, final JwtProperties jwtProperties) {

@@ -1,4 +1,5 @@
 package primrose.spring;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
@@ -10,35 +11,35 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 
 public class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, PriorityOrdered {
 
-	@Override
-	public Object postProcessAfterInitialization(final Object bean, final String beanName)
-			throws BeansException {
+  @Override
+  public Object postProcessAfterInitialization(final Object bean, final String beanName)
+    throws BeansException {
 
-		if(bean instanceof DefaultMethodSecurityExpressionHandler) {
-			((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
-		}
-		if(bean instanceof DefaultWebSecurityExpressionHandler) {
-			((DefaultWebSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
-		}
-		if(bean instanceof SecurityContextHolderAwareRequestFilter) {
-			((SecurityContextHolderAwareRequestFilter)bean).setRolePrefix("");
-		}
+    if (bean instanceof DefaultMethodSecurityExpressionHandler) {
+      ((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
+    }
+    if (bean instanceof DefaultWebSecurityExpressionHandler) {
+      ((DefaultWebSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
+    }
+    if (bean instanceof SecurityContextHolderAwareRequestFilter) {
+      ((SecurityContextHolderAwareRequestFilter) bean).setRolePrefix("");
+    }
 
-		if (bean instanceof RoleVoter) {
+    if (bean instanceof RoleVoter) {
       ((RoleVoter) bean).setRolePrefix("");
       System.out.println("Dela");
     }
-		return bean;
-	}
+    return bean;
+  }
 
-	@Override
-	public Object postProcessBeforeInitialization(final Object bean, final String beanName)
-			throws BeansException {
-		return bean;
-	}
+  @Override
+  public Object postProcessBeforeInitialization(final Object bean, final String beanName)
+    throws BeansException {
+    return bean;
+  }
 
-	@Override
-	public int getOrder() {
-		return Ordered.HIGHEST_PRECEDENCE;
-	}
+  @Override
+  public int getOrder() {
+    return Ordered.HIGHEST_PRECEDENCE;
+  }
 }
