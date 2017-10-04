@@ -21,14 +21,14 @@ public class ContactsRepository {
     this.create = create;
   }
 
-  public long nextValAddresses() {
-    return create
+  public String nextValContact() {
+    return IdUtil.toStringId(create
       .select(CONTACTS_SEQ.nextval())
       .fetchOne()
-      .value1();
+      .value1());
   }
 
-  public void insert(final long contactId, final Contact contact, final String user) {
+  public void insert(final Contact contact, final String user) {
     create
       .insertInto(PRIMROSE.CONTACTS)
       .columns(
@@ -38,7 +38,7 @@ public class ContactsRepository {
         PRIMROSE.CONTACTS.PHONE,
         PRIMROSE.CONTACTS.CREATED_BY)
       .values(
-        value(contactId),
+        value(IdUtil.valueOfLongId(contact.id())),
         value(contact.name()),
         value(contact.email()),
         value(contact.phone()),
@@ -50,31 +50,7 @@ public class ContactsRepository {
       .execute();
   }
 
-  public void insert(final long accountId, final long contactId, final String contactType, final String user) {
-    create
-      .insertInto(PRIMROSE.ACCOUNT_CONTACTS)
-      .columns(
-        PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT,
-        PRIMROSE.ACCOUNT_CONTACTS.CONTACT,
-        PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE,
-        PRIMROSE.ACCOUNT_CONTACTS.CREATED_BY)
-      .values(
-        value(accountId),
-        value(contactId),
-        create
-          .select(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID)
-          .from(PRIMROSE.ACCOUNT_CONTACT_TYPES)
-          .where(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME.eq(contactType))
-          .asField(),
-        create
-          .select(PRIMROSE.PRINCIPALS.ID)
-          .from(PRIMROSE.PRINCIPALS)
-          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-          .asField())
-      .execute();
-  }
-
-  public Optional<Contact> loadById(final long contactId) {
+  public Optional<Contact> loadById(final String contactId) {
     return create
       .select(
         PRIMROSE.CONTACTS.ID,
@@ -82,7 +58,32 @@ public class ContactsRepository {
         PRIMROSE.CONTACTS.EMAIL,
         PRIMROSE.CONTACTS.PHONE)
       .from(PRIMROSE.CONTACTS)
-      .where(PRIMROSE.CONTACTS.ID.eq(contactId))
+      .where(PRIMROSE.CONTACTS.ID.eq(IdUtil.valueOfLongId(contactId)))
+      .fetchOptional(record -> ImmutableContact
+        .builder()
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
+        .name(record.getValue(PRIMROSE.CONTACTS.NAME))
+        .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
+        .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
+        .build());
+  }
+
+  public Optional<Contact> loadById(final String accountId, final String type, final String contactId) {
+    return create
+      .select(
+        PRIMROSE.CONTACTS.ID,
+        PRIMROSE.CONTACTS.NAME,
+        PRIMROSE.CONTACTS.EMAIL,
+        PRIMROSE.CONTACTS.PHONE,
+        PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME)
+      .from(PRIMROSE.CONTACTS)
+      .join(PRIMROSE.ACCOUNT_CONTACTS).on(PRIMROSE.ACCOUNT_CONTACTS.CONTACT.eq(PRIMROSE.CONTACTS.ID))
+      .join(PRIMROSE.ACCOUNT_CONTACT_TYPES)
+      .on(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE))
+      .where(
+        PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(IdUtil.valueOfLongId(accountId)),
+        PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(type),
+        PRIMROSE.CONTACTS.ID.eq(IdUtil.valueOfLongId(contactId)))
       .fetchOptional(record -> ImmutableContact
         .builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
@@ -110,7 +111,7 @@ public class ContactsRepository {
         .build());
   }
 
-  public Map<String, List<Contact>> loadByAccountId(final Long accountId) {
+  public Map<String, List<Contact>> loadByAccountId(final String accountId) {
     return create
       .select(
         PRIMROSE.CONTACTS.ID,
@@ -122,7 +123,7 @@ public class ContactsRepository {
       .join(PRIMROSE.ACCOUNT_CONTACTS).on(PRIMROSE.ACCOUNT_CONTACTS.CONTACT.eq(PRIMROSE.CONTACTS.ID))
       .join(PRIMROSE.ACCOUNT_CONTACT_TYPES)
       .on(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE))
-      .where(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(accountId))
+      .where(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(IdUtil.valueOfLongId(accountId)))
       .fetchGroups(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME, record -> ImmutableContact
         .builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))

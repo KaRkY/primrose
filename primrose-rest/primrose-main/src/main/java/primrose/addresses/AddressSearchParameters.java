@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableSearchAddress.class)
-@JsonDeserialize(as = ImmutableSearchAddress.class)
-public interface SearchAddress {
+@JsonSerialize(as = ImmutableAddressSearchParameters.class)
+@JsonDeserialize(as = ImmutableAddressSearchParameters.class)
+public interface AddressSearchParameters {
 
   String id();
 

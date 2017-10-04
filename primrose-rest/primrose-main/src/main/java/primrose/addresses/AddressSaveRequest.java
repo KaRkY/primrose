@@ -6,13 +6,21 @@ import org.immutables.value.Value.Style.ValidationMethod;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import primrose.pagging.Pagging;
-
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableAddressesSearch.class)
-@JsonDeserialize(as = ImmutableAddressesSearch.class)
-public interface AddressesSearch extends Pagging {
+@JsonSerialize(as = ImmutableAddressSaveRequest.class)
+@JsonDeserialize(as = ImmutableAddressSaveRequest.class)
+public interface AddressSaveRequest {
 
-  SearchAddress address();
+  String street();
+
+  String streetNumber();
+
+  String city();
+
+  String postalCode();
+
+  String state();
+
+  String country();
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import primrose.NoEntityFoundException;
-import primrose.util.IdUtil;
 
 @Service
 public class ContactsService {
@@ -19,22 +18,26 @@ public class ContactsService {
     this.contactsRepository = contactsRepository;
   }
 
+  @Transactional(readOnly = true)
+  public String getNextId() {
+    return contactsRepository.nextValContact();
+  }
+
   @Transactional
   @Secured({ "contacts:create" })
   public Contact save(final Contact contact) {
-    final long contactId = contactsRepository.nextValAddresses();
-    contactsRepository.insert(contactId, contact, SecurityContextHolder.getContext().getAuthentication().getName());
+    contactsRepository.insert(
+      contact,
+      SecurityContextHolder.getContext().getAuthentication().getName());
     return contactsRepository
-      .loadById(contactId)
+      .loadById(contact.id())
       .orElseThrow(() -> new NoEntityFoundException(String
-        .format(
-          "Could not find contact %s",
-          Long.toString(IdUtil.pseudo(contactId), 36))));
+        .format("Could not find contact %s", contact.id())));
   }
 
   @Transactional(readOnly = true)
   @Secured({ "contacts:read" })
-  public Contact loadById(final long contactId) {
+  public Contact loadById(final String contactId) {
     return contactsRepository
       .loadById(contactId)
       .orElseThrow(NoEntityFoundException::new);
@@ -52,8 +55,17 @@ public class ContactsService {
   }
 
   @Transactional(readOnly = true)
+  @Secured({ "contacts:read" })
+  public Contact loadById(final String accountId, final String type, final String contactId) {
+    return contactsRepository
+      .loadById(accountId, type, contactId)
+      .orElseThrow(() -> new NoEntityFoundException(String
+        .format("Could not find contact %s with type %s for account %s", contactId, type, accountId)));
+  }
+
+  @Transactional(readOnly = true)
   @Secured({ "contacts:read", "account_contacts:read" })
-  public Map<String, List<Contact>> loadByAccountId(final Long accountId) {
+  public Map<String, List<Contact>> loadByAccountId(final String accountId) {
     return contactsRepository.loadByAccountId(accountId);
   }
 }

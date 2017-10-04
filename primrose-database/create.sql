@@ -168,7 +168,7 @@ create table accounts(
   id              bigint                    constraint nn_account_id            not null,
   account_type    bigint                    constraint nn_account_type          not null,
   parent_account  bigint,
-  name            text                      constraint nn_account_name          not null  constraint uq_account_name  unique,
+  name            text                      constraint nn_account_name          not null,
   display_name    text,
   email           text,
   phone           text,

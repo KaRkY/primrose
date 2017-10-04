@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import primrose.NoEntityFoundException;
-import primrose.util.IdUtil;
 
 @Service
 public class AddressesService {
@@ -19,45 +18,44 @@ public class AddressesService {
     this.addressesRepository = addressesRepository;
   }
 
+  @Transactional(readOnly = true)
+  public String getNextId() {
+    return addressesRepository.nextValAddresses();
+  }
+
   @Transactional
   @Secured({ "addresses:create" })
   public Address save(final Address address) {
-    final long addressId = addressesRepository.nextValAddresses();
-    addressesRepository.insert(addressId, address, SecurityContextHolder.getContext().getAuthentication().getName());
+    addressesRepository.insert(
+      address,
+      SecurityContextHolder.getContext().getAuthentication().getName());
     return addressesRepository
-      .loadById(addressId)
+      .loadById(address.id())
       .orElseThrow(() -> new NoEntityFoundException(String
-        .format(
-          "Could not find address %s",
-          Long.toString(IdUtil.pseudo(addressId), 36))));
+        .format("Could not find address %s", address.id())));
   }
 
   @Transactional(readOnly = true)
   @Secured({ "addresses:read" })
-  public Address loadById(final long addressId) {
+  public Address loadById(final String addressId) {
     return addressesRepository
       .loadById(addressId)
       .orElseThrow(() -> new NoEntityFoundException(String
-        .format(
-          "Could not find address %s",
-          Long.toString(IdUtil.pseudo(addressId), 36))));
+        .format("Could not find address %s", addressId)));
   }
 
   @Transactional(readOnly = true)
   @Secured({ "addresses:read" })
-  public Address loadById(final long accountId, final long addressId) {
+  public Address loadById(final String accountId, final String type, final String addressId) {
     return addressesRepository
-      .loadById(accountId, addressId)
+      .loadById(accountId, type, addressId)
       .orElseThrow(() -> new NoEntityFoundException(String
-        .format(
-          "Could not find address %s for account %s",
-          Long.toString(IdUtil.pseudo(addressId), 36),
-          Long.toString(IdUtil.pseudo(accountId), 36))));
+        .format("Could not find address %s with type %s for account %s", addressId, type, accountId)));
   }
 
   @Transactional(readOnly = true)
   @Secured({ "account_addresses:read", "addresses:read" })
-  public Map<String, List<Address>> loadByAccountId(final long accountId) {
+  public Map<String, List<Address>> loadByAccountId(final String accountId) {
     return addressesRepository.loadByAccountId(accountId);
   }
 }

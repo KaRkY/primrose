@@ -1,22 +1,12 @@
 package primrose.accounts;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import primrose.addresses.Address;
-import primrose.contacts.Contact;
-
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableAccount.class)
-@JsonDeserialize(as = ImmutableAccount.class)
 public interface Account {
 
   String id();
@@ -40,9 +30,5 @@ public interface Account {
   LocalDateTime validFrom();
 
   LocalDateTime validTo();
-
-  Map<String, List<Address>> addresses();
-
-  Map<String, List<Contact>> contacts();
 
 }

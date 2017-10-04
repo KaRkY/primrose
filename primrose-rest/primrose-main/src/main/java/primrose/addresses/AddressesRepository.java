@@ -21,14 +21,14 @@ public class AddressesRepository {
     this.create = create;
   }
 
-  public long nextValAddresses() {
-    return create
+  public String nextValAddresses() {
+    return IdUtil.toStringId(create
       .select(ADDRESSES_SEQ.nextval())
       .fetchOne()
-      .value1();
+      .value1());
   }
 
-  public void insert(final long addressId, final Address address, final String user) {
+  public void insert(final Address address, final String user) {
     create
       .insertInto(PRIMROSE.ADDRESSES)
       .columns(
@@ -41,7 +41,7 @@ public class AddressesRepository {
         PRIMROSE.ADDRESSES.COUNTRY,
         PRIMROSE.ADDRESSES.CREATED_BY)
       .values(
-        value(addressId),
+        value(IdUtil.valueOfLongId(address.id())),
         value(address.street()),
         value(address.streetNumber()),
         value(address.city()),
@@ -56,31 +56,7 @@ public class AddressesRepository {
       .execute();
   }
 
-  public void insert(final long accountId, final long addressId, final String addressType, final String user) {
-    create
-      .insertInto(PRIMROSE.ACCOUNT_ADDRESSES)
-      .columns(
-        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT,
-        PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS,
-        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE,
-        PRIMROSE.ACCOUNT_ADDRESSES.CREATED_BY)
-      .values(
-        value(accountId),
-        value(addressId),
-        create
-          .select(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID)
-          .from(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
-          .where(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(addressType))
-          .asField(),
-        create
-          .select(PRIMROSE.PRINCIPALS.ID)
-          .from(PRIMROSE.PRINCIPALS)
-          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-          .asField())
-      .execute();
-  }
-
-  public Optional<Address> loadById(final long addressId) {
+  public Optional<Address> loadById(final String addressId) {
     return create
       .select(
         PRIMROSE.ADDRESSES.ID,
@@ -91,7 +67,7 @@ public class AddressesRepository {
         PRIMROSE.ADDRESSES.STATE,
         PRIMROSE.ADDRESSES.COUNTRY)
       .from(PRIMROSE.ADDRESSES)
-      .where(PRIMROSE.ADDRESSES.ID.eq(addressId))
+      .where(PRIMROSE.ADDRESSES.ID.eq(IdUtil.valueOfLongId(addressId)))
       .fetchOptional(record -> ImmutableAddress
         .builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
@@ -104,7 +80,7 @@ public class AddressesRepository {
         .build());
   }
 
-  public Optional<Address> loadById(final long accountId, final long addressId) {
+  public Optional<Address> loadById(final String accountId, final String type, final String addressId) {
     return create
       .select(
         PRIMROSE.ADDRESSES.ID,
@@ -116,9 +92,12 @@ public class AddressesRepository {
         PRIMROSE.ADDRESSES.COUNTRY)
       .from(PRIMROSE.ADDRESSES)
       .join(PRIMROSE.ACCOUNT_ADDRESSES).on(PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS.eq(PRIMROSE.ADDRESSES.ID))
+      .join(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
+      .on(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID.eq(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE))
       .where(
-        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(accountId),
-        PRIMROSE.ADDRESSES.ID.eq(addressId))
+        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(IdUtil.valueOfLongId(accountId)),
+        PRIMROSE.ADDRESSES.ID.eq(IdUtil.valueOfLongId(addressId)),
+        PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(type))
       .fetchOptional(record -> ImmutableAddress
         .builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
@@ -131,7 +110,7 @@ public class AddressesRepository {
         .build());
   }
 
-  public Map<String, List<Address>> loadByAccountId(final long accountId) {
+  public Map<String, List<Address>> loadByAccountId(final String accountId) {
     return create
       .select(
         PRIMROSE.ADDRESSES.ID,
@@ -146,7 +125,7 @@ public class AddressesRepository {
       .join(PRIMROSE.ACCOUNT_ADDRESSES).on(PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS.eq(PRIMROSE.ADDRESSES.ID))
       .join(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
       .on(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID.eq(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE))
-      .where(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(accountId))
+      .where(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(IdUtil.valueOfLongId(accountId)))
       .fetchGroups(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME, record -> ImmutableAddress
         .builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))

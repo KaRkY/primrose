@@ -1,4 +1,4 @@
-package primrose.contacts;
+package primrose.addresses;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
@@ -10,10 +10,9 @@ import primrose.pagging.Pagging;
 
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableContactsSearch.class)
-@JsonDeserialize(as = ImmutableContactsSearch.class)
-public interface ContactsSearch extends Pagging {
+@JsonSerialize(as = ImmutableAddressesSearchRequest.class)
+@JsonDeserialize(as = ImmutableAddressesSearchRequest.class)
+public interface AddressesSearchRequest extends Pagging {
 
-  ContactSearchParameters contact();
-
+  AddressSearchParameters address();
 }

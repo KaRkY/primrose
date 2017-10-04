@@ -6,14 +6,15 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import primrose.addresses.ImmutableSearchAddress;
+import primrose.addresses.ImmutableAddressSearchParameters;
+import primrose.contacts.ImmutableContactSearchParameters;
 import primrose.pagging.sort.SortUtil;
 
 public class AccountSearchWebArgumentResolver implements HandlerMethodArgumentResolver {
 
   @Override
   public boolean supportsParameter(final MethodParameter parameter) {
-    return AccountsSearch.class.equals(parameter.getParameterType());
+    return AccountSearchRequest.class.equals(parameter.getParameterType());
   }
 
   @Override
@@ -22,7 +23,7 @@ public class AccountSearchWebArgumentResolver implements HandlerMethodArgumentRe
     final ModelAndViewContainer mavContainer,
     final NativeWebRequest webRequest,
     final WebDataBinderFactory binderFactory) throws Exception {
-    final ImmutableAccountsSearch.Builder accountsSearchBuilder = ImmutableAccountsSearch.builder();
+    final ImmutableAccountSearchRequest.Builder accountsSearchBuilder = ImmutableAccountSearchRequest.builder();
 
     if (webRequest.getParameter("page") != null) {
       accountsSearchBuilder.page(Integer.parseInt(webRequest.getParameter("page")));
@@ -33,7 +34,7 @@ public class AccountSearchWebArgumentResolver implements HandlerMethodArgumentRe
     }
 
     return accountsSearchBuilder
-      .account(ImmutableSearchAccount
+      .account(ImmutableAccountSearchParameters
         .builder()
         .type(webRequest.getParameter("account.type"))
         .displayName(webRequest.getParameter("account.displayName"))
@@ -43,7 +44,7 @@ public class AccountSearchWebArgumentResolver implements HandlerMethodArgumentRe
         .website(webRequest.getParameter("account.website"))
         .description(webRequest.getParameter("account.description"))
         .build())
-      .address(ImmutableSearchAddress
+      .address(ImmutableAddressSearchParameters
         .builder()
         .street(webRequest.getParameter("address.street"))
         .streetNumber(webRequest.getParameter("address.streetNumber"))
@@ -51,6 +52,11 @@ public class AccountSearchWebArgumentResolver implements HandlerMethodArgumentRe
         .postalCode(webRequest.getParameter("address.postalCode"))
         .state(webRequest.getParameter("address.state"))
         .country(webRequest.getParameter("address.country"))
+        .build())
+      .contact(ImmutableContactSearchParameters.builder()
+        .name(webRequest.getParameter("contact.name"))
+        .email(webRequest.getParameter("contact.email"))
+        .phone(webRequest.getParameter("contact.phone"))
         .build())
       .sort(SortUtil.parseSort(webRequest.getParameter("sort")))
       .build();
