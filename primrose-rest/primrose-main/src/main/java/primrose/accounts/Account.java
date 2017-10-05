@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
 
-@Value.Immutable
+@Value.Immutable()
 @Value.Style(validationMethod = ValidationMethod.NONE)
 public interface Account {
 
@@ -30,5 +30,4 @@ public interface Account {
   LocalDateTime validFrom();
 
   LocalDateTime validTo();
-
 }

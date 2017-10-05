@@ -86,6 +86,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.immutables</groupId>
+        <artifactId>func</artifactId>
+        <version>${immutables.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>io.jsonwebtoken</groupId>
         <artifactId>jjwt</artifactId>
         <version>${jjwt.version}</version>
