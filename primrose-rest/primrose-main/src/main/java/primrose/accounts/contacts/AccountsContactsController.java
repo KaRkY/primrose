@@ -29,7 +29,7 @@ public class AccountsContactsController {
   }
 
   @GetMapping(
-    produces = "application/primrose.account.contact.list.response.v.1.0+json")
+    produces = "application/vnd.primrose.account.contact.list.response.v.1.0+json")
   public ResponseEntity<Map<String, List<AccountContactListResponse>>> listByAccountCode(
     @PathVariable("account") final String account) {
     return ResponseEntity.ok(contactsService
@@ -52,7 +52,7 @@ public class AccountsContactsController {
 
   @GetMapping(
     path = "/{type}/{contact}",
-    produces = "application/primrose.account.contact.load.response.v.1.0+json")
+    produces = "application/vnd.primrose.account.contact.load.response.v.1.0+json")
   public ResponseEntity<AccountContactLoadResponse> load(
     @PathVariable("account") final String account,
     @PathVariable("type") final String type,
@@ -69,8 +69,8 @@ public class AccountsContactsController {
 
   @PostMapping(
     path = "/{type}",
-    consumes = "application/primrose.account.contact.save.request.v.1.0+json",
-    produces = "application/primrose.account.contact.save.response.v.1.0+json")
+    consumes = "application/vnd.primrose.account.contact.save.request.v.1.0+json",
+    produces = "application/vnd.primrose.account.contact.save.response.v.1.0+json")
   public ResponseEntity<AccountContactSaveResponse> save(
     @PathVariable("account") final String account,
     @PathVariable("type") final String type,
@@ -94,8 +94,8 @@ public class AccountsContactsController {
 
   @PostMapping(
     path = "/{type}",
-    consumes = "application/primrose.account.contactId.save.request.v.1.0+json",
-    produces = "application/primrose.account.contact.save.response.v.1.0+json")
+    consumes = "application/vnd.primrose.account.contactId.save.request.v.1.0+json",
+    produces = "application/vnd.primrose.account.contact.save.response.v.1.0+json")
   public ResponseEntity<AccountContactSaveResponse> save(
     @PathVariable("account") final String account,
     @PathVariable("type") final String type,

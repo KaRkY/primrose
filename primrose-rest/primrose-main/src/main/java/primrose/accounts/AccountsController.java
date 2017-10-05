@@ -22,7 +22,7 @@ public class AccountsController {
 
   @GetMapping(
     path = "/{account}",
-    produces = "application/primrose.account.load.response.v.1.0+json")
+    produces = "application/vnd.primrose.account.load.response.v.1.0+json")
   public ResponseEntity<AccountLoadResponse> loadByCode(@PathVariable("account") final String account) {
     final Account loadedAccount = accountsService
       .loadById(account);
@@ -41,8 +41,8 @@ public class AccountsController {
   }
 
   @PostMapping(
-    consumes = "application/primrose.account.save.request.v.1.0+json",
-    produces = "application/primrose.account.save.response.v.1.0+json")
+    consumes = "application/vnd.primrose.account.save.request.v.1.0+json",
+    produces = "application/vnd.primrose.account.save.response.v.1.0+json")
   public ResponseEntity<AccountSaveResponse> save(@RequestBody final AccountSaveRequest account) {
     final Account savedAccount = accountsService
       .save(ImmutableAccount.builder()
@@ -67,7 +67,7 @@ public class AccountsController {
   }
 
   @GetMapping(
-    produces = "application/primrose.account.search.response.v.1.0+json")
+    produces = "application/vnd.primrose.account.search.response.v.1.0+json")
   public ResponseEntity<List<AccountSearchResponse>> loadBySearch(final AccountSearchRequest accountSearch) {
     return ResponseEntity
       .ok(accountsService

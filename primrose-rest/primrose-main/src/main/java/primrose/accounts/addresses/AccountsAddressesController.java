@@ -29,7 +29,7 @@ public class AccountsAddressesController {
   }
 
   @GetMapping(
-    produces = "application/primrose.account.address.list.response.v.1.0+json")
+    produces = "application/vnd.primrose.account.address.list.response.v.1.0+json")
   public ResponseEntity<Map<String, List<AccountAddressListResponse>>> listByAccount(
     @PathVariable("account") final String account) {
     return ResponseEntity.ok(addressesService
@@ -55,7 +55,7 @@ public class AccountsAddressesController {
 
   @GetMapping(
     path = "/{type}/{address}",
-    produces = "application/primrose.account.address.load.response.v.1.0+json")
+    produces = "application/vnd.primrose.account.address.load.response.v.1.0+json")
   public ResponseEntity<AccountAddressLoadResponse> load(
     @PathVariable("account") final String account,
     @PathVariable("type") final String type,
@@ -74,8 +74,8 @@ public class AccountsAddressesController {
 
   @PostMapping(
     path = "/{type}",
-    consumes = "application/primrose.account.address.save.request.v.1.0+json",
-    produces = "application/primrose.account.address.save.response.v.1.0+json")
+    consumes = "application/vnd.primrose.account.address.save.request.v.1.0+json",
+    produces = "application/vnd.primrose.account.address.save.response.v.1.0+json")
   public ResponseEntity<AccountAddressSaveResponse> save(
     @PathVariable("account") final String account,
     @PathVariable("type") final String type,
@@ -105,8 +105,8 @@ public class AccountsAddressesController {
 
   @PostMapping(
     path = "/{type}",
-    consumes = "application/primrose.account.addressId.save.request.v.1.0+json",
-    produces = "application/primrose.account.address.save.response.v.1.0+json")
+    consumes = "application/vnd.primrose.account.addressId.save.request.v.1.0+json",
+    produces = "application/vnd.primrose.account.address.save.response.v.1.0+json")
   public ResponseEntity<AccountAddressSaveResponse> save(
     @PathVariable("account") final String account,
     @PathVariable("type") final String type,
