@@ -1,129 +1,99 @@
 package primrose.accounts;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromMethodCall;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import primrose.hal.ImmutableLink;
+import primrose.pagging.sort.SortUtil;
 
 @RestController
 @RequestMapping(path = "/accounts")
 public class AccountsController {
   private final AccountsService accountsService;
+  private final AccountResourceAssembler accountResourceAssembler;
 
-  public AccountsController(final AccountsService accountsService) {
+  public AccountsController(
+    final AccountsService accountsService,
+    final AccountResourceAssembler accountResourceAssembler) {
     this.accountsService = accountsService;
+    this.accountResourceAssembler = accountResourceAssembler;
   }
 
   @GetMapping(
     path = "/{account}",
-    produces = "application/vnd.primrose.account.load.response.v.1.0+json")
-  public ResponseEntity<Resource<AccountLoadResponse>> loadByCode(@PathVariable("account") final String account) {
-    final Account loadedAccount = accountsService
-      .loadById(account);
-
-    final ImmutableAccountLoadResponse response = ImmutableAccountLoadResponse.builder()
-      .id(loadedAccount.id())
-      .name(loadedAccount.name())
-      .displayName(loadedAccount.displayName())
-      .description(loadedAccount.description())
-      .email(loadedAccount.email())
-      .phone(loadedAccount.phone())
-      .type(loadedAccount.type())
-      .validFrom(loadedAccount.validFrom())
-      .validTo(loadedAccount.validTo())
-      .build();
-
-    final Resource<AccountLoadResponse> resource = new Resource<>(response);
-    resource
-      .add(ControllerLinkBuilder
-        .linkTo(AccountsController.class)
-        .slash(loadedAccount.id())
-        .withRel(Link.REL_SELF));
-
-    System.out.println(ControllerLinkBuilder
-        .methodOn(AccountsController.class).loadByCode(null));
-
-    return ResponseEntity
-      .ok(resource);
+    produces = "application/vnd.primrose.account.v.1.0+json")
+  public ResponseEntity<AccountResource> loadById(@PathVariable("account") final String account) {
+    return ResponseEntity.ok(accountResourceAssembler.toResource(accountsService.loadById(account)));
   }
 
   @PostMapping(
-    consumes = "application/vnd.primrose.account.save.request.v.1.0+json",
-    produces = "application/vnd.primrose.account.save.response.v.1.0+json")
-  public ResponseEntity<Resource<AccountSaveResponse>> save(@RequestBody final AccountSaveRequest account) {
+    consumes = "application/vnd.primrose.account.v.1.0+json",
+    produces = "application/vnd.primrose.account.v.1.0+json")
+  public ResponseEntity<AccountResource> create(@RequestBody final AccountResource account) {
     final Account savedAccount = accountsService
-      .save(ImmutableAccount.builder()
-        .id(accountsService.getNextId())
-        .name(account.name())
-        .displayName(account.displayName())
-        .description(account.description())
-        .email(account.email())
-        .phone(account.phone())
-        .type(account.type())
-        .build());
-
-    final ImmutableAccountSaveResponse response = ImmutableAccountSaveResponse.builder()
-      .id(savedAccount.id())
-      .name(savedAccount.name())
-      .displayName(savedAccount.displayName())
-      .description(savedAccount.description())
-      .email(savedAccount.email())
-      .phone(savedAccount.phone())
-      .type(savedAccount.type())
-      .validFrom(savedAccount.validFrom())
-      .validTo(savedAccount.validTo())
-      .build();
-
-    final Resource<AccountSaveResponse> resource = new Resource<>(response);
-    resource
-      .add(ControllerLinkBuilder
-        .linkTo(AccountsController.class)
-        .slash(savedAccount.id())
-        .withRel(Link.REL_SELF));
-
+      .create(ImmutableAccount.copyOf(accountResourceAssembler
+        .fromResource(account))
+        .withId(accountsService.getNextId()));
     return ResponseEntity
-      .created(ControllerLinkBuilder
-        .linkTo(AccountsController.class)
-        .slash(savedAccount.id())
-        .toUri())
-      .body(resource);
+      .created(accountResourceAssembler.self().build().expand(savedAccount.id()).toUri())
+      .body(accountResourceAssembler.toResource(savedAccount));
+  }
+
+  @PutMapping(
+    path = "/{account}",
+    consumes = "application/vnd.primrose.account.v.1.0+json",
+    produces = "application/vnd.primrose.account.v.1.0+json")
+  public ResponseEntity<AccountResource> edit(
+    @PathVariable("account") final String accountId,
+    @RequestBody final AccountResource account) {
+    return ResponseEntity
+      .ok(accountResourceAssembler
+        .toResource(accountsService
+          .update(accountId, accountResourceAssembler.fromResource(account))));
   }
 
   @GetMapping(
-    produces = "application/vnd.primrose.account.search.response.v.1.0+json")
-  public ResponseEntity<List<Resource<AccountSearchResponse>>> loadBySearch(final AccountSearchRequest accountSearch) {
+    produces = "application/vnd.primrose.account.v.1.0+json")
+  public ResponseEntity<PageableAccountResource> list(
+    @RequestParam(required = false) final Integer page,
+    @RequestParam(required = false) final Integer size,
+    @RequestParam(required = false) final String sort) {
+    final ImmutablePageableAccountResource.Builder builder = ImmutablePageableAccountResource.builder();
+    final int count = accountsService.count();
+
+    if (page != null && size != null && size * page < count) {
+      builder.putLink("next", ImmutableLink.builder()
+        .href(fromMethodCall(on(AccountsController.class).list(page + 1, size, sort)).toUriString())
+        .title("Next")
+        .build());
+    }
+
+    if (page != null && size != null && page > 1) {
+      builder.putLink("previous", ImmutableLink.builder()
+        .href(fromMethodCall(on(AccountsController.class).list(page - 1, size, sort)).toUriString())
+        .title("Previous")
+        .build());
+    }
+
     return ResponseEntity
-      .ok(accountsService
-        .loadBySearch(
-          accountSearch.account(),
-          accountSearch.address(),
-          accountSearch.contact(),
-          accountSearch.page(),
-          accountSearch.size(),
-          accountSearch.sort())
-        .stream()
-        .map(account -> ImmutableAccountSearchResponse.builder()
-          .id(account.id())
-          .displayName(account.displayName())
-          .type(account.type())
-          .validFrom(account.validFrom())
-          .validTo(account.validTo())
+      .ok(builder
+        .count(count)
+        .putEmbedded("accounts", accountResourceAssembler
+          .toResource(accountsService
+            .load(page, size, SortUtil.parseSort(sort))))
+        .putLink("self", ImmutableLink.builder()
+          .href(fromMethodCall(on(AccountsController.class).list(page, size, sort)).toUriString())
           .build())
-        .map(response -> new Resource<>(
-          (AccountSearchResponse) response,
-          ControllerLinkBuilder
-            .linkTo(AccountsController.class)
-            .slash(response.id())
-            .withRel(Link.REL_SELF)))
-        .collect(Collectors.toList()));
+        .build());
   }
 }

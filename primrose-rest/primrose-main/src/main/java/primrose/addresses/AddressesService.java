@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import primrose.NoEntityFoundException;
+import primrose.pagging.sort.Sort;
 
 @Service
 public class AddressesService {
@@ -18,7 +19,7 @@ public class AddressesService {
     this.addressesRepository = addressesRepository;
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
   public String getNextId() {
     return addressesRepository.nextValAddresses();
   }
@@ -33,6 +34,20 @@ public class AddressesService {
       .loadById(address.id())
       .orElseThrow(() -> new NoEntityFoundException(String
         .format("Could not find address %s", address.id())));
+  }
+
+  @Transactional
+  @Secured({ "addresses:update" })
+  public Address edit(final String addressId, final Address address) {
+    addressesRepository.update(
+      addressId,
+      address,
+      SecurityContextHolder.getContext().getAuthentication().getName());
+
+    return addressesRepository
+      .loadById(addressId)
+      .orElseThrow(() -> new NoEntityFoundException(String
+        .format("Could not find address %s", addressId)));
   }
 
   @Transactional(readOnly = true)
@@ -58,4 +73,17 @@ public class AddressesService {
   public Map<String, List<Address>> loadByAccountId(final String accountId) {
     return addressesRepository.loadByAccountId(accountId);
   }
+
+  @Transactional(readOnly = true)
+  @Secured({ "addresses:read" })
+  public int count() {
+    return addressesRepository.count();
+  }
+
+  @Transactional(readOnly = true)
+  @Secured({ "addresses:read" })
+  public List<Address> load( final Integer page, final Integer size, final Sort sort) {
+    return addressesRepository.load(page, size, sort);
+  }
+
 }

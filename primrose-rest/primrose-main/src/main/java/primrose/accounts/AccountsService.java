@@ -9,10 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import primrose.NoEntityFoundException;
 import primrose.addresses.Address;
-import primrose.addresses.AddressSearchParameters;
 import primrose.addresses.AddressesService;
 import primrose.contacts.Contact;
-import primrose.contacts.ContactSearchParameters;
 import primrose.contacts.ContactsService;
 import primrose.pagging.sort.Sort;
 
@@ -31,15 +29,16 @@ public class AccountsService {
     this.contactsService = contactsService;
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
   public String getNextId() {
     return accountsRepository.nextValAccounts();
   }
 
   @Transactional
   @Secured({ "accounts:create" })
-  public Account save(final Account account) {
-    if (!accountsRepository.typeExists(account.type())) { throw new IllegalArgumentException("Wrong account type: " + account.type()); }
+  public Account create(final Account account) {
+    if (!accountsRepository
+      .typeExists(account.type())) { throw new IllegalArgumentException("Wrong account type: " + account.type()); }
 
     accountsRepository
       .insert(
@@ -48,6 +47,25 @@ public class AccountsService {
 
     return accountsRepository
       .loadById(account.id())
+      .orElseThrow(() -> new NoEntityFoundException(String
+        .format(
+          "Could not find account %s", account.id())));
+  }
+
+  @Transactional
+  @Secured({ "accounts:update" })
+  public Account update(final String accountId, final Account account) {
+    if (!accountsRepository
+      .typeExists(account.type())) { throw new IllegalArgumentException("Wrong account type: " + account.type()); }
+
+    accountsRepository
+      .update(
+        accountId,
+        account,
+        SecurityContextHolder.getContext().getAuthentication().getName());
+
+    return accountsRepository
+      .loadById(accountId)
       .orElseThrow(() -> new NoEntityFoundException(String
         .format(
           "Could not find account %s", account.id())));
@@ -116,20 +134,13 @@ public class AccountsService {
 
   @Transactional(readOnly = true)
   @Secured({ "accounts:read" })
-  public List<Account> loadBySearch(
-    final AccountSearchParameters account,
-    final AddressSearchParameters address,
-    final ContactSearchParameters contact,
-    final Integer page,
-    final Integer size,
-    final Sort sort) {
-    return accountsRepository
-      .loadBySearch(
-        account,
-        address,
-        contact,
-        page,
-        size,
-        sort);
+  public int count() {
+    return accountsRepository.count();
+  }
+
+  @Transactional(readOnly = true)
+  @Secured({ "accounts:read" })
+  public List<Account> load( final Integer page, final Integer size, final Sort sort) {
+    return accountsRepository.load(page, size, sort);
   }
 }

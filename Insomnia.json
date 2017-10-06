@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 3,
-	"__export_date": "2017-10-03T12:54:59.596Z",
+	"__export_date": "2017-10-06T13:09:21.780Z",
 	"__export_source": "insomnia.desktop.app:v5.8.4",
 	"resources": [
 		{
@@ -87,6 +87,29 @@
 			"_type": "request"
 		},
 		{
+			"_id": "req_7bb58cb090cc4581a866963ac5c779df",
+			"parentId": "wrk_9fd04c4da5284e3aa57cf9ee14174e8c",
+			"modified": 1507293630728,
+			"created": 1507293601012,
+			"url": "http://localhost:9080",
+			"name": "root",
+			"description": "",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [],
+			"authentication": {
+				"type": "bearer",
+				"token": "{% response 'header', 'req_d14d77fbf260436ab0c9f3ef6efed361', 'Authorization' %}"
+			},
+			"metaSortKey": -1507293601012,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"_type": "request"
+		},
+		{
 			"_id": "env_90d19199e8b24f6db10a87360a1e4293",
 			"parentId": "env_51e1039f061f4674b315b8c21e9b5c59",
 			"modified": 1506684223859,
@@ -115,20 +138,9 @@
 			"_type": "environment"
 		},
 		{
-			"_id": "fld_e50a3c8ab01e48b5be4125ceff377e82",
-			"parentId": "fld_fd9f06958f344535bf9856892f7ab16f",
-			"modified": 1506681966518,
-			"created": 1506681966518,
-			"name": "Addresses",
-			"description": "",
-			"environment": {},
-			"metaSortKey": -1506681966518,
-			"_type": "request_group"
-		},
-		{
 			"_id": "req_c54575fb43e043c687097a9da306514d",
 			"parentId": "fld_fd9f06958f344535bf9856892f7ab16f",
-			"modified": 1506947125534,
+			"modified": 1507294078218,
 			"created": 1505462684935,
 			"url": "http://localhost:9080/accounts/bcot3fn2knfa",
 			"name": "Quotezart",
@@ -139,9 +151,9 @@
 			"headers": [
 				{
 					"name": "Accept",
-					"value": "application/primrose.account.v.1.0+json",
+					"value": "application/vnd.primrose.account.v.1.0+json",
 					"id": "pair_da99762ba85d459ebdf89705cb8da8f6",
-					"disabled": false
+					"disabled": true
 				}
 			],
 			"authentication": {
@@ -158,21 +170,21 @@
 		{
 			"_id": "req_0d1d97be4a344fd086c59a4c23e94d52",
 			"parentId": "fld_fd9f06958f344535bf9856892f7ab16f",
-			"modified": 1506684529924,
+			"modified": 1507291096793,
 			"created": 1506594628304,
 			"url": "http://localhost:9080/accounts",
 			"name": "create",
 			"description": "",
 			"method": "POST",
 			"body": {
-				"mimeType": "application/json",
-				"text": "{\n\t\"name\": \"test\",\n\t\"accountType\": \"Partner\"\n}"
+				"mimeType": "application/vnd.primrose.account.v.1.0+json",
+				"text": "{\n\t\"name\": \"test\",\n\t\"type\": \"Partner\"\n}"
 			},
 			"parameters": [],
 			"headers": [
 				{
 					"name": "Content-Type",
-					"value": "application/json",
+					"value": "application/vnd.primrose.account.v.1.0+json",
 					"id": "pair_ad57506e598f46759dab651792832077"
 				}
 			],
@@ -190,7 +202,7 @@
 		{
 			"_id": "req_52485e3a845343bfbf1ebe3d337f5a47",
 			"parentId": "fld_fd9f06958f344535bf9856892f7ab16f",
-			"modified": 1507034111806,
+			"modified": 1507294079021,
 			"created": 1507015668366,
 			"url": "http://localhost:9080/accounts",
 			"name": "search",
@@ -205,12 +217,6 @@
 					"disabled": false
 				},
 				{
-					"name": "account.name",
-					"value": "rene",
-					"id": "pair_6b852bc573e541c1b1c922303ed83829",
-					"disabled": true
-				},
-				{
 					"name": "sort",
 					"value": "type",
 					"id": "pair_462a799eca514a4d91aa48dc400e0462",
@@ -218,29 +224,29 @@
 				},
 				{
 					"name": "page",
-					"value": "3",
+					"value": "1",
 					"id": "pair_0dad7fc78d69428fbb9f39c2772fe06d",
-					"disabled": true
+					"disabled": false
 				},
 				{
 					"name": "size",
-					"value": "3",
+					"value": "10",
 					"id": "pair_3f99c62bc52045608ceebca3c48ce034",
-					"disabled": true
-				},
-				{
-					"name": "address.state",
-					"value": "Idaho",
-					"id": "pair_42523ff4b2414083b0a5a3a18af4f4ef",
-					"disabled": true
+					"disabled": false
 				}
 			],
-			"headers": [],
+			"headers": [
+				{
+					"name": "Accept",
+					"value": "application/vnd.primrose.account.v.1.0+json",
+					"id": "pair_033e474c592c426cb1a35d7499a49517"
+				}
+			],
 			"authentication": {
 				"type": "bearer",
 				"token": "{% response 'header', 'req_d14d77fbf260436ab0c9f3ef6efed361', 'Authorization' %}"
 			},
-			"metaSortKey": -1507015668366,
+			"metaSortKey": -1506681908199,
 			"settingStoreCookies": true,
 			"settingSendCookies": true,
 			"settingDisableRenderRequestBody": false,
@@ -248,22 +254,31 @@
 			"_type": "request"
 		},
 		{
-			"_id": "req_8af939a9e1ee47c8b0c1e531c3164866",
-			"parentId": "fld_e50a3c8ab01e48b5be4125ceff377e82",
-			"modified": 1507033994650,
-			"created": 1506681971959,
-			"url": "http://localhost:9080/accounts/bcot3fn2knfa/addresses",
-			"name": "Quotezart",
+			"_id": "req_247b6ef2310746409e3788d883567ea9",
+			"parentId": "fld_fd9f06958f344535bf9856892f7ab16f",
+			"modified": 1507291335669,
+			"created": 1507290659587,
+			"url": "http://localhost:9080/accounts/bcot3fn2knfa",
+			"name": "update",
 			"description": "",
-			"method": "GET",
-			"body": {},
+			"method": "PUT",
+			"body": {
+				"mimeType": "application/vnd.primrose.account.v.1.0+json",
+				"text": "{\n\t\"type\": \"Partner\",\n\t\"displayName\": \"Quotezart\",\n\t\"name\": \"Quotezart\",\n\t\"email\": \"florence.foreman@quotezart.co.uk\",\n\t\"phone\": \"973580232\"\n}"
+			},
 			"parameters": [],
-			"headers": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/vnd.primrose.account.v.1.0+json",
+					"id": "pair_75d28029266841cb8b3bb3c83da53bd1"
+				}
+			],
 			"authentication": {
 				"type": "bearer",
 				"token": "{% response 'header', 'req_d14d77fbf260436ab0c9f3ef6efed361', 'Authorization' %}"
 			},
-			"metaSortKey": -1506681937371,
+			"metaSortKey": -1507290659587,
 			"settingStoreCookies": true,
 			"settingSendCookies": true,
 			"settingDisableRenderRequestBody": false,

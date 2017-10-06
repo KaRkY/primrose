@@ -8,13 +8,16 @@ import org.immutables.value.Value.Style.ValidationMethod;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@Value.Immutable
-@Value.Style(validationMethod = ValidationMethod.NONE)
-@JsonSerialize(as = ImmutableAccountLoadResponse.class)
-@JsonDeserialize(as = ImmutableAccountLoadResponse.class)
-public interface AccountLoadResponse {
+import primrose.hal.HalResource;
 
-  String id();
+@Value.Immutable()
+@Value.Style(
+  validationMethod = ValidationMethod.NONE,
+  depluralize = true,
+  deepImmutablesDetection = true)
+@JsonSerialize(as = ImmutableAccountResource.class)
+@JsonDeserialize(as = ImmutableAccountResource.class)
+public interface AccountResource extends HalResource {
 
   String type();
 
@@ -35,5 +38,4 @@ public interface AccountLoadResponse {
   LocalDateTime validFrom();
 
   LocalDateTime validTo();
-
 }

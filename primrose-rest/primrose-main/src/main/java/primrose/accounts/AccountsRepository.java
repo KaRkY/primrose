@@ -1,21 +1,18 @@
 package primrose.accounts;
 
+import static org.jooq.impl.DSL.currentLocalDateTime;
 import static org.jooq.impl.DSL.exists;
 import static org.jooq.impl.DSL.value;
 import static org.jooq.impl.DSL.when;
 import static pimrose.jooq.Primrose.PRIMROSE;
 import static pimrose.jooq.Sequences.ACCOUNTS_SEQ;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
-import primrose.addresses.AddressSearchParameters;
-import primrose.contacts.ContactSearchParameters;
 import primrose.pagging.sort.Sort;
 import primrose.util.IdUtil;
 import primrose.util.QueryUtil;
@@ -64,6 +61,24 @@ public class AccountsRepository {
           .from(PRIMROSE.PRINCIPALS)
           .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
           .asField())
+      .execute();
+  }
+
+  public void update(final String accountId, final Account account, final String user) {
+    create
+      .update(PRIMROSE.ACCOUNTS)
+      .set(PRIMROSE.ACCOUNTS.NAME, account.name())
+      .set(PRIMROSE.ACCOUNTS.DISPLAY_NAME, account.displayName())
+      .set(PRIMROSE.ACCOUNTS.DESCRIPTION, account.description())
+      .set(PRIMROSE.ACCOUNTS.EMAIL, account.email())
+      .set(PRIMROSE.ACCOUNTS.PHONE, account.phone())
+      .set(PRIMROSE.ACCOUNTS.EDITED_BY, create
+        .select(PRIMROSE.PRINCIPALS.ID)
+        .from(PRIMROSE.PRINCIPALS)
+        .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
+        .asField())
+      .set(PRIMROSE.ACCOUNTS.EDITED_AT, currentLocalDateTime())
+      .where(PRIMROSE.ACCOUNTS.ID.eq(IdUtil.valueOfLongId(accountId)))
       .execute();
   }
 
@@ -175,32 +190,12 @@ public class AccountsRepository {
         .build());
   }
 
-  public List<Account> loadBySearch(
-    final AccountSearchParameters account,
-    final AddressSearchParameters address,
-    final ContactSearchParameters contact,
-    final Integer page,
-    final Integer size,
-    final Sort sort) {
-    final List<Condition> conditions = new ArrayList<>();
+  public int count() {
+    return create
+      .fetchCount(PRIMROSE.ACCOUNTS);
+  }
 
-    QueryUtil.addLikeIgnoreCase(conditions, account.type(), PRIMROSE.ACCOUNT_TYPES.NAME);
-    QueryUtil.addLikeIgnoreCase(conditions, account.displayName(), PRIMROSE.ACCOUNTS.DISPLAY_NAME);
-    QueryUtil.addLikeIgnoreCase(conditions, account.name(), PRIMROSE.ACCOUNTS.NAME);
-    QueryUtil.addLikeIgnoreCase(conditions, account.email(), PRIMROSE.ACCOUNTS.EMAIL);
-    QueryUtil.addLikeIgnoreCase(conditions, account.phone(), PRIMROSE.ACCOUNTS.PHONE);
-    QueryUtil.addLikeIgnoreCase(conditions, account.website(), PRIMROSE.ACCOUNTS.WEBSITE);
-    QueryUtil.addLikeIgnoreCase(conditions, account.description(), PRIMROSE.ACCOUNTS.DESCRIPTION);
-    QueryUtil.addLikeIgnoreCase(conditions, address.street(), PRIMROSE.ADDRESSES.STREET);
-    QueryUtil.addLikeIgnoreCase(conditions, address.streetNumber(), PRIMROSE.ADDRESSES.STREET_NUMBER);
-    QueryUtil.addLikeIgnoreCase(conditions, address.city(), PRIMROSE.ADDRESSES.CITY);
-    QueryUtil.addLikeIgnoreCase(conditions, address.postalCode(), PRIMROSE.ADDRESSES.POSTAL_CODE);
-    QueryUtil.addLikeIgnoreCase(conditions, address.state(), PRIMROSE.ADDRESSES.STATE);
-    QueryUtil.addLikeIgnoreCase(conditions, address.country(), PRIMROSE.ADDRESSES.COUNTRY);
-    QueryUtil.addLikeIgnoreCase(conditions, contact.name(), PRIMROSE.CONTACTS.NAME);
-    QueryUtil.addLikeIgnoreCase(conditions, contact.email(), PRIMROSE.CONTACTS.EMAIL);
-    QueryUtil.addLikeIgnoreCase(conditions, contact.phone(), PRIMROSE.CONTACTS.PHONE);
-
+  public List<Account> load(final Integer page, final Integer size, final Sort sort) {
     final int offset = page != null && size != null
       ? (page - 1) * size
       : 0;
@@ -226,7 +221,6 @@ public class AccountsRepository {
       .leftJoin(PRIMROSE.ADDRESSES).on(PRIMROSE.ADDRESSES.ID.eq(PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS))
       .leftJoin(PRIMROSE.ACCOUNT_CONTACTS).on(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(PRIMROSE.ACCOUNTS.ID))
       .leftJoin(PRIMROSE.CONTACTS).on(PRIMROSE.CONTACTS.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.CONTACT))
-      .where(conditions)
       .orderBy(QueryUtil.map(sort, field -> {
         switch (field) {
           case "type":
@@ -276,4 +270,5 @@ public class AccountsRepository {
       .value1();
 
   }
+
 }

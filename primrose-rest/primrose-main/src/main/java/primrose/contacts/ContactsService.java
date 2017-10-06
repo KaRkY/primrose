@@ -18,7 +18,7 @@ public class ContactsService {
     this.contactsRepository = contactsRepository;
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
   public String getNextId() {
     return contactsRepository.nextValContact();
   }
