@@ -21,8 +21,8 @@ public class AddressResourceAssembler extends ResourceAssemblerSupport<Address, 
       .postalCode(address.postalCode())
       .state(address.state())
       .putLink("self", ImmutableLink.builder()
-        .href(self().build().expand(address.id()).toUriString())
-        .build())
+               .href(self().build().expand(address.id()).toUriString())
+               .build())
       .build();
   }
 

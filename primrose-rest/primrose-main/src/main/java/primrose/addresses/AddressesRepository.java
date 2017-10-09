@@ -18,6 +18,7 @@ import primrose.util.QueryUtil;
 
 @Repository
 public class AddressesRepository {
+
   private final DSLContext create;
 
   public AddressesRepository(final DSLContext create) {
@@ -69,10 +70,10 @@ public class AddressesRepository {
       .set(PRIMROSE.ADDRESSES.STATE, address.street())
       .set(PRIMROSE.ADDRESSES.COUNTRY, address.street())
       .set(PRIMROSE.ADDRESSES.EDITED_BY, create
-        .select(PRIMROSE.PRINCIPALS.ID)
-        .from(PRIMROSE.PRINCIPALS)
-        .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-        .asField())
+           .select(PRIMROSE.PRINCIPALS.ID)
+           .from(PRIMROSE.PRINCIPALS)
+           .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
+           .asField())
       .set(PRIMROSE.ADDRESSES.EDITED_AT, currentLocalDateTime())
       .where(PRIMROSE.ADDRESSES.ID.eq(IdUtil.valueOfLongId(addressId)))
       .execute();
@@ -91,15 +92,15 @@ public class AddressesRepository {
       .from(PRIMROSE.ADDRESSES)
       .where(PRIMROSE.ADDRESSES.ID.eq(IdUtil.valueOfLongId(addressId)))
       .fetchOptional(record -> ImmutableAddress
-        .builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
-        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
-        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
-        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
-        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
-        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
-        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build());
+      .builder()
+      .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
+      .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
+      .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
+      .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
+      .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
+      .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
+      .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
+      .build());
   }
 
   public Optional<Address> loadById(final String accountId, final String type, final String addressId) {
@@ -121,15 +122,15 @@ public class AddressesRepository {
         PRIMROSE.ADDRESSES.ID.eq(IdUtil.valueOfLongId(addressId)),
         PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(type))
       .fetchOptional(record -> ImmutableAddress
-        .builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
-        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
-        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
-        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
-        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
-        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
-        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build());
+      .builder()
+      .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
+      .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
+      .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
+      .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
+      .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
+      .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
+      .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
+      .build());
   }
 
   public Map<String, List<Address>> loadByAccountId(final String accountId) {
@@ -149,15 +150,15 @@ public class AddressesRepository {
       .on(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID.eq(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE))
       .where(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(IdUtil.valueOfLongId(accountId)))
       .fetchGroups(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME, record -> ImmutableAddress
-        .builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
-        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
-        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
-        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
-        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
-        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
-        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build());
+      .builder()
+      .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
+      .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
+      .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
+      .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
+      .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
+      .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
+      .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
+      .build());
   }
 
   public int count() {
@@ -185,35 +186,35 @@ public class AddressesRepository {
         PRIMROSE.ADDRESSES.COUNTRY)
       .from(PRIMROSE.ADDRESSES)
       .orderBy(QueryUtil.map(sort, field -> {
-        switch (field) {
-          case "street":
-            return PRIMROSE.ADDRESSES.STREET;
-          case "streetNumber":
-            return PRIMROSE.ADDRESSES.STREET_NUMBER;
-          case "postalCode":
-            return PRIMROSE.ADDRESSES.POSTAL_CODE;
-          case "state":
-            return PRIMROSE.ADDRESSES.STATE;
-          case "country":
-            return PRIMROSE.ADDRESSES.COUNTRY;
-          case "city":
-            return PRIMROSE.ADDRESSES.CITY;
-          default:
-            return null;
-        }
-      }))
+                             switch (field) {
+                               case "street":
+                                 return PRIMROSE.ADDRESSES.STREET;
+                               case "streetNumber":
+                                 return PRIMROSE.ADDRESSES.STREET_NUMBER;
+                               case "postalCode":
+                                 return PRIMROSE.ADDRESSES.POSTAL_CODE;
+                               case "state":
+                                 return PRIMROSE.ADDRESSES.STATE;
+                               case "country":
+                                 return PRIMROSE.ADDRESSES.COUNTRY;
+                               case "city":
+                                 return PRIMROSE.ADDRESSES.CITY;
+                               default:
+                                 return null;
+                             }
+                           }))
       .offset(offset)
       .limit(limit)
       .fetch(record -> ImmutableAddress
-        .builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
-        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
-        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
-        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
-        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
-        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
-        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build());
+      .builder()
+      .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
+      .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
+      .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
+      .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
+      .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
+      .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
+      .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
+      .build());
   }
 
 }

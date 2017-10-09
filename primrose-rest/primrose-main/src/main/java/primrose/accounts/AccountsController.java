@@ -19,6 +19,7 @@ import primrose.pagging.sort.SortUtil;
 @RestController
 @RequestMapping(path = "/accounts")
 public class AccountsController {
+
   private final AccountsService accountsService;
   private final AccountResourceAssembler accountResourceAssembler;
 
@@ -73,27 +74,27 @@ public class AccountsController {
 
     if (page != null && size != null && size * page < count) {
       builder.putLink("next", ImmutableLink.builder()
-        .href(fromMethodCall(on(AccountsController.class).list(page + 1, size, sort)).toUriString())
-        .title("Next")
-        .build());
+                      .href(fromMethodCall(on(AccountsController.class).list(page + 1, size, sort)).toUriString())
+                      .title("Next")
+                      .build());
     }
 
     if (page != null && size != null && page > 1) {
       builder.putLink("previous", ImmutableLink.builder()
-        .href(fromMethodCall(on(AccountsController.class).list(page - 1, size, sort)).toUriString())
-        .title("Previous")
-        .build());
+                      .href(fromMethodCall(on(AccountsController.class).list(page - 1, size, sort)).toUriString())
+                      .title("Previous")
+                      .build());
     }
 
     return ResponseEntity
       .ok(builder
         .count(count)
         .putEmbedded("accounts", accountResourceAssembler
-          .toResource(accountsService
-            .load(page, size, SortUtil.parseSort(sort))))
+                     .toResource(accountsService
+                       .load(page, size, SortUtil.parseSort(sort))))
         .putLink("self", ImmutableLink.builder()
-          .href(fromMethodCall(on(AccountsController.class).list(page, size, sort)).toUriString())
-          .build())
+                 .href(fromMethodCall(on(AccountsController.class).list(page, size, sort)).toUriString())
+                 .build())
         .build());
   }
 }

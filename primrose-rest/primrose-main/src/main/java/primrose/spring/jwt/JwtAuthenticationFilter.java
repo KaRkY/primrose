@@ -25,6 +25,7 @@ import primrose.principals.ImmutableLoginUser;
 import primrose.principals.LoginUser;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
   private final JwtProperties jwtProperties;
 
   public JwtAuthenticationFilter(final JwtProperties jwtProperties) {
@@ -57,7 +58,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     final String token = Jwts.builder()
       .setSubject(auth.getName())
       .claim("permissons",
-        auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()))
+             auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()))
       .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationTime()))
       .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret())
       .compact();

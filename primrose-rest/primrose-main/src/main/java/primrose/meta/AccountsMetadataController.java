@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "/metadata/accounts")
 public class AccountsMetadataController {
+
   private final AccountsMetadataService accountsMetadataService;
 
   public AccountsMetadataController(final AccountsMetadataService accountsMetadataService) {

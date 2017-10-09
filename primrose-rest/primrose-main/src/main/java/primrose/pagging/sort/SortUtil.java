@@ -11,7 +11,7 @@ public class SortUtil {
   public static Sort parseSort(final String sortSpec) {
     final Builder builder = ImmutableSort.builder();
 
-    final String[] split = sortSpec != null ? sortSpec.split(";") : new String[] {};
+    final String[] split = sortSpec != null ? sortSpec.split(";") : new String[]{};
     for (final String element : split) {
       if (element.trim().isEmpty()) {
         continue;

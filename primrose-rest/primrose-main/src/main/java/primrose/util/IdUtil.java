@@ -1,6 +1,7 @@
 package primrose.util;
 
 public final class IdUtil {
+
   private static final int ID_RADIX = 36;
 
   private IdUtil() {

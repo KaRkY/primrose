@@ -24,6 +24,7 @@ import io.jsonwebtoken.Jwts;
  * @author pascal alma
  */
 public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
+
   private final JwtProperties jwtProperties;
 
   public JwtAuthenticationTokenFilter(final JwtProperties jwtProperties) {
@@ -32,15 +33,16 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
   }
 
   /**
-   * Attempt to authenticate request - basically just pass over to another
-   * method to authenticate request headers
+   * Attempt to authenticate request - basically just pass over to another method to authenticate request headers
    */
   @SuppressWarnings("unchecked")
   @Override
   public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
     final String header = request.getHeader(jwtProperties.getHeader());
 
-    if (header == null || !header.startsWith(jwtProperties.getTokenPrefix())) { return null; }
+    if (header == null || !header.startsWith(jwtProperties.getTokenPrefix())) {
+      return null;
+    }
 
     final String authToken = header.replace(jwtProperties.getTokenPrefix(), "");
 
@@ -50,12 +52,12 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
       .getBody();
 
     return new UsernamePasswordAuthenticationToken(body.getSubject(),
-      null,
-      ((List<Object>) body.get("permissons"))
-        .stream()
-        .map(Object::toString)
-        .map(SimpleGrantedAuthority::new)
-        .collect(toSet()));
+                                                   null,
+                                                   ((List<Object>) body.get("permissons"))
+                                                     .stream()
+                                                     .map(Object::toString)
+                                                     .map(SimpleGrantedAuthority::new)
+                                                     .collect(toSet()));
   }
 
   /**

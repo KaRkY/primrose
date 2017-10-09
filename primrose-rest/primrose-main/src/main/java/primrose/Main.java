@@ -12,6 +12,7 @@ import org.springframework.jndi.JndiLocatorDelegate;
 
 @SpringBootApplication
 public class Main extends SpringBootServletInitializer {
+
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final JndiLocatorDelegate jndi = JndiLocatorDelegate.createDefaultResourceRefLocator();
 

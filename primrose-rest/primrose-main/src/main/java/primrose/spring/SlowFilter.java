@@ -17,6 +17,7 @@ import org.springframework.core.annotation.Order;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Profile("dev")
 public class SlowFilter implements Filter {
+
   private Random random;
 
   @Override

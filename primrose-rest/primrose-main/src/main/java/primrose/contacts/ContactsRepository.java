@@ -15,6 +15,7 @@ import primrose.util.IdUtil;
 
 @Repository
 public class ContactsRepository {
+
   private final DSLContext create;
 
   public ContactsRepository(final DSLContext create) {
@@ -60,12 +61,12 @@ public class ContactsRepository {
       .from(PRIMROSE.CONTACTS)
       .where(PRIMROSE.CONTACTS.ID.eq(IdUtil.valueOfLongId(contactId)))
       .fetchOptional(record -> ImmutableContact
-        .builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
-        .name(record.getValue(PRIMROSE.CONTACTS.NAME))
-        .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
-        .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
-        .build());
+      .builder()
+      .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
+      .name(record.getValue(PRIMROSE.CONTACTS.NAME))
+      .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
+      .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
+      .build());
   }
 
   public Optional<Contact> loadById(final String accountId, final String type, final String contactId) {
@@ -85,12 +86,12 @@ public class ContactsRepository {
         PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(type),
         PRIMROSE.CONTACTS.ID.eq(IdUtil.valueOfLongId(contactId)))
       .fetchOptional(record -> ImmutableContact
-        .builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
-        .name(record.getValue(PRIMROSE.CONTACTS.NAME))
-        .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
-        .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
-        .build());
+      .builder()
+      .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
+      .name(record.getValue(PRIMROSE.CONTACTS.NAME))
+      .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
+      .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
+      .build());
   }
 
   public Optional<Contact> loadByName(final String contactName) {
@@ -103,12 +104,12 @@ public class ContactsRepository {
       .from(PRIMROSE.CONTACTS)
       .where(PRIMROSE.CONTACTS.NAME.eq(contactName))
       .fetchOptional(record -> ImmutableContact
-        .builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
-        .name(record.getValue(PRIMROSE.CONTACTS.NAME))
-        .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
-        .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
-        .build());
+      .builder()
+      .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
+      .name(record.getValue(PRIMROSE.CONTACTS.NAME))
+      .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
+      .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
+      .build());
   }
 
   public Map<String, List<Contact>> loadByAccountId(final String accountId) {
@@ -125,12 +126,12 @@ public class ContactsRepository {
       .on(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE))
       .where(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(IdUtil.valueOfLongId(accountId)))
       .fetchGroups(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME, record -> ImmutableContact
-        .builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
-        .name(record.getValue(PRIMROSE.CONTACTS.NAME))
-        .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
-        .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
-        .build());
+      .builder()
+      .id(IdUtil.toStringId(record.getValue(PRIMROSE.CONTACTS.ID)))
+      .name(record.getValue(PRIMROSE.CONTACTS.NAME))
+      .email(record.getValue(PRIMROSE.CONTACTS.EMAIL))
+      .phone(record.getValue(PRIMROSE.CONTACTS.PHONE))
+      .build());
   }
 
 }

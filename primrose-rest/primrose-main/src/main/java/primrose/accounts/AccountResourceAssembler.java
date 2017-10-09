@@ -28,13 +28,13 @@ public class AccountResourceAssembler extends ResourceAssemblerSupport<Account, 
       .validFrom(account.validFrom())
       .validTo(account.validTo())
       .putLink("self", ImmutableLink.builder()
-        .href(self().build().expand(account.id()).toUriString())
-        .title(account.displayName())
-        .build())
+               .href(self().build().expand(account.id()).toUriString())
+               .title(account.displayName())
+               .build())
       .putLink("addresses", ImmutableLink.builder()
-        .href(self().path("/addresses").build().expand(account.id()).toUriString())
-        .title("Addresses")
-        .build())
+               .href(self().path("/addresses").build().expand(account.id()).toUriString())
+               .title("Addresses")
+               .build())
       .build();
   }
 

@@ -10,7 +10,7 @@ import primrose.spring.jwt.JwtProperties;
 @Configuration
 @EnableScheduling
 @EnableCaching
-@EnableConfigurationProperties({ JwtProperties.class })
+@EnableConfigurationProperties({JwtProperties.class})
 public class RootConfiguration {
 
 }

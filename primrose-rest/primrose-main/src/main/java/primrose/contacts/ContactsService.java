@@ -12,6 +12,7 @@ import primrose.NoEntityFoundException;
 
 @Service
 public class ContactsService {
+
   private final ContactsRepository contactsRepository;
 
   public ContactsService(final ContactsRepository contactsRepository) {
@@ -24,7 +25,7 @@ public class ContactsService {
   }
 
   @Transactional
-  @Secured({ "contacts:create" })
+  @Secured({"contacts:create"})
   public Contact save(final Contact contact) {
     contactsRepository.insert(
       contact,
@@ -32,11 +33,11 @@ public class ContactsService {
     return contactsRepository
       .loadById(contact.id())
       .orElseThrow(() -> new NoEntityFoundException(String
-        .format("Could not find contact %s", contact.id())));
+      .format("Could not find contact %s", contact.id())));
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "contacts:read" })
+  @Secured({"contacts:read"})
   public Contact loadById(final String contactId) {
     return contactsRepository
       .loadById(contactId)
@@ -44,27 +45,27 @@ public class ContactsService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "contacts:read" })
+  @Secured({"contacts:read"})
   public Contact loadByName(final String contactName) {
     return contactsRepository
       .loadByName(contactName)
       .orElseThrow(() -> new NoEntityFoundException(String
-        .format(
-          "Could not find contact %s",
-          contactName)));
+      .format(
+        "Could not find contact %s",
+        contactName)));
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "contacts:read" })
+  @Secured({"contacts:read"})
   public Contact loadById(final String accountId, final String type, final String contactId) {
     return contactsRepository
       .loadById(accountId, type, contactId)
       .orElseThrow(() -> new NoEntityFoundException(String
-        .format("Could not find contact %s with type %s for account %s", contactId, type, accountId)));
+      .format("Could not find contact %s with type %s for account %s", contactId, type, accountId)));
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "contacts:read", "account_contacts:read" })
+  @Secured({"contacts:read", "account_contacts:read"})
   public Map<String, List<Contact>> loadByAccountId(final String accountId) {
     return contactsRepository.loadByAccountId(accountId);
   }

@@ -35,12 +35,12 @@ public class PrincipalsRepository {
       .and(currentLocalDateTime().between(PRIMROSE.CREDENTIALS.VALID_FROM, PRIMROSE.CREDENTIALS.VALID_TO))
       .where(PRIMROSE.PRINCIPALS.NAME.eq(username))
       .fetchOptional(record -> ImmutablePrincipal
-        .builder()
-        .name(record.getValue(PRIMROSE.PRINCIPALS.NAME))
-        .enabled(record.getValue(PRIMROSE.PRINCIPALS.ENABLED))
-        .locked(record.getValue(PRIMROSE.PRINCIPALS.LOCKED))
-        .credidentials(record.getValue(PRIMROSE.CREDENTIALS.VALUE))
-        .build())
+      .builder()
+      .name(record.getValue(PRIMROSE.PRINCIPALS.NAME))
+      .enabled(record.getValue(PRIMROSE.PRINCIPALS.ENABLED))
+      .locked(record.getValue(PRIMROSE.PRINCIPALS.LOCKED))
+      .credidentials(record.getValue(PRIMROSE.CREDENTIALS.VALUE))
+      .build())
       .orElseThrow(() -> new NoDataFoundException("Principal not found"))
       .withPermissions(loadPermissions(username));
   }
@@ -49,17 +49,17 @@ public class PrincipalsRepository {
   public List<String> loadPermissions(final String username) {
     return create
       .withRecursive("gr", "id", "name").as(create
-        .select(PRIMROSE.PRINCIPAL_GROUPS.ID, PRIMROSE.PRINCIPAL_GROUPS.NAME)
-        .from(PRIMROSE.PRINCIPAL_GROUPS)
-        .join(PRIMROSE.PRINCIPAL_GROUP_MEMBERSHIPS)
-        .on(PRIMROSE.PRINCIPAL_GROUP_MEMBERSHIPS.PRINCIPAL_GROUP.eq(PRIMROSE.PRINCIPAL_GROUPS.ID))
-        .join(PRIMROSE.PRINCIPALS).on(PRIMROSE.PRINCIPALS.ID.eq(PRIMROSE.PRINCIPAL_GROUP_MEMBERSHIPS.PRINCIPAL))
-        .where(PRIMROSE.PRINCIPALS.NAME.eq(username))
-        .unionAll(
-          create
-            .select(PRIMROSE.PRINCIPAL_GROUPS.ID, PRIMROSE.PRINCIPAL_GROUPS.NAME)
-            .from(PRIMROSE.PRINCIPAL_GROUPS)
-            .join("gr").on(field("gr.id", Long.class).eq(PRIMROSE.PRINCIPAL_GROUPS.PARENT))))
+      .select(PRIMROSE.PRINCIPAL_GROUPS.ID, PRIMROSE.PRINCIPAL_GROUPS.NAME)
+      .from(PRIMROSE.PRINCIPAL_GROUPS)
+      .join(PRIMROSE.PRINCIPAL_GROUP_MEMBERSHIPS)
+      .on(PRIMROSE.PRINCIPAL_GROUP_MEMBERSHIPS.PRINCIPAL_GROUP.eq(PRIMROSE.PRINCIPAL_GROUPS.ID))
+      .join(PRIMROSE.PRINCIPALS).on(PRIMROSE.PRINCIPALS.ID.eq(PRIMROSE.PRINCIPAL_GROUP_MEMBERSHIPS.PRINCIPAL))
+      .where(PRIMROSE.PRINCIPALS.NAME.eq(username))
+      .unionAll(
+        create
+          .select(PRIMROSE.PRINCIPAL_GROUPS.ID, PRIMROSE.PRINCIPAL_GROUPS.NAME)
+          .from(PRIMROSE.PRINCIPAL_GROUPS)
+          .join("gr").on(field("gr.id", Long.class).eq(PRIMROSE.PRINCIPAL_GROUPS.PARENT))))
       .select(concat(PRIMROSE.RESOURCES.NAME, ":").concat(PRIMROSE.OPERATIONS.NAME))
       .from("gr")
       .join(PRIMROSE.GROUP_ROLE_MEMBERSHIPS)
