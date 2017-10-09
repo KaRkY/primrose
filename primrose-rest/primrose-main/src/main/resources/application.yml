@@ -9,7 +9,6 @@ spring:
       writeDatesAsTimestamps: false
     defaultPropertyInclusion: nonEmpty
 
-
 ---
 ##Development settings
 spring:

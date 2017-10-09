@@ -1,10 +1,12 @@
-package primrose.meta;
+package primrose.metadata;
 
 import java.util.List;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import primrose.NoEntityFoundException;
 
 @Service
 public class AccountsMetadataService {
@@ -17,8 +19,18 @@ public class AccountsMetadataService {
 
   @Transactional(readOnly = true)
   @Cacheable("accountTypes")
-  public List<String> loadTypes() {
+  public List<AccountType> loadTypes() {
     return accountsMetadataRepository.loadTypes();
+  }
+
+  @Transactional(readOnly = true)
+  @Cacheable("accountTypes")
+  public AccountType loadType(final String type) {
+    return accountsMetadataRepository
+      .loadType(type)
+      .orElseThrow(() -> new NoEntityFoundException(String
+        .format(
+          "Could not find account type %s", type)));
   }
 
   @Transactional(readOnly = true)
