@@ -6,11 +6,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.PathMatcher;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import primrose.hal.ImmutableLink;
 import primrose.hal.ResourceAssemblerSupport;
-import primrose.metadata.AccountsMetadataController;
 
 @Component
 public class AccountResourceAssembler extends ResourceAssemblerSupport<Account, AccountResource> {
@@ -22,11 +20,6 @@ public class AccountResourceAssembler extends ResourceAssemblerSupport<Account, 
   }
 
   @Override
-  public UriComponentsBuilder self() {
-    return fromController(AccountsController.class).path("/{id}");
-  }
-
-  @Override
   public AccountResource toResource(final Account account) {
     return ImmutableAccountResource.builder()
       .name(account.name())
@@ -34,18 +27,18 @@ public class AccountResourceAssembler extends ResourceAssemblerSupport<Account, 
       .description(account.description())
       .email(account.email())
       .phone(account.phone())
-      .type(fromController(AccountsMetadataController.class)
-        .path("/types/{type}")
-        .buildAndExpand(account.type())
-        .toUriString())
+      .type(ImmutableLink.builder()
+        .href(fromController(AccountTypesController.class).path("/{type}").buildAndExpand(account.type()).toUriString())
+        .title(account.type())
+        .build())
       .validFrom(account.validFrom())
       .validTo(account.validTo())
       .putLink("self", ImmutableLink.builder()
-        .href(self().build().expand(account.id()).toUriString())
+        .href(fromController(AccountsController.class).path("/{id}").buildAndExpand(account.id()).toUriString())
         .title(account.displayName())
         .build())
       .putLink("addresses", ImmutableLink.builder()
-        .href(self().path("/addresses").build().expand(account.id()).toUriString())
+        .href(fromController(AccountAddressesController.class).buildAndExpand(account.id()).toUriString())
         .title("Addresses")
         .build())
       .build();
@@ -55,16 +48,16 @@ public class AccountResourceAssembler extends ResourceAssemblerSupport<Account, 
   public Account fromResource(final AccountResource resource) {
     if (resource.type() == null) { throw new IllegalArgumentException("Type is required parameter."); }
 
-    final String pattern = fromController(AccountsMetadataController.class)
-      .path("/types/{type}")
+    final String pattern = fromController(AccountTypesController.class)
+      .path("/{type}")
       .build()
       .toUriString();
 
-    if (!pathMatcher.match(pattern, resource.type())) { throw new IllegalArgumentException(
+    if (!pathMatcher.match(pattern, resource.type().href())) { throw new IllegalArgumentException(
       String.format("Type must be valid URL to account types. Pattern: %s", pattern)); }
 
     final Map<String, String> variables = pathMatcher
-      .extractUriTemplateVariables(pattern, resource.type());
+      .extractUriTemplateVariables(pattern, resource.type().href());
 
     return ImmutableAccount.builder()
       .name(resource.name())

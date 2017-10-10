@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import primrose.NoEntityFoundException;
+import primrose.pagging.sort.Sort;
 
 @Service
 public class ContactsService {
@@ -34,6 +35,20 @@ public class ContactsService {
       .loadById(contact.id())
       .orElseThrow(() -> new NoEntityFoundException(String
       .format("Could not find contact %s", contact.id())));
+  }
+
+  @Transactional
+  @Secured({ "contacts:update" })
+  public Contact edit(final String contactId, final Contact contact) {
+    contactsRepository.update(
+      contactId,
+      contact,
+      SecurityContextHolder.getContext().getAuthentication().getName());
+
+    return contactsRepository
+      .loadById(contactId)
+      .orElseThrow(() -> new NoEntityFoundException(String
+        .format("Could not find address %s", contactId)));
   }
 
   @Transactional(readOnly = true)
@@ -68,5 +83,17 @@ public class ContactsService {
   @Secured({"contacts:read", "account_contacts:read"})
   public Map<String, List<Contact>> loadByAccountId(final String accountId) {
     return contactsRepository.loadByAccountId(accountId);
+  }
+
+  @Transactional(readOnly = true)
+  @Secured({ "contacts:read" })
+  public int count() {
+    return contactsRepository.count();
+  }
+
+  @Transactional(readOnly = true)
+  @Secured({ "contacts:read" })
+  public List<Contact> load(final Integer page, final Integer size, final Sort sort) {
+    return contactsRepository.load(page, size, sort);
   }
 }

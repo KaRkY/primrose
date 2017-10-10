@@ -74,10 +74,10 @@ public class AccountsRepository {
       .set(PRIMROSE.ACCOUNTS.EMAIL, account.email())
       .set(PRIMROSE.ACCOUNTS.PHONE, account.phone())
       .set(PRIMROSE.ACCOUNTS.EDITED_BY, create
-           .select(PRIMROSE.PRINCIPALS.ID)
-           .from(PRIMROSE.PRINCIPALS)
-           .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-           .asField())
+        .select(PRIMROSE.PRINCIPALS.ID)
+        .from(PRIMROSE.PRINCIPALS)
+        .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
+        .asField())
       .set(PRIMROSE.ACCOUNTS.EDITED_AT, currentLocalDateTime())
       .where(PRIMROSE.ACCOUNTS.ID.eq(IdUtil.valueOfLongId(accountId)))
       .execute();
@@ -148,18 +148,17 @@ public class AccountsRepository {
       .from(PRIMROSE.ACCOUNTS)
       .join(PRIMROSE.ACCOUNT_TYPES).on(PRIMROSE.ACCOUNT_TYPES.ID.eq(PRIMROSE.ACCOUNTS.ACCOUNT_TYPE))
       .where(PRIMROSE.ACCOUNTS.ID.eq(IdUtil.valueOfLongId(accountId)))
-      .fetchOptional(record -> ImmutableAccount
-      .builder()
-      .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
-      .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
-      .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
-      .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))
-      .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
-      .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
-      .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
-      .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
-      .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
-      .build());
+      .fetchOptional(record -> ImmutableAccount.builder()
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
+        .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
+        .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
+        .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))
+        .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
+        .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
+        .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
+        .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
+        .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
+        .build());
   }
 
   public Optional<Account> loadByName(final String accountName) {
@@ -177,18 +176,17 @@ public class AccountsRepository {
       .from(PRIMROSE.ACCOUNTS)
       .join(PRIMROSE.ACCOUNT_TYPES).on(PRIMROSE.ACCOUNT_TYPES.ID.eq(PRIMROSE.ACCOUNTS.ACCOUNT_TYPE))
       .where(PRIMROSE.ACCOUNTS.NAME.eq(accountName))
-      .fetchOptional(record -> ImmutableAccount
-      .builder()
-      .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
-      .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
-      .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
-      .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))
-      .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
-      .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
-      .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
-      .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
-      .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
-      .build());
+      .fetchOptional(record -> ImmutableAccount.builder()
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
+        .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
+        .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
+        .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))
+        .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
+        .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
+        .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
+        .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
+        .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
+        .build());
   }
 
   public int count() {
@@ -223,39 +221,38 @@ public class AccountsRepository {
       .leftJoin(PRIMROSE.ACCOUNT_CONTACTS).on(PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT.eq(PRIMROSE.ACCOUNTS.ID))
       .leftJoin(PRIMROSE.CONTACTS).on(PRIMROSE.CONTACTS.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.CONTACT))
       .orderBy(QueryUtil.map(sort, field -> {
-                             switch (field) {
-                               case "type":
-                                 return PRIMROSE.ACCOUNT_TYPES.NAME;
-                               case "displayName":
-                                 return PRIMROSE.ACCOUNTS.DISPLAY_NAME;
-                               case "name":
-                                 return PRIMROSE.ACCOUNTS.NAME;
-                               case "email":
-                                 return PRIMROSE.ACCOUNTS.EMAIL;
-                               case "phone":
-                                 return PRIMROSE.ACCOUNTS.PHONE;
-                               case "website":
-                                 return PRIMROSE.ACCOUNTS.WEBSITE;
-                               case "description":
-                                 return PRIMROSE.ACCOUNTS.DESCRIPTION;
-                               default:
-                                 return null;
-                             }
-                           }))
+        switch (field) {
+          case "type":
+            return PRIMROSE.ACCOUNT_TYPES.NAME;
+          case "displayName":
+            return PRIMROSE.ACCOUNTS.DISPLAY_NAME;
+          case "name":
+            return PRIMROSE.ACCOUNTS.NAME;
+          case "email":
+            return PRIMROSE.ACCOUNTS.EMAIL;
+          case "phone":
+            return PRIMROSE.ACCOUNTS.PHONE;
+          case "website":
+            return PRIMROSE.ACCOUNTS.WEBSITE;
+          case "description":
+            return PRIMROSE.ACCOUNTS.DESCRIPTION;
+          default:
+            return null;
+        }
+      }))
       .offset(offset)
       .limit(limit)
-      .fetch(record -> ImmutableAccount
-      .builder()
-      .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
-      .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
-      .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
-      .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))
-      .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
-      .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
-      .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
-      .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
-      .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
-      .build());
+      .fetch(record -> ImmutableAccount.builder()
+        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
+        .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
+        .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
+        .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))
+        .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
+        .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
+        .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
+        .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
+        .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
+        .build());
   }
 
   public boolean typeExists(final String type) {
@@ -265,11 +262,67 @@ public class AccountsRepository {
           .selectOne()
           .from(PRIMROSE.ACCOUNT_TYPES)
           .where(PRIMROSE.ACCOUNT_TYPES.NAME.eq(type))),
-             true)
-          .otherwise(false))
+          true)
+            .otherwise(false))
       .fetchOne()
       .value1();
 
   }
 
+  public List<AccountType> loadTypes() {
+    return create
+      .select(PRIMROSE.ACCOUNT_TYPES.NAME)
+      .from(PRIMROSE.ACCOUNT_TYPES)
+      .fetch(record -> ImmutableAccountType.builder()
+        .name(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
+        .build());
+  }
+
+  public Optional<AccountType> loadType(final String type) {
+    return create
+      .select(PRIMROSE.ACCOUNT_TYPES.NAME)
+      .from(PRIMROSE.ACCOUNT_TYPES)
+      .where(PRIMROSE.ACCOUNT_TYPES.NAME.eq(type))
+      .fetchOptional(record -> ImmutableAccountType.builder()
+        .name(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
+        .build());
+  }
+
+  public List<AccountAddressType> loadAddressTypes() {
+    return create
+      .select(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME)
+      .from(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
+      .fetch(record -> ImmutableAccountAddressType.builder()
+        .name(record.getValue(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME))
+        .build());
+  }
+
+  public Optional<AccountAddressType> loadAddressType(final String type) {
+    return create
+      .select(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME)
+      .from(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
+      .where(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(type))
+      .fetchOptional(record -> ImmutableAccountAddressType.builder()
+        .name(record.getValue(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME))
+        .build());
+  }
+
+  public List<AccountContactType> loadContactTypes() {
+    return create
+      .select(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME)
+      .from(PRIMROSE.ACCOUNT_CONTACT_TYPES)
+      .fetch(record -> ImmutableAccountContactType.builder()
+        .name(record.getValue(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME))
+        .build());
+  }
+
+  public Optional<AccountContactType> loadContactType(final String type) {
+    return create
+      .select(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME)
+      .from(PRIMROSE.ACCOUNT_CONTACT_TYPES)
+      .where(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME.eq(type))
+      .fetchOptional(record -> ImmutableAccountContactType.builder()
+        .name(record.getValue(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME))
+        .build());
+  }
 }

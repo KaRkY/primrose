@@ -3,7 +3,6 @@ package primrose.addresses;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromController;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import primrose.hal.ImmutableLink;
 import primrose.hal.ResourceAssemblerSupport;
@@ -21,7 +20,7 @@ public class AddressResourceAssembler extends ResourceAssemblerSupport<Address, 
       .postalCode(address.postalCode())
       .state(address.state())
       .putLink("self", ImmutableLink.builder()
-               .href(self().build().expand(address.id()).toUriString())
+               .href(fromController(AddressesControler.class).path("/{id}").buildAndExpand(address.id()).toUriString())
                .build())
       .build();
   }
@@ -36,11 +35,6 @@ public class AddressResourceAssembler extends ResourceAssemblerSupport<Address, 
       .postalCode(resource.postalCode())
       .state(resource.state())
       .build();
-  }
-
-  @Override
-  public UriComponentsBuilder self() {
-    return fromController(AddressesControler.class).path("/{id}");
   }
 
 }

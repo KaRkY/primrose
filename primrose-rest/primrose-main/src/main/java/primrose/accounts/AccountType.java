@@ -1,4 +1,4 @@
-package primrose.metadata;
+package primrose.accounts;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;

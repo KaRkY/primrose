@@ -13,9 +13,9 @@ import primrose.hal.HalResource;
   validationMethod = ValidationMethod.NONE,
   depluralize = true,
   deepImmutablesDetection = true)
-@JsonSerialize(as = ImmutablePageableAccountResource.class)
-@JsonDeserialize(as = ImmutablePageableAccountResource.class)
-public interface PageableAccountResource extends HalResource {
+@JsonSerialize(as = ImmutableAccountContactTypeResource.class)
+@JsonDeserialize(as = ImmutableAccountContactTypeResource.class)
+public interface AccountContactTypeResource extends HalResource {
 
-  int count();
+  String name();
 }

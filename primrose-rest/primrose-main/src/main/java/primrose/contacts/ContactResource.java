@@ -1,6 +1,4 @@
-package primrose.accounts;
-
-import java.time.LocalDateTime;
+package primrose.contacts;
 
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
@@ -9,34 +7,19 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import primrose.hal.HalResource;
-import primrose.hal.Link;
 
 @Value.Immutable()
 @Value.Style(
   validationMethod = ValidationMethod.NONE,
   depluralize = true,
   deepImmutablesDetection = true)
-@JsonSerialize(as = ImmutableAccountResource.class)
-@JsonDeserialize(as = ImmutableAccountResource.class)
-public interface AccountResource extends HalResource {
-
-  Link type();
-
-  String parrentAccount();
-
-  String displayName();
+@JsonSerialize(as = ImmutableContactResource.class)
+@JsonDeserialize(as = ImmutableContactResource.class)
+public interface ContactResource extends HalResource {
 
   String name();
 
   String email();
 
   String phone();
-
-  String website();
-
-  String description();
-
-  LocalDateTime validFrom();
-
-  LocalDateTime validTo();
 }
