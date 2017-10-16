@@ -19,7 +19,7 @@ import primrose.spring.jwt.JwtProperties;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   private final PrincipalUserDetailsService principalUserDetailsService;
-  private final JwtProperties jwtProperties;
+  private final JwtProperties               jwtProperties;
 
   public SecurityConfiguration(
     final PrincipalUserDetailsService principalUserDetailsService,

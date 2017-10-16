@@ -7,10 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Value.Immutable()
-@Value.Style(
-  validationMethod = ValidationMethod.NONE,
-  depluralize = true,
-  deepImmutablesDetection = true)
+@Value.Style(validationMethod = ValidationMethod.NONE, depluralize = true, deepImmutablesDetection = true)
 @JsonSerialize(as = ImmutableCollectionResource.class)
 @JsonDeserialize(as = ImmutableCollectionResource.class)
 public interface CollectionResource extends HalResource {

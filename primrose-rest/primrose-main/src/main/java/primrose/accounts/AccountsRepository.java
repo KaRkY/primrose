@@ -222,22 +222,22 @@ public class AccountsRepository {
       .leftJoin(PRIMROSE.CONTACTS).on(PRIMROSE.CONTACTS.ID.eq(PRIMROSE.ACCOUNT_CONTACTS.CONTACT))
       .orderBy(QueryUtil.map(sort, field -> {
         switch (field) {
-          case "type":
-            return PRIMROSE.ACCOUNT_TYPES.NAME;
-          case "displayName":
-            return PRIMROSE.ACCOUNTS.DISPLAY_NAME;
-          case "name":
-            return PRIMROSE.ACCOUNTS.NAME;
-          case "email":
-            return PRIMROSE.ACCOUNTS.EMAIL;
-          case "phone":
-            return PRIMROSE.ACCOUNTS.PHONE;
-          case "website":
-            return PRIMROSE.ACCOUNTS.WEBSITE;
-          case "description":
-            return PRIMROSE.ACCOUNTS.DESCRIPTION;
-          default:
-            return null;
+        case "type":
+          return PRIMROSE.ACCOUNT_TYPES.NAME;
+        case "displayName":
+          return PRIMROSE.ACCOUNTS.DISPLAY_NAME;
+        case "name":
+          return PRIMROSE.ACCOUNTS.NAME;
+        case "email":
+          return PRIMROSE.ACCOUNTS.EMAIL;
+        case "phone":
+          return PRIMROSE.ACCOUNTS.PHONE;
+        case "website":
+          return PRIMROSE.ACCOUNTS.WEBSITE;
+        case "description":
+          return PRIMROSE.ACCOUNTS.DESCRIPTION;
+        default:
+          return null;
         }
       }))
       .offset(offset)

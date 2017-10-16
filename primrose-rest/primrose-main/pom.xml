@@ -88,5 +88,10 @@
       <artifactId>primrose-jooq</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.graphql-java</groupId>
+      <artifactId>graphql-java</artifactId>
+    </dependency>
   </dependencies>
 </project>

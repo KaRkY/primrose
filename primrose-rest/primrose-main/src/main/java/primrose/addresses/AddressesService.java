@@ -20,21 +20,10 @@ public class AddressesService {
     this.addressesRepository = addressesRepository;
   }
 
-  @Transactional
-  public String getNextId() {
-    return addressesRepository.nextValAddresses();
-  }
-
-  @Transactional
-  @Secured({ "addresses:create" })
-  public Address save(final Address address) {
-    addressesRepository.insert(
-      address,
-      SecurityContextHolder.getContext().getAuthentication().getName());
-    return addressesRepository
-      .loadById(address.id())
-      .orElseThrow(() -> new NoEntityFoundException(String
-        .format("Could not find address %s", address.id())));
+  @Transactional(readOnly = true)
+  @Secured({ "addresses:read" })
+  public int count() {
+    return addressesRepository.count();
   }
 
   @Transactional
@@ -49,6 +38,24 @@ public class AddressesService {
       .loadById(addressId)
       .orElseThrow(() -> new NoEntityFoundException(String
         .format("Could not find address %s", addressId)));
+  }
+
+  @Transactional
+  public String getNextId() {
+    return addressesRepository.nextValAddresses();
+  }
+
+  @Transactional(readOnly = true)
+  @Secured({ "addresses:read" })
+  public List<Address> load(final Integer page, final Integer size, final Sort sort) {
+    return addressesRepository.load(page, size, sort);
+  }
+
+  @Transactional(readOnly = true)
+  @Secured({ "account_addresses:read", "addresses:read" })
+  public Map<String, List<Address>> loadByAccountId(final String accountId) {
+    System.out.println(accountId);
+    return addressesRepository.loadByAccountId(accountId);
   }
 
   @Transactional(readOnly = true)
@@ -69,22 +76,16 @@ public class AddressesService {
         .format("Could not find address %s with type %s for account %s", addressId, type, accountId)));
   }
 
-  @Transactional(readOnly = true)
-  @Secured({ "account_addresses:read", "addresses:read" })
-  public Map<String, List<Address>> loadByAccountId(final String accountId) {
-    return addressesRepository.loadByAccountId(accountId);
-  }
-
-  @Transactional(readOnly = true)
-  @Secured({ "addresses:read" })
-  public int count() {
-    return addressesRepository.count();
-  }
-
-  @Transactional(readOnly = true)
-  @Secured({ "addresses:read" })
-  public List<Address> load(final Integer page, final Integer size, final Sort sort) {
-    return addressesRepository.load(page, size, sort);
+  @Transactional
+  @Secured({ "addresses:create" })
+  public Address save(final Address address) {
+    addressesRepository.insert(
+      address,
+      SecurityContextHolder.getContext().getAuthentication().getName());
+    return addressesRepository
+      .loadById(address.id())
+      .orElseThrow(() -> new NoEntityFoundException(String
+        .format("Could not find address %s", address.id())));
   }
 
 }

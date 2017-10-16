@@ -19,8 +19,7 @@ import primrose.hal.ImmutableLink;
 @RequestMapping(path = "/")
 public class RootController {
 
-  @GetMapping(
-    produces = "application/vnd.primrose.v.1.0+json")
+  @GetMapping(produces = "application/vnd.primrose.v.1.0+json")
   public ResponseEntity<RootResource> load() {
     return ResponseEntity.ok(ImmutableRootResource.builder()
       .putLink("accounts", ImmutableLink.builder()

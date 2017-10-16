@@ -15,7 +15,7 @@ import primrose.hal.ImmutableEntity;
 @Controller
 @RequestMapping(path = "/account-address-types")
 public class AccountAddressTypesController {
-  private final AccountsService accountsService;
+  private final AccountsService                     accountsService;
   private final AccountAddressTypeResourceAssembler accountAddressTypeResourceAssembler;
 
   public AccountAddressTypesController(
@@ -25,10 +25,10 @@ public class AccountAddressTypesController {
     this.accountAddressTypeResourceAssembler = accountAddressTypeResourceAssembler;
   }
 
-  @GetMapping(
-    produces = "application/vnd.primrose.collection.v.1.0+json")
+  @GetMapping(produces = "application/vnd.primrose.collection.v.1.0+json")
   public ResponseEntity<CollectionResource> listTypes() {
-    final List<AccountAddressTypeResource> resource = accountAddressTypeResourceAssembler.toResource(accountsService.loadAddressTypes());
+    final List<AccountAddressTypeResource> resource = accountAddressTypeResourceAssembler
+      .toResource(accountsService.loadAddressTypes());
     return ResponseEntity.ok(ImmutableCollectionResource.builder()
       .size(resource.size())
       .addEntity(ImmutableEntity.builder()
@@ -41,9 +41,7 @@ public class AccountAddressTypesController {
       .build());
   }
 
-  @GetMapping(
-    path = "/{type}",
-    produces = "application/vnd.primrose.account-address-type.list.v.1.0+json")
+  @GetMapping(path = "/{type}", produces = "application/vnd.primrose.account-address-type.list.v.1.0+json")
   public ResponseEntity<AccountAddressTypeResource> loadType(
     @PathVariable("type") final String type) {
     return ResponseEntity.ok(accountAddressTypeResourceAssembler.toResource(accountsService.loadAddressType(type)));

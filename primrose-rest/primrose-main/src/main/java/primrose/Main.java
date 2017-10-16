@@ -16,6 +16,51 @@ public class Main extends SpringBootServletInitializer {
   private final Logger logger = LoggerFactory.getLogger(getClass());
   private final JndiLocatorDelegate jndi = JndiLocatorDelegate.createDefaultResourceRefLocator();
 
+  public static void main(final String[] args) {
+    SpringApplication.run(Main.class, args);
+//
+//    final String schema = "type Query{hello(id: String): [Account]} type Account{id: String, name: String}";
+//
+//    final SchemaParser schemaParser = new SchemaParser();
+//    final TypeDefinitionRegistry typeDefinitionRegistry = schemaParser.parse(schema);
+//
+//    final TypeRuntimeWiring queryTypeWiring = TypeRuntimeWiring
+//      .newTypeWiring("Query")
+//      .dataFetcher("hello", env -> Arrays.asList(
+//        ImmutableAccount.builder()
+//        .id(env.getArgument("id"))
+//        .name("test0")
+//        .build(),
+//        ImmutableAccount.builder()
+//        .id("test1")
+//        .name("test1")
+//        .build(),
+//        ImmutableAccount.builder()
+//        .id("test2")
+//        .name("test2")
+//        .build()))
+//      .build();
+//
+//    final RuntimeWiring runtimeWiring = RuntimeWiring
+//      .newRuntimeWiring()
+//      .wiringFactory(new WiringFactory() {
+//        @Override
+//        public DataFetcher<?> getDefaultDataFetcher(final FieldWiringEnvironment environment) {
+//          return new PropertyDataFetcher<>(environment.getFieldDefinition().getName());
+//        }
+//      })
+//      .type(queryTypeWiring)
+//      .build();
+//
+//    final SchemaGenerator schemaGenerator = new SchemaGenerator();
+//    final GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring);
+//
+//    final GraphQL build = GraphQL.newGraphQL(graphQLSchema).build();
+//    final ExecutionResult executionResult = build.execute("{hello(id: \"11\"){ id, name}}");
+//
+//    System.out.println(executionResult.toSpecification());
+  }
+
   @Override
   protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
 
@@ -28,10 +73,6 @@ public class Main extends SpringBootServletInitializer {
     }
 
     return builder.sources(Main.class);
-  }
-
-  public static void main(final String[] args) {
-    SpringApplication.run(Main.class, args);
   }
 
 }

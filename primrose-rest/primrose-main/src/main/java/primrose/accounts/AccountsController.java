@@ -25,7 +25,7 @@ import primrose.pagging.sort.SortUtil;
 @RequestMapping(path = "/accounts")
 public class AccountsController {
 
-  private final AccountsService accountsService;
+  private final AccountsService          accountsService;
   private final AccountResourceAssembler accountResourceAssembler;
 
   public AccountsController(
@@ -35,16 +35,12 @@ public class AccountsController {
     this.accountResourceAssembler = accountResourceAssembler;
   }
 
-  @GetMapping(
-    path = "/{account}",
-    produces = "application/vnd.primrose.account.v.1.0+json")
+  @GetMapping(path = "/{account}", produces = "application/vnd.primrose.account.v.1.0+json")
   public ResponseEntity<AccountResource> loadById(@PathVariable("account") final String account) {
     return ResponseEntity.ok(accountResourceAssembler.toResource(accountsService.loadById(account)));
   }
 
-  @PostMapping(
-    consumes = "application/vnd.primrose.account.v.1.0+json",
-    produces = "application/vnd.primrose.account.v.1.0+json")
+  @PostMapping(consumes = "application/vnd.primrose.account.v.1.0+json", produces = "application/vnd.primrose.account.v.1.0+json")
   public ResponseEntity<AccountResource> create(@RequestBody final AccountResource account) {
     final Account savedAccount = accountsService
       .create(ImmutableAccount.copyOf(accountResourceAssembler
@@ -55,10 +51,7 @@ public class AccountsController {
       .body(accountResourceAssembler.toResource(savedAccount));
   }
 
-  @PutMapping(
-    path = "/{account}",
-    consumes = "application/vnd.primrose.account.v.1.0+json",
-    produces = "application/vnd.primrose.account.v.1.0+json")
+  @PutMapping(path = "/{account}", consumes = "application/vnd.primrose.account.v.1.0+json", produces = "application/vnd.primrose.account.v.1.0+json")
   public ResponseEntity<AccountResource> edit(
     @PathVariable("account") final String accountId,
     @RequestBody final AccountResource account) {
@@ -68,13 +61,13 @@ public class AccountsController {
           .update(accountId, accountResourceAssembler.fromResource(account))));
   }
 
-  @GetMapping(
-    produces = "application/vnd.primrose.pageable.v.1.0+json")
+  @GetMapping(produces = "application/vnd.primrose.pageable.v.1.0+json")
   public ResponseEntity<PageableResource> list(
     @RequestParam(required = false) final Integer page,
     @RequestParam(required = false) final Integer size,
     @RequestParam(required = false) final String sort) {
-    final List<AccountResource> resource = accountResourceAssembler.toResource(accountsService.load(page, size, SortUtil.parseSort(sort)));
+    final List<AccountResource> resource = accountResourceAssembler
+      .toResource(accountsService.load(page, size, SortUtil.parseSort(sort)));
     final ImmutablePageableResource.Builder builder = ImmutablePageableResource.builder();
     final int count = accountsService.count();
 

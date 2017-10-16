@@ -19,8 +19,8 @@ import primrose.pagging.sort.Sort;
 public class AccountsService {
 
   private final AccountsRepository accountsRepository;
-  private final AddressesService addressesService;
-  private final ContactsService contactsService;
+  private final AddressesService   addressesService;
+  private final ContactsService    contactsService;
 
   public AccountsService(
     final AccountsRepository accountsRepository,
@@ -37,12 +37,10 @@ public class AccountsService {
   }
 
   @Transactional
-  @Secured({"accounts:create"})
+  @Secured({ "accounts:create" })
   public Account create(final Account account) {
     if (!accountsRepository
-      .typeExists(account.type())) {
-      throw new IllegalArgumentException("Wrong account type: " + account.type());
-    }
+      .typeExists(account.type())) { throw new IllegalArgumentException("Wrong account type: " + account.type()); }
 
     accountsRepository
       .insert(
@@ -52,17 +50,15 @@ public class AccountsService {
     return accountsRepository
       .loadById(account.id())
       .orElseThrow(() -> new NoEntityFoundException(String
-      .format(
-        "Could not find account %s", account.id())));
+        .format(
+          "Could not find account %s", account.id())));
   }
 
   @Transactional
-  @Secured({"accounts:update"})
+  @Secured({ "accounts:update" })
   public Account update(final String accountId, final Account account) {
     if (!accountsRepository
-      .typeExists(account.type())) {
-      throw new IllegalArgumentException("Wrong account type: " + account.type());
-    }
+      .typeExists(account.type())) { throw new IllegalArgumentException("Wrong account type: " + account.type()); }
 
     accountsRepository
       .update(
@@ -73,12 +69,12 @@ public class AccountsService {
     return accountsRepository
       .loadById(accountId)
       .orElseThrow(() -> new NoEntityFoundException(String
-      .format(
-        "Could not find account %s", account.id())));
+        .format(
+          "Could not find account %s", account.id())));
   }
 
   @Transactional
-  @Secured({"account_addresses:create"})
+  @Secured({ "account_addresses:create" })
   public Address addAddress(final String accountId, final String addressId, final String addressType) {
     accountsRepository
       .assignAddress(
@@ -90,7 +86,7 @@ public class AccountsService {
   }
 
   @Transactional
-  @Secured({"account_addresses:create"})
+  @Secured({ "account_addresses:create" })
   public Address addAddress(final String accountId, final Address address, final String addressType) {
     final Address savedAddress = addressesService.save(address);
     addAddress(accountId, savedAddress.id(), addressType);
@@ -98,7 +94,7 @@ public class AccountsService {
   }
 
   @Transactional
-  @Secured({"account_contacts:create"})
+  @Secured({ "account_contacts:create" })
   public Contact addContact(final String accountId, final String contactId, final String addressType) {
     accountsRepository
       .assignContact(
@@ -110,7 +106,7 @@ public class AccountsService {
   }
 
   @Transactional
-  @Secured({"account_contacts:create"})
+  @Secured({ "account_contacts:create" })
   public Contact addContact(final String accountId, final Contact contact, final String addressType) {
     final Contact savedContact = contactsService.save(contact);
     addContact(accountId, savedContact.id(), addressType);
@@ -118,34 +114,34 @@ public class AccountsService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({"accounts:read"})
+  @Secured({ "accounts:read" })
   public Account loadByName(final String accountName) {
     return accountsRepository
       .loadByName(accountName)
       .orElseThrow(() -> new NoEntityFoundException(String
-      .format(
-        "Could not find account %s",
-        accountName)));
+        .format(
+          "Could not find account %s",
+          accountName)));
   }
 
   @Transactional(readOnly = true)
-  @Secured({"accounts:read"})
+  @Secured({ "accounts:read" })
   public Account loadById(final String accountId) {
     return accountsRepository
       .loadById(accountId)
       .orElseThrow(() -> new NoEntityFoundException(String
-      .format(
-        "Could not find account %s", accountId)));
+        .format(
+          "Could not find account %s", accountId)));
   }
 
   @Transactional(readOnly = true)
-  @Secured({"accounts:read"})
+  @Secured({ "accounts:read" })
   public int count() {
     return accountsRepository.count();
   }
 
   @Transactional(readOnly = true)
-  @Secured({"accounts:read"})
+  @Secured({ "accounts:read" })
   public List<Account> load(final Integer page, final Integer size, final Sort sort) {
     return accountsRepository.load(page, size, sort);
   }

@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.0.0.M4</version>
+    <version>2.0.0.M5</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
@@ -32,6 +32,7 @@
     <immutables.version>2.5.5</immutables.version>
     <jackson.version>2.9.1</jackson.version>
     <jjwt.version>0.7.0</jjwt.version>
+    <graphql.version>5.0</graphql.version>
   </properties>
 
   <build>
@@ -96,6 +97,12 @@
         <artifactId>jjwt</artifactId>
         <version>${jjwt.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>com.graphql-java</groupId>
+        <artifactId>graphql-java</artifactId>
+        <version>${graphql.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -140,6 +147,7 @@
   <modules>
     <module>primrose-main</module>
     <module>primrose-jooq</module>
+    <module>primrose-model</module>
   </modules>
 
 </project>

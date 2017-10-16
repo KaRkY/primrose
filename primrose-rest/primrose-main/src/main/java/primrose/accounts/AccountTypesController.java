@@ -15,7 +15,7 @@ import primrose.hal.ImmutableEntity;
 @Controller
 @RequestMapping(path = "/account-types")
 public class AccountTypesController {
-  private final AccountsService accountsService;
+  private final AccountsService              accountsService;
   private final AccountTypeResourceAssembler accountTypeResourceAssembler;
 
   public AccountTypesController(
@@ -25,8 +25,7 @@ public class AccountTypesController {
     this.accountTypeResourceAssembler = accountTypeResourceAssembler;
   }
 
-  @GetMapping(
-    produces="application/vnd.primrose.collection.v.1.0+json")
+  @GetMapping(produces = "application/vnd.primrose.collection.v.1.0+json")
   public ResponseEntity<CollectionResource> listTypes() {
     final List<AccountTypeResource> resource = accountTypeResourceAssembler.toResource(accountsService.loadTypes());
     return ResponseEntity.ok(ImmutableCollectionResource.builder()
@@ -41,9 +40,7 @@ public class AccountTypesController {
       .build());
   }
 
-  @GetMapping(
-    path="/{type}",
-    produces="application/vnd.primrose.account-type.v.1.0+json")
+  @GetMapping(path = "/{type}", produces = "application/vnd.primrose.account-type.v.1.0+json")
   public ResponseEntity<AccountTypeResource> loadType(
     @PathVariable("type") final String type) {
     return ResponseEntity.ok(accountTypeResourceAssembler.toResource(accountsService.loadType(type)));

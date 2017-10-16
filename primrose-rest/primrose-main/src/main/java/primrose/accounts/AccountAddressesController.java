@@ -10,17 +10,17 @@ import primrose.addresses.AddressesService;
 @RequestMapping(path = "/accounts/{account}/addresses")
 public class AccountAddressesController {
 
-  private final AccountsService accountsService;
-  private final AddressesService addressesService;
+  private final AccountsService          accountsService;
+  private final AddressesService         addressesService;
   private final AddressResourceAssembler addressResourceAssembler;
 
   public AccountAddressesController(
     final AccountsService accountsService,
     final AddressesService addressesService,
     final AddressResourceAssembler addressResourceAssembler) {
-      this.accountsService = accountsService;
-      this.addressesService = addressesService;
-      this.addressResourceAssembler = addressResourceAssembler;
+    this.accountsService = accountsService;
+    this.addressesService = addressesService;
+    this.addressResourceAssembler = addressResourceAssembler;
   }
 
 }

@@ -9,6 +9,12 @@ spring:
       writeDatesAsTimestamps: false
     defaultPropertyInclusion: nonEmpty
 
+graphql:
+  servlet:
+    mapping: /graphql
+    enabled: true
+    corsEnabled: true
+
 ---
 ##Development settings
 spring:

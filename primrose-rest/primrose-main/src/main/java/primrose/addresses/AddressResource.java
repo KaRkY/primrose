@@ -10,10 +10,7 @@ import primrose.accounts.ImmutableAccountResource;
 import primrose.hal.HalResource;
 
 @Value.Immutable()
-@Value.Style(
-  validationMethod = ValidationMethod.NONE,
-  depluralize = true,
-  deepImmutablesDetection = true)
+@Value.Style(validationMethod = ValidationMethod.NONE, depluralize = true, deepImmutablesDetection = true)
 @JsonSerialize(as = ImmutableAccountResource.class)
 @JsonDeserialize(as = ImmutableAccountResource.class)
 public interface AddressResource extends HalResource {

@@ -184,20 +184,20 @@ public class AddressesRepository {
       .from(PRIMROSE.ADDRESSES)
       .orderBy(QueryUtil.map(sort, field -> {
         switch (field) {
-          case "street":
-            return PRIMROSE.ADDRESSES.STREET;
-          case "streetNumber":
-            return PRIMROSE.ADDRESSES.STREET_NUMBER;
-          case "postalCode":
-            return PRIMROSE.ADDRESSES.POSTAL_CODE;
-          case "state":
-            return PRIMROSE.ADDRESSES.STATE;
-          case "country":
-            return PRIMROSE.ADDRESSES.COUNTRY;
-          case "city":
-            return PRIMROSE.ADDRESSES.CITY;
-          default:
-            return null;
+        case "street":
+          return PRIMROSE.ADDRESSES.STREET;
+        case "streetNumber":
+          return PRIMROSE.ADDRESSES.STREET_NUMBER;
+        case "postalCode":
+          return PRIMROSE.ADDRESSES.POSTAL_CODE;
+        case "state":
+          return PRIMROSE.ADDRESSES.STATE;
+        case "country":
+          return PRIMROSE.ADDRESSES.COUNTRY;
+        case "city":
+          return PRIMROSE.ADDRESSES.CITY;
+        default:
+          return null;
         }
       }))
       .offset(offset)

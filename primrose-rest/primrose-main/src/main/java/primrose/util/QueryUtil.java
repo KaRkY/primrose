@@ -33,13 +33,13 @@ public class QueryUtil {
 
   public static SortOrder map(final SortDirection order) {
     switch (order) {
-      case ASC:
-        return SortOrder.ASC;
-      case DESC:
-        return SortOrder.DESC;
+    case ASC:
+      return SortOrder.ASC;
+    case DESC:
+      return SortOrder.DESC;
 
-      default:
-        return SortOrder.ASC;
+    default:
+      return SortOrder.ASC;
     }
   }
 

@@ -28,7 +28,7 @@ import primrose.pagging.sort.SortUtil;
 @RequestMapping(path = "/addresses")
 public class AddressesControler {
 
-  private final AddressesService addressesService;
+  private final AddressesService         addressesService;
   private final AddressResourceAssembler addressResourceAssembler;
 
   public AddressesControler(
@@ -38,18 +38,14 @@ public class AddressesControler {
     this.addressResourceAssembler = addressResourceAssembler;
   }
 
-  @GetMapping(
-    path = "/{address}",
-    produces = "application/vnd.primrose.address.v.1.0+json")
+  @GetMapping(path = "/{address}", produces = "application/vnd.primrose.address.v.1.0+json")
   public ResponseEntity<AddressResource> loadById(
     @PathVariable("address") final String address,
     final HttpServletRequest request) {
     return ResponseEntity.ok(addressResourceAssembler.toResource(addressesService.loadById(address)));
   }
 
-  @PostMapping(
-    consumes = "application/vnd.primrose.address.v.1.0+json",
-    produces = "application/vnd.primrose.address.v.1.0+json")
+  @PostMapping(consumes = "application/vnd.primrose.address.v.1.0+json", produces = "application/vnd.primrose.address.v.1.0+json")
   public ResponseEntity<AddressResource> save(
     @RequestBody final AddressResource address,
     final HttpServletRequest request) {
@@ -62,10 +58,7 @@ public class AddressesControler {
       .body(addressResourceAssembler.toResource(savedAddress));
   }
 
-  @PutMapping(
-    path = "/{address}",
-    consumes = "application/vnd.primrose.address.v.1.0+json",
-    produces = "application/vnd.primrose.address.v.1.0+json")
+  @PutMapping(path = "/{address}", consumes = "application/vnd.primrose.address.v.1.0+json", produces = "application/vnd.primrose.address.v.1.0+json")
   public ResponseEntity<AddressResource> edit(
     @PathVariable("address") final String addressId,
     @RequestBody final AddressResource address) {
@@ -77,13 +70,13 @@ public class AddressesControler {
       .ok(addressResourceAssembler.toResource(savedAddress));
   }
 
-  @GetMapping(
-    produces = "application/vnd.primrose.pageable.v.1.0+json")
+  @GetMapping(produces = "application/vnd.primrose.pageable.v.1.0+json")
   public ResponseEntity<PageableResource> list(
     @RequestParam(required = false) final Integer page,
     @RequestParam(required = false) final Integer size,
     @RequestParam(required = false) final String sort) {
-    final List<AddressResource> resource = addressResourceAssembler.toResource(addressesService.load(page, size, SortUtil.parseSort(sort)));
+    final List<AddressResource> resource = addressResourceAssembler
+      .toResource(addressesService.load(page, size, SortUtil.parseSort(sort)));
     final ImmutablePageableResource.Builder builder = ImmutablePageableResource.builder();
     final int count = addressesService.count();
 

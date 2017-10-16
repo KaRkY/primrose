@@ -12,12 +12,12 @@ public class NoEntityFoundException extends PrimroseException {
     super();
   }
 
-  public NoEntityFoundException(final String message, final Throwable cause) {
-    super(message, cause);
-  }
-
   public NoEntityFoundException(final String message) {
     super(message);
+  }
+
+  public NoEntityFoundException(final String message, final Throwable cause) {
+    super(message, cause);
   }
 
   public NoEntityFoundException(final Throwable cause) {

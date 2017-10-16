@@ -57,15 +57,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
       if (body.getSubject() != null) {
 
-        return new UsernamePasswordAuthenticationToken(
-          body.getSubject(),
-          null,
-          ((List<Object>) body.get("permissons"))
-            .stream()
-            .map(Object::toString)
-            .map(SimpleGrantedAuthority::new)
-            .collect(toSet()));
-      }
+      return new UsernamePasswordAuthenticationToken(
+        body.getSubject(),
+        null,
+        ((List<Object>) body.get("permissons"))
+          .stream()
+          .map(Object::toString)
+          .map(SimpleGrantedAuthority::new)
+          .collect(toSet())); }
       return null;
     }
     return null;

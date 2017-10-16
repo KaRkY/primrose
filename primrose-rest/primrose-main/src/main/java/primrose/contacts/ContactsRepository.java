@@ -172,14 +172,14 @@ public class ContactsRepository {
       .from(PRIMROSE.CONTACTS)
       .orderBy(QueryUtil.map(sort, field -> {
         switch (field) {
-          case "name":
-            return PRIMROSE.CONTACTS.NAME;
-          case "phone":
-            return PRIMROSE.CONTACTS.PHONE;
-          case "email":
-            return PRIMROSE.CONTACTS.EMAIL;
-          default:
-            return null;
+        case "name":
+          return PRIMROSE.CONTACTS.NAME;
+        case "phone":
+          return PRIMROSE.CONTACTS.PHONE;
+        case "email":
+          return PRIMROSE.CONTACTS.EMAIL;
+        default:
+          return null;
         }
       }))
       .offset(offset)

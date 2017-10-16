@@ -9,10 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import primrose.hal.HalResource;
 
 @Value.Immutable()
-@Value.Style(
-  validationMethod = ValidationMethod.NONE,
-  depluralize = true,
-  deepImmutablesDetection = true)
+@Value.Style(validationMethod = ValidationMethod.NONE, depluralize = true, deepImmutablesDetection = true)
 @JsonSerialize(as = ImmutableAccountAddressTypeResource.class)
 @JsonDeserialize(as = ImmutableAccountAddressTypeResource.class)
 public interface AccountAddressTypeResource extends HalResource {
