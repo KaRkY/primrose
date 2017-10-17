@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import graphql.ExecutionInput;
 import graphql.GraphQL;
+import graphql.execution.batched.BatchedExecutionStrategy;
 import graphql.introspection.IntrospectionQuery;
 import graphql.schema.GraphQLSchema;
 
@@ -37,16 +38,8 @@ public class GQLController {
 
   @GetMapping("/schema.json")
   @ResponseBody
-  public Map<String, Object> schema(
-    @RequestParam("query") final String query,
-    @RequestParam("variables") final String variables,
-    @RequestParam("operationName") final String operationName) {
-    final GraphQL graph = GraphQL.newGraphQL(schema).build();
-
-    return graph.execute(ExecutionInput.newExecutionInput()
-      .query(IntrospectionQuery.INTROSPECTION_QUERY)
-      .build())
-      .toSpecification();
+  public Map<String, Object> schema() {
+    return query(IntrospectionQuery.INTROSPECTION_QUERY, null, null);
   }
 
   @GetMapping(params = { "query" })
@@ -55,14 +48,7 @@ public class GQLController {
     @RequestParam("query") final String query,
     @RequestParam("variables") final String variables,
     @RequestParam("operationName") final String operationName) {
-    final GraphQL graph = GraphQL.newGraphQL(schema).build();
-
-    return graph.execute(ExecutionInput.newExecutionInput()
-      .query(query)
-      .operationName(operationName)
-      .variables(deserializeVariablesObject(variables))
-      .build())
-      .toSpecification();
+    return query(query, deserializeVariablesObject(variables), operationName);
   }
 
   @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
@@ -71,31 +57,61 @@ public class GQLController {
     @RequestParam("query") final String query,
     @RequestParam("variables") final String variables,
     @RequestParam("operationName") final String operationName) {
-    final GraphQL graph = GraphQL.newGraphQL(schema).build();
-
-    return graph.execute(ExecutionInput.newExecutionInput()
-      .query(query)
-      .operationName(operationName)
-      .variables(deserializeVariablesObject(variables))
-      .build())
-      .toSpecification();
+    return query(query, deserializeVariablesObject(variables), operationName);
   }
 
+  @SuppressWarnings("unchecked")
   @PostMapping
   @ResponseBody
   public Map<String, Object> postBodyQuery(
     @RequestBody final String body) {
     try {
-      //final GraphQL graph = GraphQL.newGraphQL(schema).build();
+      // final GraphQL graph = GraphQL.newGraphQL(schema).build();
       final Map<String, Object> req = objectMapper.readValue(body, new TypeReference<Map<String, Object>>() {
       });
 
-      req.forEach((key, value) -> System.out.println(String.format("key = %s, value = %s", key, value.getClass())));
+      String query = null;
+      if (req.get("query") != null) {
+        query = req.get("query").toString();
 
-      return null;
+        Map<String, Object> variables = null;
+        if (req.get("variables") != null) {
+          variables = (Map<String, Object>) req.get("variables");
+        }
+
+        String operationName = null;
+        if (req.get("operationName") != null) {
+          operationName = req.get("operationName").toString();
+        }
+        return query(query, variables, operationName);
+      } else {
+        throw new RuntimeException();
+      }
+
     } catch (final IOException e) {
-      System.out.println(e);
-      return null;
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Map<String, Object> query(final String query, final Map<String, Object> variables, final String operationName) {
+    final ExecutionInput.Builder executionBuilder = ExecutionInput.newExecutionInput();
+    if (query != null) {
+      executionBuilder.query(query);
+      if (variables != null) {
+        executionBuilder.variables(variables);
+      }
+      if (operationName != null) {
+        executionBuilder.operationName(operationName);
+      }
+
+      return GraphQL
+        .newGraphQL(schema)
+        .queryExecutionStrategy(new BatchedExecutionStrategy())
+        .build()
+        .execute(executionBuilder.build())
+        .toSpecification();
+    } else {
+      throw new RuntimeException();
     }
   }
 
@@ -111,7 +127,7 @@ public class GQLController {
         throw new RuntimeException(e);
       }
     } else {
-      throw new RuntimeException("variables should be either an object or a string");
+      return null;
     }
   }
 }

@@ -1,0 +1,14 @@
+# The Root Query for the application
+type Query {
+    accounts(page: Int, size: Int, sort: String): [Account]!
+}
+
+type Mutation {
+  createAccount(account: InputAccount!): Account!
+  importAccounts(accounts: [InputAccount]!): [Account]!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

@@ -7,7 +7,7 @@ spring:
   jackson:
     serialization:
       writeDatesAsTimestamps: false
-    defaultPropertyInclusion: nonEmpty
+    defaultPropertyInclusion: always
 
 graphql:
   servlet:

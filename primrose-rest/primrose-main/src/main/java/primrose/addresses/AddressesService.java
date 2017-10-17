@@ -1,15 +1,14 @@
 package primrose.addresses;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import primrose.NoEntityFoundException;
-import primrose.pagging.sort.Sort;
+import primrose.model.BaseInputAddress;
+import primrose.model.BaseOutputAccountAddress;
 
 @Service
 public class AddressesService {
@@ -27,17 +26,27 @@ public class AddressesService {
   }
 
   @Transactional
+  @Secured({ "addresses:create" })
+  public String save(final BaseInputAddress address) {
+
+    final String addressId = getNextId();
+
+    addressesRepository.insert(
+      addressId,
+      address,
+      SecurityContextHolder.getContext().getAuthentication().getName());
+    return addressId;
+  }
+
+  @Transactional
   @Secured({ "addresses:update" })
-  public Address edit(final String addressId, final Address address) {
+  public String edit(final String addressId, final BaseInputAddress address) {
     addressesRepository.update(
       addressId,
       address,
       SecurityContextHolder.getContext().getAuthentication().getName());
 
-    return addressesRepository
-      .loadById(addressId)
-      .orElseThrow(() -> new NoEntityFoundException(String
-        .format("Could not find address %s", addressId)));
+    return addressId;
   }
 
   @Transactional
@@ -46,46 +55,8 @@ public class AddressesService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "addresses:read" })
-  public List<Address> load(final Integer page, final Integer size, final Sort sort) {
-    return addressesRepository.load(page, size, sort);
-  }
-
-  @Transactional(readOnly = true)
   @Secured({ "account_addresses:read", "addresses:read" })
-  public Map<String, List<Address>> loadByAccountId(final String accountId) {
-    System.out.println(accountId);
+  public List<List<BaseOutputAccountAddress>> loadByAccountId(final List<String> accountId) {
     return addressesRepository.loadByAccountId(accountId);
   }
-
-  @Transactional(readOnly = true)
-  @Secured({ "addresses:read" })
-  public Address loadById(final String addressId) {
-    return addressesRepository
-      .loadById(addressId)
-      .orElseThrow(() -> new NoEntityFoundException(String
-        .format("Could not find address %s", addressId)));
-  }
-
-  @Transactional(readOnly = true)
-  @Secured({ "addresses:read" })
-  public Address loadById(final String accountId, final String type, final String addressId) {
-    return addressesRepository
-      .loadById(accountId, type, addressId)
-      .orElseThrow(() -> new NoEntityFoundException(String
-        .format("Could not find address %s with type %s for account %s", addressId, type, accountId)));
-  }
-
-  @Transactional
-  @Secured({ "addresses:create" })
-  public Address save(final Address address) {
-    addressesRepository.insert(
-      address,
-      SecurityContextHolder.getContext().getAuthentication().getName());
-    return addressesRepository
-      .loadById(address.id())
-      .orElseThrow(() -> new NoEntityFoundException(String
-        .format("Could not find address %s", address.id())));
-  }
-
 }

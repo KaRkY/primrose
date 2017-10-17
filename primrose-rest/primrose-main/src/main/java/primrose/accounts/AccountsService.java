@@ -9,18 +9,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import primrose.NoEntityFoundException;
-import primrose.addresses.Address;
 import primrose.addresses.AddressesService;
-import primrose.contacts.Contact;
 import primrose.contacts.ContactsService;
+import primrose.model.BaseInputAccount;
+import primrose.model.BaseInputAccountAddress;
+import primrose.model.BaseInputAccountContact;
+import primrose.model.BaseOutputAccount;
 import primrose.pagging.sort.Sort;
 
 @Service
 public class AccountsService {
 
   private final AccountsRepository accountsRepository;
-  private final AddressesService   addressesService;
-  private final ContactsService    contactsService;
+  private final AddressesService addressesService;
+  private final ContactsService contactsService;
 
   public AccountsService(
     final AccountsRepository accountsRepository,
@@ -38,25 +40,32 @@ public class AccountsService {
 
   @Transactional
   @Secured({ "accounts:create" })
-  public Account create(final Account account) {
+  public String create(final BaseInputAccount account) {
     if (!accountsRepository
       .typeExists(account.type())) { throw new IllegalArgumentException("Wrong account type: " + account.type()); }
 
+    final String accountId = getNextId();
+
     accountsRepository
       .insert(
+        accountId,
         account,
         SecurityContextHolder.getContext().getAuthentication().getName());
 
-    return accountsRepository
-      .loadById(account.id())
-      .orElseThrow(() -> new NoEntityFoundException(String
-        .format(
-          "Could not find account %s", account.id())));
+    account
+      .addresses()
+      .forEach(address -> addAddress(accountId, address));
+
+    account
+      .contacts()
+      .forEach(contact -> addContact(accountId, contact));
+
+    return accountId;
   }
 
   @Transactional
   @Secured({ "accounts:update" })
-  public Account update(final String accountId, final Account account) {
+  public String update(final String accountId, final BaseInputAccount account) {
     if (!accountsRepository
       .typeExists(account.type())) { throw new IllegalArgumentException("Wrong account type: " + account.type()); }
 
@@ -66,56 +75,36 @@ public class AccountsService {
         account,
         SecurityContextHolder.getContext().getAuthentication().getName());
 
-    return accountsRepository
-      .loadById(accountId)
-      .orElseThrow(() -> new NoEntityFoundException(String
-        .format(
-          "Could not find account %s", account.id())));
+    return accountId;
   }
 
   @Transactional
   @Secured({ "account_addresses:create" })
-  public Address addAddress(final String accountId, final String addressId, final String addressType) {
-    accountsRepository
-      .assignAddress(
-        accountId,
-        addressId,
-        addressType,
-        SecurityContextHolder.getContext().getAuthentication().getName());
-    return addressesService.loadById(addressId);
-  }
-
-  @Transactional
-  @Secured({ "account_addresses:create" })
-  public Address addAddress(final String accountId, final Address address, final String addressType) {
-    final Address savedAddress = addressesService.save(address);
-    addAddress(accountId, savedAddress.id(), addressType);
-    return savedAddress;
+  public String addAddress(final String accountId, final BaseInputAccountAddress address) {
+    final String addressId = addressesService.save(address);
+    accountsRepository.assignAddress(
+      accountId,
+      addressId,
+      address.type(),
+      SecurityContextHolder.getContext().getAuthentication().getName());
+    return addressId;
   }
 
   @Transactional
   @Secured({ "account_contacts:create" })
-  public Contact addContact(final String accountId, final String contactId, final String addressType) {
-    accountsRepository
-      .assignContact(
-        accountId,
-        contactId,
-        addressType,
-        SecurityContextHolder.getContext().getAuthentication().getName());
-    return contactsService.loadById(contactId);
-  }
-
-  @Transactional
-  @Secured({ "account_contacts:create" })
-  public Contact addContact(final String accountId, final Contact contact, final String addressType) {
-    final Contact savedContact = contactsService.save(contact);
-    addContact(accountId, savedContact.id(), addressType);
-    return savedContact;
+  public String addContact(final String accountId, final BaseInputAccountContact contact) {
+    final String contactId = contactsService.save(contact);
+    accountsRepository.assignContact(
+      accountId,
+      contactId,
+      contact.type(),
+      SecurityContextHolder.getContext().getAuthentication().getName());
+    return contactId;
   }
 
   @Transactional(readOnly = true)
   @Secured({ "accounts:read" })
-  public Account loadByName(final String accountName) {
+  public BaseOutputAccount loadByName(final String accountName) {
     return accountsRepository
       .loadByName(accountName)
       .orElseThrow(() -> new NoEntityFoundException(String
@@ -126,7 +115,7 @@ public class AccountsService {
 
   @Transactional(readOnly = true)
   @Secured({ "accounts:read" })
-  public Account loadById(final String accountId) {
+  public BaseOutputAccount loadById(final String accountId) {
     return accountsRepository
       .loadById(accountId)
       .orElseThrow(() -> new NoEntityFoundException(String
@@ -142,7 +131,7 @@ public class AccountsService {
 
   @Transactional(readOnly = true)
   @Secured({ "accounts:read" })
-  public List<Account> load(final Integer page, final Integer size, final Sort sort) {
+  public List<BaseOutputAccount> load(final Integer page, final Integer size, final Sort sort) {
     return accountsRepository.load(page, size, sort);
   }
 

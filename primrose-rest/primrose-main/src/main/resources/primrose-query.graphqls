@@ -1,0 +1,32 @@
+type AccountAddress {
+  id: String!
+  street: String
+  streetNumber: String
+  city: String
+  postalCode: String
+  state: String
+  country: String
+  type: String!
+}
+
+type AccountContact {
+  id: String!
+  name: String!
+  email: String
+  phone: String
+  type: String!
+}
+
+type Account {
+  id: String!
+  parent: Account
+  type: String!
+  displayName: String
+  name: String
+  email: String
+  phone: String
+  website: String
+  description: String
+  addresses: [AccountAddress]!
+  contacts: [AccountContact]!
+}

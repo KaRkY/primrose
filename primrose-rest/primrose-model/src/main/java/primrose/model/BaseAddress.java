@@ -1,6 +1,6 @@
 package primrose.model;
 
-public interface Address extends IdentifiableModel {
+public interface BaseAddress {
   String city();
 
   String country();

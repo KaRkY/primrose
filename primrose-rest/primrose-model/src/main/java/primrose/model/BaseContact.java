@@ -1,6 +1,6 @@
 package primrose.model;
 
-public interface Contact extends IdentifiableModel, NamedModel {
+public interface BaseContact extends NamedModel {
 
   String email();
 

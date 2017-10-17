@@ -244,8 +244,8 @@ comment on table account_addresses is 'Account address by type.';
 
 create table contacts(
   id          bigint                    constraint  nn_contacts_id          not null,
-  name        text                      constraint  nn_contacts_name        not null  constraint uq_contacts_name   unique,
-  email       text                      constraint  nn_contacts_email       not null  constraint uq_contacts_email  unique,
+  name        text                      constraint  nn_contacts_name        not null,
+  email       text                      constraint  nn_contacts_email       not null,
   phone       text                      constraint  nn_contacts_phone       not null,
   created_by  bigint                    constraint  nn_contacts_created_by  not null,
   created_at  timestamp with time zone  constraint  nn_contacts_created_at  not null  default current_timestamp,

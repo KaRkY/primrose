@@ -5,16 +5,17 @@ import static org.jooq.impl.DSL.value;
 import static pimrose.jooq.Primrose.PRIMROSE;
 import static pimrose.jooq.Sequences.ADDRESSES_SEQ;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
-import primrose.pagging.sort.Sort;
+import primrose.model.BaseInputAddress;
+import primrose.model.BaseOutputAccountAddress;
 import primrose.util.IdUtil;
-import primrose.util.QueryUtil;
 
 @Repository
 public class AddressesRepository {
@@ -32,7 +33,10 @@ public class AddressesRepository {
       .value1());
   }
 
-  public void insert(final Address address, final String user) {
+  public void insert(
+    final String addressId,
+    final BaseInputAddress address,
+    final String user) {
     create
       .insertInto(PRIMROSE.ADDRESSES)
       .columns(
@@ -45,7 +49,7 @@ public class AddressesRepository {
         PRIMROSE.ADDRESSES.COUNTRY,
         PRIMROSE.ADDRESSES.CREATED_BY)
       .values(
-        value(IdUtil.valueOfLongId(address.id())),
+        value(IdUtil.valueOfLongId(addressId)),
         value(address.street()),
         value(address.streetNumber()),
         value(address.city()),
@@ -60,7 +64,7 @@ public class AddressesRepository {
       .execute();
   }
 
-  public void update(final String addressId, final Address address, final String user) {
+  public void update(final String addressId, final BaseInputAddress address, final String user) {
     create
       .update(PRIMROSE.ADDRESSES)
       .set(PRIMROSE.ADDRESSES.STREET, address.street())
@@ -79,32 +83,11 @@ public class AddressesRepository {
       .execute();
   }
 
-  public Optional<Address> loadById(final String addressId) {
-    return create
+  public List<List<BaseOutputAccountAddress>> loadByAccountId(final List<String> accountId) {
+    final Map<Long, List<BaseOutputAccountAddress>> groupedAddresses = create
       .select(
-        PRIMROSE.ADDRESSES.ID,
-        PRIMROSE.ADDRESSES.STREET,
-        PRIMROSE.ADDRESSES.STREET_NUMBER,
-        PRIMROSE.ADDRESSES.CITY,
-        PRIMROSE.ADDRESSES.POSTAL_CODE,
-        PRIMROSE.ADDRESSES.STATE,
-        PRIMROSE.ADDRESSES.COUNTRY)
-      .from(PRIMROSE.ADDRESSES)
-      .where(PRIMROSE.ADDRESSES.ID.eq(IdUtil.valueOfLongId(addressId)))
-      .fetchOptional(record -> ImmutableAddress.builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
-        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
-        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
-        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
-        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
-        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
-        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build());
-  }
-
-  public Optional<Address> loadById(final String accountId, final String type, final String addressId) {
-    return create
-      .select(
+        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT,
+        PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME,
         PRIMROSE.ADDRESSES.ID,
         PRIMROSE.ADDRESSES.STREET,
         PRIMROSE.ADDRESSES.STREET_NUMBER,
@@ -116,12 +99,11 @@ public class AddressesRepository {
       .join(PRIMROSE.ACCOUNT_ADDRESSES).on(PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS.eq(PRIMROSE.ADDRESSES.ID))
       .join(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
       .on(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID.eq(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE))
-      .where(
-        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(IdUtil.valueOfLongId(accountId)),
-        PRIMROSE.ADDRESSES.ID.eq(IdUtil.valueOfLongId(addressId)),
-        PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(type))
-      .fetchOptional(record -> ImmutableAddress.builder()
+      .where(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT
+        .in(accountId.stream().map(IdUtil::valueOfLongId).collect(Collectors.toList())))
+      .fetchGroups(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT, record -> ImmutableOutputAccountAddress.builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
+        .type(record.getValue(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME))
         .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
         .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
         .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
@@ -129,88 +111,18 @@ public class AddressesRepository {
         .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
         .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
         .build());
-  }
 
-  public Map<String, List<Address>> loadByAccountId(final String accountId) {
-    return create
-      .select(
-        PRIMROSE.ADDRESSES.ID,
-        PRIMROSE.ADDRESSES.STREET,
-        PRIMROSE.ADDRESSES.STREET_NUMBER,
-        PRIMROSE.ADDRESSES.CITY,
-        PRIMROSE.ADDRESSES.POSTAL_CODE,
-        PRIMROSE.ADDRESSES.STATE,
-        PRIMROSE.ADDRESSES.COUNTRY,
-        PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME)
-      .from(PRIMROSE.ADDRESSES)
-      .join(PRIMROSE.ACCOUNT_ADDRESSES).on(PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS.eq(PRIMROSE.ADDRESSES.ID))
-      .join(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
-      .on(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID.eq(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE))
-      .where(PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT.eq(IdUtil.valueOfLongId(accountId)))
-      .fetchGroups(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME, record -> ImmutableAddress.builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
-        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
-        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
-        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
-        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
-        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
-        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build());
+    return accountId
+      .stream()
+      .map(IdUtil::valueOfLongId)
+      .map(groupedAddresses::get)
+      .map(addresses -> addresses != null ? addresses : Collections.<BaseOutputAccountAddress>emptyList())
+      .collect(Collectors.toList());
   }
 
   public int count() {
     return create
       .fetchCount(PRIMROSE.ADDRESSES);
-  }
-
-  public List<Address> load(final Integer page, final Integer size, final Sort sort) {
-    final int offset = page != null && size != null
-      ? (page - 1) * size
-      : 0;
-
-    final int limit = size != null
-      ? size
-      : Integer.MAX_VALUE;
-
-    return create
-      .selectDistinct(
-        PRIMROSE.ADDRESSES.ID,
-        PRIMROSE.ADDRESSES.STREET,
-        PRIMROSE.ADDRESSES.STREET_NUMBER,
-        PRIMROSE.ADDRESSES.CITY,
-        PRIMROSE.ADDRESSES.POSTAL_CODE,
-        PRIMROSE.ADDRESSES.STATE,
-        PRIMROSE.ADDRESSES.COUNTRY)
-      .from(PRIMROSE.ADDRESSES)
-      .orderBy(QueryUtil.map(sort, field -> {
-        switch (field) {
-        case "street":
-          return PRIMROSE.ADDRESSES.STREET;
-        case "streetNumber":
-          return PRIMROSE.ADDRESSES.STREET_NUMBER;
-        case "postalCode":
-          return PRIMROSE.ADDRESSES.POSTAL_CODE;
-        case "state":
-          return PRIMROSE.ADDRESSES.STATE;
-        case "country":
-          return PRIMROSE.ADDRESSES.COUNTRY;
-        case "city":
-          return PRIMROSE.ADDRESSES.CITY;
-        default:
-          return null;
-        }
-      }))
-      .offset(offset)
-      .limit(limit)
-      .fetch(record -> ImmutableAddress.builder()
-        .id(IdUtil.toStringId(record.getValue(PRIMROSE.ADDRESSES.ID)))
-        .street(record.getValue(PRIMROSE.ADDRESSES.STREET))
-        .streetNumber(record.getValue(PRIMROSE.ADDRESSES.STREET_NUMBER))
-        .city(record.getValue(PRIMROSE.ADDRESSES.CITY))
-        .postalCode(record.getValue(PRIMROSE.ADDRESSES.POSTAL_CODE))
-        .state(record.getValue(PRIMROSE.ADDRESSES.STATE))
-        .country(record.getValue(PRIMROSE.ADDRESSES.COUNTRY))
-        .build());
   }
 
 }

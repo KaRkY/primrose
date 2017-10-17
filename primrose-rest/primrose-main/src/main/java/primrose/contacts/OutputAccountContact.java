@@ -3,15 +3,10 @@ package primrose.contacts;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ValidationMethod;
 
+import primrose.model.BaseOutputAccountContact;
+
 @Value.Immutable
 @Value.Style(validationMethod = ValidationMethod.NONE)
-public interface Contact {
+public interface OutputAccountContact extends BaseOutputAccountContact {
 
-  String id();
-
-  String name();
-
-  String email();
-
-  String phone();
 }

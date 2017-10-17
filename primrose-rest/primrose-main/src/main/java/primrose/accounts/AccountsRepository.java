@@ -13,6 +13,8 @@ import java.util.Optional;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import primrose.model.BaseInputAccount;
+import primrose.model.BaseOutputAccount;
 import primrose.pagging.sort.Sort;
 import primrose.util.IdUtil;
 import primrose.util.QueryUtil;
@@ -33,7 +35,7 @@ public class AccountsRepository {
       .value1());
   }
 
-  public void insert(final Account account, final String user) {
+  public void insert(final String accountId, final BaseInputAccount account, final String user) {
     create
       .insertInto(PRIMROSE.ACCOUNTS)
       .columns(
@@ -46,7 +48,7 @@ public class AccountsRepository {
         PRIMROSE.ACCOUNTS.ACCOUNT_TYPE,
         PRIMROSE.ACCOUNTS.CREATED_BY)
       .values(
-        value(IdUtil.valueOfLongId(account.id())),
+        value(IdUtil.valueOfLongId(accountId)),
         value(account.name()),
         value(account.displayName()),
         value(account.description()),
@@ -65,7 +67,7 @@ public class AccountsRepository {
       .execute();
   }
 
-  public void update(final String accountId, final Account account, final String user) {
+  public void update(final String accountId, final BaseInputAccount account, final String user) {
     create
       .update(PRIMROSE.ACCOUNTS)
       .set(PRIMROSE.ACCOUNTS.NAME, account.name())
@@ -83,7 +85,10 @@ public class AccountsRepository {
       .execute();
   }
 
-  public void assignAddress(final String accountId, final String addressId, final String addressType,
+  public void assignAddress(
+    final String accountId,
+    final String addressId,
+    final String addressType,
     final String user) {
     create
       .insertInto(PRIMROSE.ACCOUNT_ADDRESSES)
@@ -108,7 +113,10 @@ public class AccountsRepository {
       .execute();
   }
 
-  public void assignContact(final String accountId, final String contactId, final String contactType,
+  public void assignContact(
+    final String accountId,
+    final String contactId,
+    final String contactType,
     final String user) {
     create
       .insertInto(PRIMROSE.ACCOUNT_CONTACTS)
@@ -133,7 +141,7 @@ public class AccountsRepository {
       .execute();
   }
 
-  public Optional<Account> loadById(final String accountId) {
+  public Optional<BaseOutputAccount> loadById(final String accountId) {
     return create
       .select(
         PRIMROSE.ACCOUNTS.ID,
@@ -148,7 +156,7 @@ public class AccountsRepository {
       .from(PRIMROSE.ACCOUNTS)
       .join(PRIMROSE.ACCOUNT_TYPES).on(PRIMROSE.ACCOUNT_TYPES.ID.eq(PRIMROSE.ACCOUNTS.ACCOUNT_TYPE))
       .where(PRIMROSE.ACCOUNTS.ID.eq(IdUtil.valueOfLongId(accountId)))
-      .fetchOptional(record -> ImmutableAccount.builder()
+      .fetchOptional(record -> ImmutableOutputAccount.builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
         .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
         .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
@@ -161,7 +169,7 @@ public class AccountsRepository {
         .build());
   }
 
-  public Optional<Account> loadByName(final String accountName) {
+  public Optional<BaseOutputAccount> loadByName(final String accountName) {
     return create
       .select(
         PRIMROSE.ACCOUNTS.ID,
@@ -176,7 +184,7 @@ public class AccountsRepository {
       .from(PRIMROSE.ACCOUNTS)
       .join(PRIMROSE.ACCOUNT_TYPES).on(PRIMROSE.ACCOUNT_TYPES.ID.eq(PRIMROSE.ACCOUNTS.ACCOUNT_TYPE))
       .where(PRIMROSE.ACCOUNTS.NAME.eq(accountName))
-      .fetchOptional(record -> ImmutableAccount.builder()
+      .fetchOptional(record -> ImmutableOutputAccount.builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
         .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
         .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
@@ -194,7 +202,7 @@ public class AccountsRepository {
       .fetchCount(PRIMROSE.ACCOUNTS);
   }
 
-  public List<Account> load(final Integer page, final Integer size, final Sort sort) {
+  public List<BaseOutputAccount> load(final Integer page, final Integer size, final Sort sort) {
     final int offset = page != null && size != null
       ? (page - 1) * size
       : 0;
@@ -242,7 +250,7 @@ public class AccountsRepository {
       }))
       .offset(offset)
       .limit(limit)
-      .fetch(record -> ImmutableAccount.builder()
+      .fetch(record -> ImmutableOutputAccount.builder()
         .id(IdUtil.toStringId(record.getValue(PRIMROSE.ACCOUNTS.ID)))
         .name(record.getValue(PRIMROSE.ACCOUNTS.NAME))
         .displayName(record.getValue(PRIMROSE.ACCOUNTS.DISPLAY_NAME))
