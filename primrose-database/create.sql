@@ -175,7 +175,7 @@ create table accounts(
   website         text,
   description     text,
   valid_from      timestamp with time zone  constraint  nn_accounts_valid_from  not null  default current_timestamp,
-  valid_to        timestamp with time zone  constraint  nn_accounts_valid_to    not null  default 'infinity'::timestamp,
+  valid_to        timestamp with time zone,
   created_by      bigint                    constraint  nn_accounts_created_by  not null,
   created_at      timestamp with time zone  constraint  nn_accounts_created_at  not null  default current_timestamp,
   edited_by       bigint,

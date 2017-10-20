@@ -50,7 +50,7 @@ fs.readFile("./data.json", function(err, data) {
           authorization: response.headers["authorization"]
         },
         json: {
-          query: "mutation import($accounts: [CreateAccount]!){importAccounts(accounts: $accounts){id}}",
+          query: "mutation import($accounts: [InputAccount]!){importAccounts(accounts: $accounts){id}}",
           variables: {
             accounts: transformedAccounts
           }

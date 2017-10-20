@@ -10,6 +10,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import primrose.data.PrincipalsRepository;
+import primrose.model.output.BaseOutputPrincipal;
+
 @Service
 public class PrincipalUserDetailsService implements UserDetailsService {
 
@@ -22,7 +25,7 @@ public class PrincipalUserDetailsService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
     try {
-      final Principal principal = principalsRepository.loadPrincipal(username);
+      final BaseOutputPrincipal principal = principalsRepository.loadPrincipal(username);
 
       return new User(
         principal.name(),
@@ -31,7 +34,9 @@ public class PrincipalUserDetailsService implements UserDetailsService {
         true,
         true,
         !principal.locked(),
-        principal.permissions().stream()
+        principalsRepository
+          .loadPermissions(username)
+          .stream()
           .map(SimpleGrantedAuthority::new)
           .collect(toList()));
     } catch (final NoDataFoundException e) {

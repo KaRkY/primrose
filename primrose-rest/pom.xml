@@ -28,7 +28,6 @@
     <database.password>postgres</database.password>
 
     <jooq.version>3.9.6</jooq.version>
-    <guava.version>23.0</guava.version>
     <immutables.version>2.5.5</immutables.version>
     <jackson.version>2.9.1</jackson.version>
     <jjwt.version>0.7.0</jjwt.version>
@@ -75,20 +74,20 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${guava.version}</version>
+        <groupId>org.springframework.security.oauth</groupId>
+        <artifactId>spring-security-oauth2</artifactId>
+        <version>2.2.0.RELEASE</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-jwt</artifactId>
+        <version>1.0.8.RELEASE</version>
       </dependency>
 
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
-        <version>${immutables.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.immutables</groupId>
-        <artifactId>func</artifactId>
         <version>${immutables.version}</version>
       </dependency>
 
@@ -121,6 +120,7 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+
     <repository>
       <id>spring-milestones</id>
       <name>Spring Milestones</name>
@@ -152,8 +152,10 @@
 
   <modules>
     <module>primrose-main</module>
-    <module>primrose-jooq</module>
+    <module>primrose-data-jooq</module>
     <module>primrose-model</module>
+    <module>primrose-util</module>
+    <module>primrose-data-api</module>
   </modules>
 
 </project>

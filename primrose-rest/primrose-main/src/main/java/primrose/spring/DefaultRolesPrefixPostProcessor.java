@@ -12,9 +12,13 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 public class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, PriorityOrdered {
 
   @Override
+  public int getOrder() {
+    return Ordered.HIGHEST_PRECEDENCE;
+  }
+
+  @Override
   public Object postProcessAfterInitialization(final Object bean, final String beanName)
     throws BeansException {
-
     if (bean instanceof DefaultMethodSecurityExpressionHandler) {
       ((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
     }
@@ -36,10 +40,5 @@ public class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, Prior
   public Object postProcessBeforeInitialization(final Object bean, final String beanName)
     throws BeansException {
     return bean;
-  }
-
-  @Override
-  public int getOrder() {
-    return Ordered.HIGHEST_PRECEDENCE;
   }
 }
