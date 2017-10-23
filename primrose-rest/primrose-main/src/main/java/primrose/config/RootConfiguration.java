@@ -9,9 +9,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import primrose.accounts.ImmutableInputAccount;
-import primrose.accounts.ImmutableInputAccountAddress;
-import primrose.accounts.ImmutableInputAccountContact;
+import primrose.immutables.ImmutableInputAccount;
+import primrose.immutables.ImmutableInputAccountAddress;
+import primrose.immutables.ImmutableInputAccountContact;
 import primrose.model.input.BaseInputAccount;
 import primrose.model.input.BaseInputAccountAddress;
 import primrose.model.input.BaseInputAccountContact;

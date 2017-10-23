@@ -1,22 +1,22 @@
 import axios from "axios";
 import { normalize } from "normalizr";
-import queryString from "query-string";
-import Urls from "./urls";
-import Schemas from "./schemas";
 
-const call = (method, url, schema, params) => axios
+export { default as operations } from "./operations";
+
+export default (operation, variables, authorization) => axios
   .request({
-    method,
-    url,
-    transformResponse: [data => normalize(JSON.parse(data), schema)],
-    paramsSerializer: params => queryString.stringify(params),
-    params: params
+    method: "post",
+    url: "/graphql",
+    transformResponse: [
+      data => normalize(JSON.parse(data).data[operation.field], operation.schema),
+    ],
+    data: {
+      query: operation.query,
+      variables,
+    },
+    headers: {
+      authorization,
+    },
   })
   .then(response => response)
   .catch(error => error);
-
-  export default {
-    call,
-
-    getAccountsPage: ({page, size, query}) => call("get", Urls.accounts, Schemas.accounts, { page, size, query }),
-  };

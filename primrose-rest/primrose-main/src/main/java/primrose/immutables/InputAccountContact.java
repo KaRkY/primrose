@@ -6,8 +6,6 @@ import org.immutables.value.Value.Style.ValidationMethod;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import primrose.accounts.ImmutableInputAccountContact;
-import primrose.accounts.ImmutableInputAccountContact.Builder;
 import primrose.model.input.BaseInputAccountContact;
 
 @Value.Immutable
