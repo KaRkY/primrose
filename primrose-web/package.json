@@ -16,9 +16,9 @@
   "dependencies": {
     "axios": "^0.17.0",
     "classnames": "^2.2.5",
+    "lodash": "^4.17.4",
     "moment": "^2.19.1",
     "normalizr": "^3.2.4",
-    "ramda": "^0.25.0",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
     "vuetify": "^0.16.9",

@@ -1,9 +1,11 @@
+import { normalize } from "normalizr";
 import schema from "./schema";
 
 export default {
   accounts: {
     query: `
     query testing($page: Int, $size: Int, $sort: String){
+      count: accountsCount
       accounts(page: $page, size: $size, sort: $sort){
         id
         type
@@ -33,7 +35,14 @@ export default {
       }
     }
     `,
-    schema: schema.accounts,
+    transform: (data) => {
+      const normalized = normalize(data.data.accounts, schema.accounts);
+      return {
+        count: data.count,
+        entities: normalized.entities,
+        result: normalized.result,
+      };
+    },
     field: "accounts",
   },
 };

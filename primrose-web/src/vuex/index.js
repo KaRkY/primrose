@@ -1,15 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import modules from "./modules";
 
 Vue.use(Vuex);
 
-new Vuex.Store({
-  state: {
-    count: 0
-  },
-  mutations: {
-    increment (state) {
-      state.count++
-    },
-  },
+export default new Vuex.Store({
+  modules,
 });

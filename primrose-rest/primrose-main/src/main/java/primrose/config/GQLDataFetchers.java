@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.schema.DataFetcher;
 import primrose.datafetchers.AccountsAddressesDataFetcher;
 import primrose.datafetchers.AccountsContactsDataFetcher;
+import primrose.datafetchers.AccountsCountDataFetcher;
 import primrose.datafetchers.AccountsDataFetcher;
 import primrose.datafetchers.CreateAccountDataFetcher;
 import primrose.datafetchers.ImportAccountsDataFetcher;
@@ -44,6 +45,10 @@ public class GQLDataFetchers {
 
   public DataFetcher<List<List<BaseOutputAccountContact>>> accountsContacts() {
     return new AccountsContactsDataFetcher(contactsService);
+  }
+
+  public DataFetcher<Integer> accountsCount() {
+    return new AccountsCountDataFetcher(accountsService);
   }
 
   public DataFetcher<BaseOutputAccount> mutationCreateAccount() {

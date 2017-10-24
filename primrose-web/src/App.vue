@@ -8,6 +8,7 @@
       v-model="drawer"
       enable-resize-watcher
       app
+      v-if="authorized"
     >
       <v-toolbar 
         flat
@@ -28,6 +29,7 @@
       dark
       fixed
       app
+      v-if="authorized"
     >
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Application</v-toolbar-title>
@@ -36,6 +38,7 @@
       <v-content>
         <v-container 
           fluid
+          fill-height
         >
           <router-view></router-view>
         </v-container>
@@ -44,6 +47,7 @@
     <v-footer 
       fixed
       app
+      v-if="authorized"
     >
     </v-footer>
   </v-app>
@@ -55,6 +59,12 @@ export default {
   data: () => ({
     drawer: true,
   }),
+
+  computed: {
+    authorized() {
+      return this.$store.getters["authorization/isAuthorized"];
+    },
+  },
 };
 </script>
 

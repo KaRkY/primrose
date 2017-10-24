@@ -1,6 +1,7 @@
 # The Root Query for the application
 type Query {
-    accounts(page: Int, size: Int, sort: String): [Account]!
+  accounts(page: Int, size: Int, sort: String): [Account]!
+  accountsCount: Int!
 }
 
 type Mutation {
