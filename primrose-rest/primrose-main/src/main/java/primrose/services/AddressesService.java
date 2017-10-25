@@ -2,8 +2,6 @@ package primrose.services;
 
 import java.util.List;
 
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,31 +19,15 @@ public class AddressesService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "addresses:read" })
   public int count() {
     return addressesRepository.count();
   }
 
   @Transactional
-  @Secured({ "addresses:create" })
-  public String save(final BaseInputAddress address) {
-
-    final String addressId = getNextId();
-
-    addressesRepository.insert(
-      addressId,
-      address,
-      SecurityContextHolder.getContext().getAuthentication().getName());
-    return addressId;
-  }
-
-  @Transactional
-  @Secured({ "addresses:update" })
   public String edit(final String addressId, final BaseInputAddress address) {
     addressesRepository.update(
       addressId,
-      address,
-      SecurityContextHolder.getContext().getAuthentication().getName());
+      address);
 
     return addressId;
   }
@@ -56,8 +38,18 @@ public class AddressesService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "account_addresses:read", "addresses:read" })
   public List<List<BaseOutputAccountAddress>> loadByAccountId(final List<String> accountId) {
     return addressesRepository.loadByAccountId(accountId);
+  }
+
+  @Transactional
+  public String save(final BaseInputAddress address) {
+
+    final String addressId = getNextId();
+
+    addressesRepository.insert(
+      addressId,
+      address);
+    return addressId;
   }
 }

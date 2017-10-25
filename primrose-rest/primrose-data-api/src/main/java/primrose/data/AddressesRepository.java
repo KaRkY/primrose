@@ -9,15 +9,12 @@ public interface AddressesRepository {
 
   int count();
 
-  void insert(
-    String addressId,
-    BaseInputAddress address,
-    String user);
+  void insert(String addressId, BaseInputAddress address);
 
   List<List<BaseOutputAccountAddress>> loadByAccountId(List<String> accountId);
 
   String nextValAddresses();
 
-  void update(String addressId, BaseInputAddress address, String user);
+  void update(String addressId, BaseInputAddress address);
 
 }

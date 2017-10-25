@@ -9,18 +9,12 @@ public interface ContactsRepository {
 
   int count();
 
-  void insert(
-    String contactId,
-    BaseInputContact contact,
-    String user);
+  void insert(String contactId, BaseInputContact contact);
 
   List<List<BaseOutputAccountContact>> loadByAccountId(List<String> accountId);
 
   String nextValContact();
 
-  void update(
-    String contactId,
-    BaseInputContact contact,
-    String user);
+  void update(String contactId, BaseInputContact contact);
 
 }

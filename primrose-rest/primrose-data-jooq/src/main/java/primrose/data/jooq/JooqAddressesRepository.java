@@ -1,6 +1,5 @@
 package primrose.data.jooq;
 
-import static org.jooq.impl.DSL.currentLocalDateTime;
 import static org.jooq.impl.DSL.value;
 import static pimrose.data.jooq.Primrose.PRIMROSE;
 import static pimrose.data.jooq.Sequences.ADDRESSES_SEQ;
@@ -27,7 +26,9 @@ public class JooqAddressesRepository implements AddressesRepository {
     this.create = create;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   *
    * @see primrose.data.jooq.AddressesRepository#count()
    */
   @Override
@@ -36,14 +37,14 @@ public class JooqAddressesRepository implements AddressesRepository {
       .fetchCount(PRIMROSE.ADDRESSES);
   }
 
-  /* (non-Javadoc)
-   * @see primrose.data.jooq.AddressesRepository#insert(java.lang.String, primrose.model.input.BaseInputAddress, java.lang.String)
+  /*
+   * (non-Javadoc)
+   *
+   * @see primrose.data.jooq.AddressesRepository#insert(java.lang.String,
+   * primrose.model.input.BaseInputAddress, java.lang.String)
    */
   @Override
-  public void insert(
-    final String addressId,
-    final BaseInputAddress address,
-    final String user) {
+  public void insert(final String addressId, final BaseInputAddress address) {
     create
       .insertInto(PRIMROSE.ADDRESSES)
       .columns(
@@ -53,8 +54,7 @@ public class JooqAddressesRepository implements AddressesRepository {
         PRIMROSE.ADDRESSES.CITY,
         PRIMROSE.ADDRESSES.POSTAL_CODE,
         PRIMROSE.ADDRESSES.STATE,
-        PRIMROSE.ADDRESSES.COUNTRY,
-        PRIMROSE.ADDRESSES.CREATED_BY)
+        PRIMROSE.ADDRESSES.COUNTRY)
       .values(
         value(IdUtil.valueOfLongId(addressId)),
         value(address.street()),
@@ -62,16 +62,13 @@ public class JooqAddressesRepository implements AddressesRepository {
         value(address.city()),
         value(address.postalCode()),
         value(address.state()),
-        value(address.country()),
-        create
-          .select(PRIMROSE.PRINCIPALS.ID)
-          .from(PRIMROSE.PRINCIPALS)
-          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-          .asField())
+        value(address.country()))
       .execute();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   *
    * @see primrose.data.jooq.AddressesRepository#loadByAccountId(java.util.List)
    */
   @Override
@@ -112,7 +109,9 @@ public class JooqAddressesRepository implements AddressesRepository {
       .collect(Collectors.toList());
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   *
    * @see primrose.data.jooq.AddressesRepository#nextValAddresses()
    */
   @Override
@@ -123,11 +122,14 @@ public class JooqAddressesRepository implements AddressesRepository {
       .value1());
   }
 
-  /* (non-Javadoc)
-   * @see primrose.data.jooq.AddressesRepository#update(java.lang.String, primrose.model.input.BaseInputAddress, java.lang.String)
+  /*
+   * (non-Javadoc)
+   *
+   * @see primrose.data.jooq.AddressesRepository#update(java.lang.String,
+   * primrose.model.input.BaseInputAddress, java.lang.String)
    */
   @Override
-  public void update(final String addressId, final BaseInputAddress address, final String user) {
+  public void update(final String addressId, final BaseInputAddress address) {
     create
       .update(PRIMROSE.ADDRESSES)
       .set(PRIMROSE.ADDRESSES.STREET, address.street())
@@ -136,12 +138,6 @@ public class JooqAddressesRepository implements AddressesRepository {
       .set(PRIMROSE.ADDRESSES.POSTAL_CODE, address.postalCode())
       .set(PRIMROSE.ADDRESSES.STATE, address.state())
       .set(PRIMROSE.ADDRESSES.COUNTRY, address.country())
-      .set(PRIMROSE.ADDRESSES.EDITED_BY, create
-        .select(PRIMROSE.PRINCIPALS.ID)
-        .from(PRIMROSE.PRINCIPALS)
-        .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-        .asField())
-      .set(PRIMROSE.ADDRESSES.EDITED_AT, currentLocalDateTime())
       .where(PRIMROSE.ADDRESSES.ID.eq(IdUtil.valueOfLongId(addressId)))
       .execute();
   }

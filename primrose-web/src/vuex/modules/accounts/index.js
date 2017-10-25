@@ -3,11 +3,10 @@ import mutations from "./mutations";
 import getters from "./getters";
 
 const state = {
-  search: {
-    results: [],
-    count: 0,
-    loading: true,
-  },
+  results: [],
+  count: 0,
+  loading: true,
+  pagination: {},
 };
 
 export default {

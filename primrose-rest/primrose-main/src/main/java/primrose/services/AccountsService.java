@@ -3,8 +3,6 @@ package primrose.services;
 import java.util.List;
 
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,26 +34,22 @@ public class AccountsService {
   }
 
   @Transactional
-  @Secured({ "account_addresses:create" })
   public String addAddress(final String accountId, final BaseInputAccountAddress address) {
     final String addressId = addressesService.save(address);
     accountsRepository.assignAddress(
       accountId,
       addressId,
-      address.type(),
-      SecurityContextHolder.getContext().getAuthentication().getName());
+      address.type());
     return addressId;
   }
 
   @Transactional
-  @Secured({ "account_contacts:create" })
   public String addContact(final String accountId, final BaseInputAccountContact contact) {
     final String contactId = contactsService.save(contact);
     accountsRepository.assignContact(
       accountId,
       contactId,
-      contact.type(),
-      SecurityContextHolder.getContext().getAuthentication().getName());
+      contact.type());
     return contactId;
   }
 
@@ -65,13 +59,11 @@ public class AccountsService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "accounts:read" })
   public int count() {
     return accountsRepository.count();
   }
 
   @Transactional
-  @Secured({ "accounts:create" })
   public String create(final BaseInputAccount account) {
     if (!accountsRepository
       .typeExists(account.type())) throw new IllegalArgumentException("Wrong account type: " + account.type());
@@ -81,8 +73,7 @@ public class AccountsService {
     accountsRepository
       .insert(
         accountId,
-        account,
-        SecurityContextHolder.getContext().getAuthentication().getName());
+        account);
 
     account
       .addresses()
@@ -101,7 +92,6 @@ public class AccountsService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "accounts:read" })
   public List<BaseOutputAccount> load(final Integer page, final Integer size, final Sort sort) {
     return accountsRepository.load(page, size, sort);
   }
@@ -123,7 +113,6 @@ public class AccountsService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "accounts:read" })
   public BaseOutputAccount loadById(final String accountId) {
     return accountsRepository
       .loadById(accountId)
@@ -133,7 +122,6 @@ public class AccountsService {
   }
 
   @Transactional(readOnly = true)
-  @Secured({ "accounts:read" })
   public BaseOutputAccount loadByName(final String accountName) {
     return accountsRepository
       .loadByName(accountName)
@@ -176,7 +164,6 @@ public class AccountsService {
   }
 
   @Transactional
-  @Secured({ "accounts:update" })
   public String update(final String accountId, final BaseInputAccount account) {
     if (!accountsRepository
       .typeExists(account.type())) throw new IllegalArgumentException("Wrong account type: " + account.type());
@@ -184,8 +171,7 @@ public class AccountsService {
     accountsRepository
       .update(
         accountId,
-        account,
-        SecurityContextHolder.getContext().getAuthentication().getName());
+        account);
 
     return accountId;
   }

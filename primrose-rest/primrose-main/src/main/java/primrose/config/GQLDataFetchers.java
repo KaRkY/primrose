@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import graphql.schema.DataFetcher;
+import primrose.datafetchers.AccountDataFetcher;
 import primrose.datafetchers.AccountsAddressesDataFetcher;
 import primrose.datafetchers.AccountsContactsDataFetcher;
 import primrose.datafetchers.AccountsCountDataFetcher;
@@ -57,6 +58,10 @@ public class GQLDataFetchers {
 
   public DataFetcher<List<BaseOutputAccount>> mutationImportAccounts() {
     return new ImportAccountsDataFetcher(accountsService, objectMapper);
+  }
+
+  public DataFetcher<BaseOutputAccount> queryAccount() {
+    return new AccountDataFetcher(accountsService);
   }
 
   public DataFetcher<List<BaseOutputAccount>> queryAccounts() {

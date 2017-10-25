@@ -35,37 +35,21 @@ fs.readFile("./data.json", function(err, data) {
   }, this);
   
   request({
-    uri: "http://localhost:9080/login",
+    uri: "http://localhost:9080/graphql",
     method: "POST",
     json: {
-      username: "root",
-      password: "root"
+      query: "mutation import($accounts: [InputAccount]!){importAccounts(accounts: $accounts){id}}",
+        variables: {
+          accounts: transformedAccounts
+        }
     }
   }, function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      request({
-        uri: "http://localhost:9080/graphql",
-        method: "POST",
-        headers: {
-          authorization: response.headers["authorization"]
-        },
-        json: {
-          query: "mutation import($accounts: [InputAccount]!){importAccounts(accounts: $accounts){id}}",
-          variables: {
-            accounts: transformedAccounts
-          }
-        }
-      }, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-          console.log("Transfere comlete") // Print the shortened url.
-          console.log(body);
-        } else {
-          console.error(error);
-          console.error(body);
-        }
-      });
+      console.log("Transfere comlete") // Print the shortened url.
+      console.log(body);
     } else {
       console.error(error);
+      console.error(body);
     }
   });
 });

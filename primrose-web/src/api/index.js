@@ -10,8 +10,5 @@ export default (operation, variables) => axios
       query: operation.query,
       variables,
     },
-    headers: {
-      authorization: window.localStorage.token,
-    },
   })
   .then(response => operation.transform(response.data));

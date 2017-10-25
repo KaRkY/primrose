@@ -1,54 +1,29 @@
 <template>
-  <v-app 
-    id="primrose" 
-    dark
-  >
-    <v-navigation-drawer 
-      persistent
-      v-model="drawer"
-      enable-resize-watcher
-      app
-      v-if="authorized"
-    >
-      <v-toolbar 
-        flat
-      >
-        <v-list>
-          <v-list-tile>
-            <v-list-tile-title 
-              class="title"
-            >
-              Primrose
-            </v-list-tile-title>
+  <v-app id="primrose" dark>
+    <v-navigation-drawer persistent v-model="drawer" enable-resize-watcher app>
+      <v-toolbar flat>
+        <v-toolbar-title>Primrose</v-toolbar-title>
+      </v-toolbar>
+      <v-list>
+          <v-list-tile :to="{ name: 'Dashboard' }" exact>
+            <v-list-tile-title class="title">Dashboard</v-list-tile-title>
+          </v-list-tile>
+
+          <v-list-tile :to="{ name: 'Accounts' }">
+            <v-list-tile-title class="title">Accounts</v-list-tile-title>
           </v-list-tile>
         </v-list>
-      </v-toolbar>
     </v-navigation-drawer>
-    <v-toolbar 
-      color="orange" 
-      dark
-      fixed
-      app
-      v-if="authorized"
-    >
+    <v-toolbar color="orange" dark fixed app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Application</v-toolbar-title>
     </v-toolbar>
     <main>
       <v-content>
-        <v-container 
-          fluid
-          fill-height
-        >
-          <router-view></router-view>
-        </v-container>
+        <router-view></router-view>
       </v-content>
     </main>
-    <v-footer 
-      fixed
-      app
-      v-if="authorized"
-    >
+    <v-footer fixed app>
     </v-footer>
   </v-app>
 </template>
@@ -59,12 +34,6 @@ export default {
   data: () => ({
     drawer: true,
   }),
-
-  computed: {
-    authorized() {
-      return this.$store.getters["authorization/isAuthorized"];
-    },
-  },
 };
 </script>
 

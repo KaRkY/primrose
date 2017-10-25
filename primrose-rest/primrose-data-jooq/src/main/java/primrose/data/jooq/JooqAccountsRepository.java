@@ -1,6 +1,5 @@
 package primrose.data.jooq;
 
-import static org.jooq.impl.DSL.currentLocalDateTime;
 import static org.jooq.impl.DSL.exists;
 import static org.jooq.impl.DSL.value;
 import static org.jooq.impl.DSL.when;
@@ -11,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jooq.DSLContext;
+import org.jooq.SortField;
+import org.jooq.SortOrder;
 import org.springframework.stereotype.Repository;
 
 import primrose.data.AccountsRepository;
@@ -38,18 +39,13 @@ public class JooqAccountsRepository implements AccountsRepository {
    * java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public void assignAddress(
-    final String accountId,
-    final String addressId,
-    final String addressType,
-    final String user) {
+  public void assignAddress(final String accountId, final String addressId, final String addressType) {
     create
       .insertInto(PRIMROSE.ACCOUNT_ADDRESSES)
       .columns(
         PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT,
         PRIMROSE.ACCOUNT_ADDRESSES.ADDRESS,
-        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE,
-        PRIMROSE.ACCOUNT_ADDRESSES.CREATED_BY)
+        PRIMROSE.ACCOUNT_ADDRESSES.ACCOUNT_ADDRESS_TYPE)
       .values(
         value(IdUtil.valueOfLongId(accountId)),
         value(IdUtil.valueOfLongId(addressId)),
@@ -57,11 +53,6 @@ public class JooqAccountsRepository implements AccountsRepository {
           .select(PRIMROSE.ACCOUNT_ADDRESS_TYPES.ID)
           .from(PRIMROSE.ACCOUNT_ADDRESS_TYPES)
           .where(PRIMROSE.ACCOUNT_ADDRESS_TYPES.NAME.eq(addressType))
-          .asField(),
-        create
-          .select(PRIMROSE.PRINCIPALS.ID)
-          .from(PRIMROSE.PRINCIPALS)
-          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
           .asField())
       .execute();
   }
@@ -73,18 +64,13 @@ public class JooqAccountsRepository implements AccountsRepository {
    * java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public void assignContact(
-    final String accountId,
-    final String contactId,
-    final String contactType,
-    final String user) {
+  public void assignContact(final String accountId, final String contactId, final String contactType) {
     create
       .insertInto(PRIMROSE.ACCOUNT_CONTACTS)
       .columns(
         PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT,
         PRIMROSE.ACCOUNT_CONTACTS.CONTACT,
-        PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE,
-        PRIMROSE.ACCOUNT_CONTACTS.CREATED_BY)
+        PRIMROSE.ACCOUNT_CONTACTS.ACCOUNT_CONTACT_TYPE)
       .values(
         value(IdUtil.valueOfLongId(accountId)),
         value(IdUtil.valueOfLongId(contactId)),
@@ -92,11 +78,6 @@ public class JooqAccountsRepository implements AccountsRepository {
           .select(PRIMROSE.ACCOUNT_CONTACT_TYPES.ID)
           .from(PRIMROSE.ACCOUNT_CONTACT_TYPES)
           .where(PRIMROSE.ACCOUNT_CONTACT_TYPES.NAME.eq(contactType))
-          .asField(),
-        create
-          .select(PRIMROSE.PRINCIPALS.ID)
-          .from(PRIMROSE.PRINCIPALS)
-          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
           .asField())
       .execute();
   }
@@ -119,7 +100,7 @@ public class JooqAccountsRepository implements AccountsRepository {
    * primrose.model.input.BaseInputAccount, java.lang.String)
    */
   @Override
-  public void insert(final String accountId, final BaseInputAccount account, final String user) {
+  public void insert(final String accountId, final BaseInputAccount account) {
     create
       .insertInto(PRIMROSE.ACCOUNTS)
       .columns(
@@ -130,8 +111,7 @@ public class JooqAccountsRepository implements AccountsRepository {
         PRIMROSE.ACCOUNTS.EMAIL,
         PRIMROSE.ACCOUNTS.PHONE,
         PRIMROSE.ACCOUNTS.WEBSITE,
-        PRIMROSE.ACCOUNTS.ACCOUNT_TYPE,
-        PRIMROSE.ACCOUNTS.CREATED_BY)
+        PRIMROSE.ACCOUNTS.ACCOUNT_TYPE)
       .values(
         value(IdUtil.valueOfLongId(accountId)),
         value(account.name()),
@@ -144,11 +124,6 @@ public class JooqAccountsRepository implements AccountsRepository {
           .select(PRIMROSE.ACCOUNT_TYPES.ID)
           .from(PRIMROSE.ACCOUNT_TYPES)
           .where(PRIMROSE.ACCOUNT_TYPES.NAME.eq(account.type()))
-          .asField(),
-        create
-          .select(PRIMROSE.PRINCIPALS.ID)
-          .from(PRIMROSE.PRINCIPALS)
-          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
           .asField())
       .execute();
   }
@@ -169,6 +144,28 @@ public class JooqAccountsRepository implements AccountsRepository {
       ? size
       : Integer.MAX_VALUE;
 
+    final List<SortField<?>> sortFields = QueryUtil.map(sort, field -> {
+      switch (field) {
+      case "type":
+        return PRIMROSE.ACCOUNT_TYPES.NAME;
+      case "displayName":
+        return PRIMROSE.ACCOUNTS.DISPLAY_NAME;
+      case "name":
+        return PRIMROSE.ACCOUNTS.NAME;
+      case "email":
+        return PRIMROSE.ACCOUNTS.EMAIL;
+      case "phone":
+        return PRIMROSE.ACCOUNTS.PHONE;
+      case "website":
+        return PRIMROSE.ACCOUNTS.WEBSITE;
+      case "description":
+        return PRIMROSE.ACCOUNTS.DESCRIPTION;
+      default:
+        return null;
+      }
+    });
+    sortFields.add(PRIMROSE.ACCOUNTS.ID.sort(SortOrder.ASC));
+
     return create
       .selectDistinct(
         PRIMROSE.ACCOUNTS.ID,
@@ -177,33 +174,13 @@ public class JooqAccountsRepository implements AccountsRepository {
         PRIMROSE.ACCOUNTS.DESCRIPTION,
         PRIMROSE.ACCOUNTS.EMAIL,
         PRIMROSE.ACCOUNTS.PHONE,
+        PRIMROSE.ACCOUNTS.WEBSITE,
         PRIMROSE.ACCOUNT_TYPES.NAME,
         PRIMROSE.ACCOUNTS.VALID_FROM,
         PRIMROSE.ACCOUNTS.VALID_TO)
       .from(PRIMROSE.ACCOUNTS)
       .join(PRIMROSE.ACCOUNT_TYPES).on(PRIMROSE.ACCOUNT_TYPES.ID.eq(PRIMROSE.ACCOUNTS.ACCOUNT_TYPE))
-      .orderBy(QueryUtil.map(sort, field -> {
-        switch (field) {
-        case "id":
-          return PRIMROSE.ACCOUNTS.ID;
-        case "type":
-          return PRIMROSE.ACCOUNT_TYPES.NAME;
-        case "displayName":
-          return PRIMROSE.ACCOUNTS.DISPLAY_NAME;
-        case "name":
-          return PRIMROSE.ACCOUNTS.NAME;
-        case "email":
-          return PRIMROSE.ACCOUNTS.EMAIL;
-        case "phone":
-          return PRIMROSE.ACCOUNTS.PHONE;
-        case "website":
-          return PRIMROSE.ACCOUNTS.WEBSITE;
-        case "description":
-          return PRIMROSE.ACCOUNTS.DESCRIPTION;
-        default:
-          return null;
-        }
-      }))
+      .orderBy(sortFields)
       .offset(offset)
       .limit(limit)
       .fetch(record -> ImmutableOutputAccount.builder()
@@ -214,6 +191,7 @@ public class JooqAccountsRepository implements AccountsRepository {
         .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
         .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
         .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
+        .website(record.getValue(PRIMROSE.ACCOUNTS.WEBSITE))
         .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
         .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
         .build());
@@ -265,6 +243,7 @@ public class JooqAccountsRepository implements AccountsRepository {
         PRIMROSE.ACCOUNTS.DESCRIPTION,
         PRIMROSE.ACCOUNTS.EMAIL,
         PRIMROSE.ACCOUNTS.PHONE,
+        PRIMROSE.ACCOUNTS.WEBSITE,
         PRIMROSE.ACCOUNT_TYPES.NAME,
         PRIMROSE.ACCOUNTS.VALID_FROM,
         PRIMROSE.ACCOUNTS.VALID_TO)
@@ -278,6 +257,7 @@ public class JooqAccountsRepository implements AccountsRepository {
         .description(record.getValue(PRIMROSE.ACCOUNTS.DESCRIPTION))
         .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
         .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
+        .website(record.getValue(PRIMROSE.ACCOUNTS.WEBSITE))
         .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
         .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
         .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
@@ -299,6 +279,7 @@ public class JooqAccountsRepository implements AccountsRepository {
         PRIMROSE.ACCOUNTS.DESCRIPTION,
         PRIMROSE.ACCOUNTS.EMAIL,
         PRIMROSE.ACCOUNTS.PHONE,
+        PRIMROSE.ACCOUNTS.WEBSITE,
         PRIMROSE.ACCOUNT_TYPES.NAME,
         PRIMROSE.ACCOUNTS.VALID_FROM,
         PRIMROSE.ACCOUNTS.VALID_TO)
@@ -313,6 +294,7 @@ public class JooqAccountsRepository implements AccountsRepository {
         .email(record.getValue(PRIMROSE.ACCOUNTS.EMAIL))
         .phone(record.getValue(PRIMROSE.ACCOUNTS.PHONE))
         .type(record.getValue(PRIMROSE.ACCOUNT_TYPES.NAME))
+        .website(record.getValue(PRIMROSE.ACCOUNTS.WEBSITE))
         .validFrom(record.getValue(PRIMROSE.ACCOUNTS.VALID_FROM))
         .validTo(record.getValue(PRIMROSE.ACCOUNTS.VALID_TO))
         .build());
@@ -420,7 +402,7 @@ public class JooqAccountsRepository implements AccountsRepository {
    * primrose.model.input.BaseInputAccount, java.lang.String)
    */
   @Override
-  public void update(final String accountId, final BaseInputAccount account, final String user) {
+  public void update(final String accountId, final BaseInputAccount account) {
     create
       .update(PRIMROSE.ACCOUNTS)
       .set(PRIMROSE.ACCOUNTS.NAME, account.name())
@@ -428,12 +410,7 @@ public class JooqAccountsRepository implements AccountsRepository {
       .set(PRIMROSE.ACCOUNTS.DESCRIPTION, account.description())
       .set(PRIMROSE.ACCOUNTS.EMAIL, account.email())
       .set(PRIMROSE.ACCOUNTS.PHONE, account.phone())
-      .set(PRIMROSE.ACCOUNTS.EDITED_BY, create
-        .select(PRIMROSE.PRINCIPALS.ID)
-        .from(PRIMROSE.PRINCIPALS)
-        .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-        .asField())
-      .set(PRIMROSE.ACCOUNTS.EDITED_AT, currentLocalDateTime())
+      .set(PRIMROSE.ACCOUNTS.WEBSITE, account.website())
       .where(PRIMROSE.ACCOUNTS.ID.eq(IdUtil.valueOfLongId(accountId)))
       .execute();
   }

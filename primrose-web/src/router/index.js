@@ -1,46 +1,46 @@
 import Vue from "vue";
 import Router from "vue-router";
-import HelloWorld from "@/components/HelloWorld";
-import Accounts from "@/components/Accounts";
-import Login from "@/components/Login";
-import store from "@/vuex";
+import TheDashboard from "@/components/TheDashboard";
+import TheAccounts from "@/components/TheAccounts";
+import TheAccount from "@/components/TheAccount";
 
 Vue.use(Router);
 
 const router = new Router({
-  routes: [
-    {
-      path: "/",
-      name: "Hello",
-      component: HelloWorld,
-    },
-    {
-      path: "/accounts",
-      name: "Accounts",
-      component: Accounts,
-    },
-    {
-      path: "/authorize",
-      name: "Login",
-      component: Login,
-    },
-  ],
-  mode: "history",
-});
-
-router.beforeEach((to, from, next) => {
-  if (to.name !== "Login" && !store.getters["authorization/isAuthenticated"]) {
-    store
-      .dispatch("authorization/authorize", { username: "root", password: "root" })
-      .then(() => {
+  routes: [{
+    path: "/",
+    name: "Dashboard",
+    component: TheDashboard,
+  }, {
+    path: "/accounts",
+    name: "Accounts",
+    component: TheAccounts,
+    props: to => ({
+      query: to.query,
+    }),
+    beforeEnter: (to, from, next) => {
+      if (!to.query.page || !to.query.size) {
+        next({
+          name: "Accounts",
+          query: {
+            page: 1,
+            size: 10,
+            sort: "displayName",
+          },
+        });
+      } else {
         next();
-      })
-      .catch(() => {
-        next({ name: "Login" });
-      });
-  } else {
-    next();
-  }
+      }
+    },
+  }, {
+    path: "/accounts/:accountId",
+    name: "Account",
+    component: TheAccount,
+    props: to => ({
+      accountId: to.params.accountId,
+    }),
+  }],
+  mode: "history",
 });
 
 export default router;

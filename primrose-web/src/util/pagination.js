@@ -6,8 +6,8 @@ export const toQuery = pagination => ({
 
 export const fromQuery = (query) => {
   const pagination = {};
-  pagination.page = query.page;
-  pagination.rowsPerPage = query.size;
+  pagination.page = parseInt(query.page, 10);
+  pagination.rowsPerPage = parseInt(query.size, 10);
   if (query.sort) {
     if (query.sort.startsWith("-")) {
       pagination.descending = true;

@@ -1,15 +1,12 @@
 <template>
-  <v-layout
-    justify-center
-    align-center
-  >
-    Login
+  <v-layout justify-center align-center>
+    Dashboard
   </v-layout>
 </template>
 
 <script>
 export default {
-  name: "Login",
+  name: "TheDashboard",
   data: () => ({
   }),
 };

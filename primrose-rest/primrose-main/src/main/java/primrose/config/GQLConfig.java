@@ -50,6 +50,7 @@ public class GQLConfig {
       .type(TypeRuntimeWiring
         .newTypeWiring("Query")
         .dataFetcher("accounts", dataFetchers.queryAccounts())
+        .dataFetcher("account", dataFetchers.queryAccount())
         .dataFetcher("accountsCount", dataFetchers.accountsCount())
         .build())
       .type(TypeRuntimeWiring

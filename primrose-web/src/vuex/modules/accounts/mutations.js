@@ -2,12 +2,15 @@ import Vue from "vue";
 
 export default {
   addResults: (state, results) => {
-    Vue.set(state.search, "results", results);
+    Vue.set(state, "results", results);
   },
-  setCount: (state, count) => {
-    Vue.set(state.search, "count", count);
+  count: (state, count) => {
+    Vue.set(state, "count", count);
   },
-  setLoading: (state, loading) => {
-    Vue.set(state.search, "loading", loading);
+  loading: (state, loading) => {
+    Vue.set(state, "loading", loading);
+  },
+  pagination: (state, pagination) => {
+    Vue.set(state, "pagination", pagination);
   },
 };

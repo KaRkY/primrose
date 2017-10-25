@@ -20,12 +20,12 @@
           :loading="loading"
         >
           <template slot="items" slot-scope="props">
-            <tr @click="selectItem(props.item.id)">
-              <td>{{ props.item.displayName }}</td>
+            <tr>
+              <td><router-link :to="{ name: 'Account', params: { accountId: props.item.id }}">{{ props.item.displayName }}</router-link></td>
               <td class="text-xs-right">{{ props.item.type }}</td>
-              <td class="text-xs-right">{{ props.item.email }}</td>
+              <td class="text-xs-right"><a :href="'mailto://' + props.item.email">{{ props.item.email }}</a></td>
               <td class="text-xs-right">{{ props.item.phone }}</td>
-              <td class="text-xs-right">{{ props.item.website }}</td>
+              <td class="text-xs-right"><a :href="'http://' + props.item.website">{{ props.item.website }}</a></td>
             </tr>
           </template>
         </v-data-table>
@@ -38,9 +38,9 @@
 import { toQuery, fromQuery } from "@/util/pagination";
 
 export default {
-  name: "Accounts",
+  name: "TheAccounts",
+  props: ["query"],
   data: () => ({
-    pagination: {},
     headers: [
       { text: "Display name", align: "left", value: "displayName" },
       { text: "Type", value: "type" },
@@ -48,55 +48,35 @@ export default {
       { text: "Phone", value: "phone" },
       { text: "Website", value: "website" },
     ],
+    pagination: {},
   }),
 
-  mounted() {
-    // this.fetchData();
+  created() {
+    Object.assign(this.pagination, fromQuery(this.query));
+    this.$store.dispatch("accounts/load", toQuery(this.pagination));
   },
 
   watch: {
-    $route(to) {
-      this.pagination = fromQuery(to.query);
+    pagination(to) {
+      this.$router.push({
+        name: "Accounts",
+        query: toQuery(to),
+      });
     },
-    pagination: {
-      handler() {
-        this.fetchData();
-        const route = {
-          name: "Accounts",
-          query: toQuery(this.pagination),
-        };
-        if (this.$router.currentRoute.query.page && this.$router.currentRoute.query.size) {
-          this.$router.push(route);
-        } else {
-          this.$router.replace(route);
-        }
-      },
-      deep: true,
+    query(to) {
+      this.$store.dispatch("accounts/load", to);
     },
   },
 
   computed: {
     items() {
-      return this.$store.getters["accounts/getResults"];
+      return this.$store.getters["accounts/results"];
     },
     totalItems() {
-      return this.$store.getters["accounts/getCount"];
+      return this.$store.getters["accounts/count"];
     },
     loading() {
-      return this.$store.getters["accounts/isLoading"] && "orange";
-    },
-  },
-
-  methods: {
-    fetchData() {
-      this.$store.dispatch("accounts/loadAccounts", {
-        page: this.pagination.page,
-        size: this.pagination.rowsPerPage,
-        sort: `${this.pagination.descending ? "-" : ""}${this.pagination.sortBy}`,
-      });
-    },
-    selectItem() {
-
+      return this.$store.getters["accounts/loading"] && "orange";
     },
   },
 };

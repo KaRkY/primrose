@@ -38,11 +38,51 @@ export default {
     transform: (data) => {
       const normalized = normalize(data.data.accounts, schema.accounts);
       return {
-        count: data.count,
+        count: data.data.count,
         entities: normalized.entities,
         result: normalized.result,
       };
     },
-    field: "accounts",
+  },
+  account: {
+    query: `
+    query testing($accountId: String!){
+      count: accountsCount
+      account(accountId: $accountId){
+        id
+        type
+        displayName
+        name
+        email
+        phone
+        website
+        description
+        validFrom
+        validTo
+        addresses {
+          id
+          street
+          streetNumber
+          city
+          postalCode
+          state
+          country
+        }
+        contacts {
+          id
+          name
+          email
+          phone
+        }
+      }
+    }
+    `,
+    transform: (data) => {
+      const normalized = normalize(data.data.account, schema.account);
+      return {
+        entities: normalized.entities,
+        result: normalized.result,
+      };
+    },
   },
 };

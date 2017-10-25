@@ -1,6 +1,5 @@
 package primrose.data.jooq;
 
-import static org.jooq.impl.DSL.currentLocalDateTime;
 import static org.jooq.impl.DSL.value;
 import static pimrose.data.jooq.Primrose.PRIMROSE;
 import static pimrose.data.jooq.Sequences.CONTACTS_SEQ;
@@ -27,7 +26,9 @@ public class JooqContactsRepository implements ContactsRepository {
     this.create = create;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   *
    * @see primrose.data.jooq.ContactsRepository#count()
    */
   @Override
@@ -36,36 +37,32 @@ public class JooqContactsRepository implements ContactsRepository {
       .fetchCount(PRIMROSE.CONTACTS);
   }
 
-  /* (non-Javadoc)
-   * @see primrose.data.jooq.ContactsRepository#insert(java.lang.String, primrose.model.input.BaseInputContact, java.lang.String)
+  /*
+   * (non-Javadoc)
+   *
+   * @see primrose.data.jooq.ContactsRepository#insert(java.lang.String,
+   * primrose.model.input.BaseInputContact, java.lang.String)
    */
   @Override
-  public void insert(
-    final String contactId,
-    final BaseInputContact contact,
-    final String user) {
+  public void insert(final String contactId, final BaseInputContact contact) {
     create
       .insertInto(PRIMROSE.CONTACTS)
       .columns(
         PRIMROSE.CONTACTS.ID,
         PRIMROSE.CONTACTS.NAME,
         PRIMROSE.CONTACTS.EMAIL,
-        PRIMROSE.CONTACTS.PHONE,
-        PRIMROSE.CONTACTS.CREATED_BY)
+        PRIMROSE.CONTACTS.PHONE)
       .values(
         value(IdUtil.valueOfLongId(contactId)),
         value(contact.name()),
         value(contact.email()),
-        value(contact.phone()),
-        create
-          .select(PRIMROSE.PRINCIPALS.ID)
-          .from(PRIMROSE.PRINCIPALS)
-          .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-          .asField())
+        value(contact.phone()))
       .execute();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   *
    * @see primrose.data.jooq.ContactsRepository#loadByAccountId(java.util.List)
    */
   @Override
@@ -100,7 +97,9 @@ public class JooqContactsRepository implements ContactsRepository {
       .collect(Collectors.toList());
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   *
    * @see primrose.data.jooq.ContactsRepository#nextValContact()
    */
   @Override
@@ -111,25 +110,19 @@ public class JooqContactsRepository implements ContactsRepository {
       .value1());
   }
 
-  /* (non-Javadoc)
-   * @see primrose.data.jooq.ContactsRepository#update(java.lang.String, primrose.model.input.BaseInputContact, java.lang.String)
+  /*
+   * (non-Javadoc)
+   *
+   * @see primrose.data.jooq.ContactsRepository#update(java.lang.String,
+   * primrose.model.input.BaseInputContact, java.lang.String)
    */
   @Override
-  public void update(
-    final String contactId,
-    final BaseInputContact contact,
-    final String user) {
+  public void update(final String contactId, final BaseInputContact contact) {
     create
       .update(PRIMROSE.CONTACTS)
       .set(PRIMROSE.CONTACTS.NAME, contact.name())
       .set(PRIMROSE.CONTACTS.EMAIL, contact.email())
       .set(PRIMROSE.CONTACTS.PHONE, contact.phone())
-      .set(PRIMROSE.CONTACTS.EDITED_BY, create
-        .select(PRIMROSE.PRINCIPALS.ID)
-        .from(PRIMROSE.PRINCIPALS)
-        .where(PRIMROSE.PRINCIPALS.NAME.eq(user))
-        .asField())
-      .set(PRIMROSE.CONTACTS.EDITED_AT, currentLocalDateTime())
       .where(PRIMROSE.CONTACTS.ID.eq(IdUtil.valueOfLongId(contactId)))
       .execute();
   }

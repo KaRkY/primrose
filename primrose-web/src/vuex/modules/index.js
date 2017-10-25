@@ -1,9 +1,9 @@
 import entities from "./entities";
 import accounts from "./accounts";
-import authorization from "./authorization";
+import account from "./account";
 
 export default {
   entities,
   accounts,
-  authorization,
+  account,
 };

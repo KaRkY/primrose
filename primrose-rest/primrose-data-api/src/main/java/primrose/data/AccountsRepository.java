@@ -12,21 +12,13 @@ import primrose.model.sort.Sort;
 
 public interface AccountsRepository {
 
-  void assignAddress(
-    String accountId,
-    String addressId,
-    String addressType,
-    String user);
+  void assignAddress(String accountId, String addressId, String addressType);
 
-  void assignContact(
-    String accountId,
-    String contactId,
-    String contactType,
-    String user);
+  void assignContact(String accountId, String contactId, String contactType);
 
   int count();
 
-  void insert(String accountId, BaseInputAccount account, String user);
+  void insert(String accountId, BaseInputAccount account);
 
   List<BaseOutputAccount> load(Integer page, Integer size, Sort sort);
 
@@ -50,6 +42,6 @@ public interface AccountsRepository {
 
   boolean typeExists(String type);
 
-  void update(String accountId, BaseInputAccount account, String user);
+  void update(String accountId, BaseInputAccount account);
 
 }
