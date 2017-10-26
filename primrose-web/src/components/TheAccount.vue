@@ -75,7 +75,7 @@ export default {
   },
 
   methods: {
-    commitAccount: debounce(function (account) {
+    commitAccount: debounce(function dCommitAccount(account) {
       this.$store.commit("account/account", account);
     }, 500),
   },

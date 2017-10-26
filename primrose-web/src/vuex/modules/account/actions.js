@@ -21,6 +21,21 @@ export default {
             });
           commit("account", response.entities.account[response.result]);
           loading(false);
+        })
+        .catch(() => {
+          loading(false);
+          dispatch(
+            "notifications/offer", {
+              icon: "error",
+              text: "Account loading failed.",
+              action: {
+                text: "Retry",
+                command: "account/load",
+                parameter: accountId,
+              },
+            }, {
+              root: true,
+            });
         });
     }
   },

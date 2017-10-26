@@ -11,6 +11,9 @@ const router = new Router({
     path: "/",
     name: "Dashboard",
     component: TheDashboard,
+    meta: {
+      title: "Dashboard",
+    },
   }, {
     path: "/accounts",
     name: "Accounts",
@@ -18,6 +21,9 @@ const router = new Router({
     props: to => ({
       query: to.query,
     }),
+    meta: {
+      title: "Accounts",
+    },
     beforeEnter: (to, from, next) => {
       if (!to.query.page || !to.query.size) {
         next({
@@ -39,8 +45,16 @@ const router = new Router({
     props: to => ({
       accountId: to.params.accountId,
     }),
+    meta: {
+      title: "Account",
+    },
   }],
   mode: "history",
+});
+
+router.beforeEach((to, from, next) => {
+  document.title = (to.meta && to.meta.title) || "Primrose";
+  next();
 });
 
 export default router;

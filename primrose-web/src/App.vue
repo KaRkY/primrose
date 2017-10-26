@@ -16,7 +16,7 @@
     </v-navigation-drawer>
     <v-toolbar color="orange" dark fixed app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title>Application</v-toolbar-title>
+      <v-toolbar-title>{{ $route.meta.title }}</v-toolbar-title>
     </v-toolbar>
     <main>
       <v-content>
@@ -25,6 +25,17 @@
     </main>
     <v-footer fixed app>
     </v-footer>
+
+    <v-snackbar
+      :timeout="6000"
+      bottom
+      v-model="snackbar"
+    >
+      <v-icon v-if="current.icon" dark>{{ current.icon }}</v-icon>
+      <v-spacer></v-spacer>
+      <div>{{ current.text }}</div>
+      <v-btn v-if="current.action" flat color="pink" @click.native="dispatch">{{ current.action.text }}</v-btn>
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -34,6 +45,26 @@ export default {
   data: () => ({
     drawer: true,
   }),
+
+  computed: {
+    snackbar: {
+      get() {
+        return this.$store.getters["notifications/show"];
+      },
+      set(show) {
+        this.$store.dispatch("notifications/show", show);
+      },
+    },
+    current() {
+      return this.$store.getters["notifications/current"];
+    },
+  },
+
+  methods: {
+    dispatch() {
+      this.$store.dispatch("notifications/dispatch");
+    },
+  },
 };
 </script>
 

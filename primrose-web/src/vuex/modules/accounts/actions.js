@@ -17,6 +17,21 @@ export default {
         commit("addResults", response.result);
         commit("count", response.count);
         loading(false);
+      })
+      .catch(() => {
+        loading(false);
+        dispatch(
+          "notifications/offer", {
+            icon: "error",
+            text: "Accounts loading failed.",
+            action: {
+              text: "Retry",
+              command: "accounts/load",
+              parameter: query,
+            },
+          }, {
+            root: true,
+          });
       });
   },
 };
