@@ -6,97 +6,84 @@ create schema primrose;
  * 
  */
 
-create table account_types(
-  id    bigint                          constraint  nn_account_types_id         not null,
-  name  text                            constraint  nn_account_types_name       not null,
+create table customer_relation_types(
+  id    bigint  not null,
+  name  text    not null  unique,
   
-  constraint pk_account_types             primary key (id)
+  primary key (id)
 );
-comment on table account_types is 'Enumeration of diferent account types.';
+
+create table customer_types(
+  id    bigint  not null,
+  name  text    not null  unique,
+  
+  primary key (id)
+);
+
+create table customers(
+  id                      bigint                    not null,
+  customer_type           bigint                    not null,
+  customer_relation_type  bigint                    not null,
+  full_name               text                      not null,
+  display_name            text,
+  email                   text,
+  phone                   text,
+  description             text,
+  
+  primary key (id),
+  foreign key (customer_type)             references customer_types(id),
+  foreign key (customer_relation_type)    references customer_relation_types(id)
+);
 
 create table accounts(
-  id              bigint                    constraint nn_account_id            not null,
-  account_type    bigint                    constraint nn_account_type          not null,
-  parent_account  bigint,
-  name            text                      constraint nn_account_name          not null,
-  display_name    text,
-  email           text,
-  phone           text,
-  website         text,
-  description     text,
-  valid_from      timestamp with time zone  constraint  nn_accounts_valid_from  not null  default current_timestamp,
-  valid_to        timestamp with time zone,
+  id        bigint  not null,
+  name      text    not null,
+  customer  bigint  not null,
   
-  constraint pk_accounts                  primary key (id),
-  constraint ck_accounts_positive_range   check (valid_to > valid_from),
-  constraint fk_accounts_parent_account   foreign key (parent_account)  references accounts(id),
-  constraint fk_accounts_type_type        foreign key (account_type)    references account_types(id)
+  primary key (id),
+  foreign key (customer)  references customers(id)
 );
-comment on table accounts is 'Actual account data.';
 
 create table addresses(
-  id            bigint                    constraint  nn_addresses_id             not null,
-  street        text                      constraint  nn_addresses_street         not null,
-  street_number text                      constraint  nn_addresses_street_number  not null,
-  city          text                      constraint  nn_addresses_city           not null,
-  postal_code   text                      constraint  nn_addresses_postal_code    not null,
+  id            bigint  not null,
+  street        text    not null,
+  street_number text    not null,
+  city          text    not null,
+  postal_code   text    not null,
   state         text,
-  country       text                      constraint  nn_addresses_country        not null,
+  country       text    not null,
   
-  constraint pk_addresses             primary key (id),
-  constraint uq_addresses             unique (street, street_number, city, postal_code, state, country)
+  primary key (id)
 );
-comment on table addresses is 'Simple address data.';
 
-create table account_address_types(
-  id          bigint                    constraint  nn_account_address_types_id         not null,
-  name        text                      constraint  nn_account_address_types_name       not null  constraint uq_account_address_types_name  unique,
+create table address_types(
+  id          bigint  not null,
+  name        text    not null  unique,
   
-  constraint pk_account_address_types primary key (id)
+  primary key (id)
 );
-comment on table account_address_types is 'Enumeration of address types.';
+
+create table customer_addresses(
+  customer      bigint  not null,
+  address       bigint  not null,
+  address_type  bigint  not null,
+  
+  primary key (customer, address),
+  foreign key (customer)      references customers(id),
+  foreign key (address)       references addresses(id),
+  foreign key (address_type)  references address_types(id)
+);
 
 create table account_addresses(
-  account               bigint                    constraint nn_account_addresses_account               not null,
-  address               bigint                    constraint nn_account_addresses_address               not null,
-  account_address_type  bigint                    constraint nn_account_addresses_account_address_type  not null,
+  account       bigint  not null,
+  address       bigint  not null,
+  address_type  bigint  not null,
   
-  constraint pk_account_addresses           primary key (account, address),
-  constraint fk_account_address_account     foreign key (account)               references accounts(id),
-  constraint fk_account_address_address     foreign key (address)               references addresses(id),
-  constraint fk_account_address_type        foreign key (account_address_type)  references account_address_types(id)
+  primary key (account, address),
+  foreign key (account)       references accounts(id),
+  foreign key (address)       references addresses(id),
+  foreign key (address_type)  references address_types(id)
 );
-comment on table account_addresses is 'Account address by type.';
-
-create table contacts(
-  id          bigint                    constraint  nn_contacts_id          not null,
-  name        text                      constraint  nn_contacts_name        not null,
-  email       text                      constraint  nn_contacts_email       not null,
-  phone       text                      constraint  nn_contacts_phone       not null,
-  
-  constraint pk_contacts            primary key (id)
-);
-comment on table contacts is 'Contact data.';
-
-create table account_contact_types(
-  id          bigint                    constraint  nn_account_contact_types_id         not null,
-  name        text                      constraint  nn_account_contact_types_name       not null  constraint uq_account_contact_types_name   unique,
-  
-  constraint pk_account_contact_types             primary key (id)
-);
-comment on table account_contact_types is 'Enumeration of contact types.';
-
-create table account_contacts(
-  account               bigint                    constraint  nn_account_contacts_account     not null,
-  contact               bigint                    constraint  nn_account_contacts_contact     not null,
-  account_contact_type  bigint,
-  
-  constraint pk_account_contacts              primary key (account, contact),
-  constraint fk_account_contacts_account      foreign key (account)               references accounts(id),
-  constraint fk_account_contacts_contact      foreign key (contact)               references contacts(id),
-  constraint fk_account_contacts_contact_type foreign key (account_contact_type)  references account_contact_types(id)
-);
-comment on table account_contacts is 'Account contacts by type.';
 
 /*
  * 
@@ -109,12 +96,12 @@ comment on table account_contacts is 'Account contacts by type.';
  * SEQUENCES
  * 
  */
-create sequence account_types_seq         start with 1  increment by 1;
-create sequence accounts_seq              start with 1  increment by 1;
-create sequence addresses_seq             start with 1  increment by 1;
-create sequence account_address_types_seq start with 1  increment by 1;
-create sequence contacts_seq              start with 1  increment by 1;
-create sequence account_contact_types_seq start with 1  increment by 1;
+create sequence customer_types_seq          start with 1  increment by 1;
+create sequence customer_relation_types_seq start with 1  increment by 1;
+create sequence customer_seq                start with 1  increment by 1;
+create sequence accounts_seq                start with 1  increment by 1;
+create sequence addresses_seq               start with 1  increment by 1;
+create sequence address_types_seq           start with 1  increment by 1;
 
 /*
  *
@@ -228,18 +215,12 @@ $$ LANGUAGE plpgsql;
  * DATA
  * 
  */
-insert into account_types(id, name) values 
+insert into customer_types(id, name) values 
 (1, 'Customer'),
 (2, 'Partner'),
 (3, 'Investor'),
 (4, 'Reseller');
 
-insert into account_address_types(id, name) values
+insert into address_types(id, name) values
 (1, 'Billing'),
 (2, 'Shipping');
-
-insert into account_contact_types(id, name) values
-(1, 'Seller'),
-(2, 'Manager'),
-(5, 'Developer'),
-(6, 'Consultant');
