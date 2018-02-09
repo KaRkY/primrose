@@ -216,6 +216,10 @@ $$ LANGUAGE plpgsql;
  * 
  */
 insert into customer_types(id, name) values 
+(1, 'Person'),
+(2, 'Company');
+
+insert into customer_relation_types(id, name) values 
 (1, 'Customer'),
 (2, 'Partner'),
 (3, 'Investor'),

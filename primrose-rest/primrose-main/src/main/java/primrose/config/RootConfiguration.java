@@ -8,12 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import primrose.immutables.ImmutableInputAccount;
-import primrose.immutables.ImmutableInputAccountAddress;
-import primrose.immutables.ImmutableInputAccountContact;
-import primrose.model.input.BaseInputAccount;
-import primrose.model.input.BaseInputAccountAddress;
-import primrose.model.input.BaseInputAccountContact;
+import graphql.execution.ExecutionStrategy;
+import graphql.execution.batched.BatchedExecutionStrategy;
 
 @Configuration
 @EnableScheduling
@@ -24,10 +20,11 @@ public class RootConfiguration {
   public Module module() {
     final SimpleModule simpleModule = new SimpleModule();
 
-    simpleModule.addAbstractTypeMapping(BaseInputAccountAddress.class, ImmutableInputAccountAddress.class);
-    simpleModule.addAbstractTypeMapping(BaseInputAccountContact.class, ImmutableInputAccountContact.class);
-    simpleModule.addAbstractTypeMapping(BaseInputAccount.class, ImmutableInputAccount.class);
-
     return simpleModule;
+  }
+
+  @Bean
+  public ExecutionStrategy queryExecutionStrategy() {
+    return new BatchedExecutionStrategy();
   }
 }

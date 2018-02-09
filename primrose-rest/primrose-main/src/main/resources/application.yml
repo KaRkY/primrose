@@ -20,9 +20,9 @@ graphql:
 spring:
   profiles: dev
   datasource:
-    url: jdbc:postgresql://localhost:5439/postgres?currentSchema=primrose,extensions
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=primrose,extensions
     username: postgres
-    password: postgres
+    password: developer
     driverClassName: org.postgresql.Driver
 logging:
   level:

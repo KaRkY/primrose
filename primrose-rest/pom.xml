@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>primrose</groupId>
@@ -104,6 +103,24 @@
       </dependency>
 
       <dependency>
+        <groupId>com.graphql-java</groupId>
+        <artifactId>graphql-spring-boot-starter</artifactId>
+        <version>4.0.0.M1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.graphql-java</groupId>
+        <artifactId>graphql-java-tools</artifactId>
+        <version>4.3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.reactivestreams</groupId>
+        <artifactId>reactive-streams</artifactId>
+        <version>1.0.2</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.jooq</groupId>
         <artifactId>jool</artifactId>
         <version>0.9.12</version>
@@ -152,10 +169,6 @@
 
   <modules>
     <module>primrose-main</module>
-    <module>primrose-data-jooq</module>
-    <module>primrose-model</module>
-    <module>primrose-util</module>
-    <module>primrose-data-api</module>
   </modules>
 
 </project>

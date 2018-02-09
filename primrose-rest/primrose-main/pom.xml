@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>primrose-main</artifactId>
@@ -26,6 +25,70 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+
+        <!-- Specify the maven code generator plugin -->
+        <!-- Use org.jooq for the Open Source Edition org.jooq.pro for commercial editions, org.jooq.pro-java-6 for commercial editions with Java 6 support, org.jooq.trial
+          for the free trial edition Note: Only the Open Source Edition is hosted on Maven Central. Import the others manually from your distribution -->
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen-maven</artifactId>
+
+        <!-- The plugin should hook into the generate goal -->
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <!-- Manage the plugin's dependency. In this example, we'll use a PostgreSQL database -->
+        <dependencies>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+          </dependency>
+        </dependencies>
+
+        <!-- Specify the plugin configuration. The configuration format is the same as for the standalone code generator -->
+        <configuration>
+
+          <!-- JDBC connection parameters -->
+          <jdbc>
+            <driver>org.postgresql.Driver</driver>
+            <url>${database.url}</url>
+            <user>${database.user}</user>
+            <password>${database.password}</password>
+          </jdbc>
+
+          <!-- Generator parameters -->
+          <generator>
+
+            <database>
+              <name>org.jooq.util.postgres.PostgresDatabase</name>
+              <includes>.*</includes>
+              <excludes></excludes>
+              <schemata>
+                <schema>
+                  <inputSchema>primrose</inputSchema>
+                </schema>
+              </schemata>
+            </database>
+
+            <generate>
+              <javaTimeTypes>true</javaTimeTypes>
+              <daos>false</daos>
+            </generate>
+
+            <target>
+              <packageName>pimrose.jooq</packageName>
+            </target>
+
+          </generator>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -74,26 +137,23 @@
     </dependency>
 
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>primrose-data-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>primrose-data-jooq</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>primrose-model</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.graphql-java</groupId>
+      <artifactId>graphql-java</artifactId>
     </dependency>
 
     <dependency>
       <groupId>com.graphql-java</groupId>
-      <artifactId>graphql-java</artifactId>
+      <artifactId>graphql-spring-boot-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.graphql-java</groupId>
+      <artifactId>graphql-java-tools</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.reactivestreams</groupId>
+      <artifactId>reactive-streams</artifactId>
     </dependency>
 
     <dependency>
