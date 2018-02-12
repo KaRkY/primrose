@@ -1,0 +1,18 @@
+{
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "Monokai",
+  "editor.wordWrapColumn": 120,
+  "editor.fontSize": 16,
+  "editor.lineHeight": 20,
+  "editor.rulers": [120],
+  "editor.suggestFontSize": 16,
+  "editor.suggestLineHeight": 25,
+  "editor.insertSpaces": true
+  "html.format.indentInnerHtml": true,
+  "editor.tabSize": 2,
+  "window.zoomLevel": 0,
+  "files.eol": "\n",
+  "workbench.startupEditor": "newUntitledFile",
+  "explorer.openEditors.visible": 0,
+  "explorer.autoReveal": false
+}
