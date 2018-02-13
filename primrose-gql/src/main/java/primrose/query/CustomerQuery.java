@@ -42,6 +42,21 @@ public class CustomerQuery {
           case "type":
             return Tables.CUSTOMER_TYPES.NAME;
 
+          case "fullName":
+            return Tables.CUSTOMERS.FULL_NAME;
+
+          case "displayName":
+            return Tables.CUSTOMERS.DISPLAY_NAME;
+
+          case "email":
+            return Tables.CUSTOMERS.EMAIL;
+
+          case "phone":
+            return Tables.CUSTOMERS.PHONE;
+
+          case "id":
+            return Tables.CUSTOMERS.ID;
+
           default:
             return null;
           }

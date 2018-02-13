@@ -22,7 +22,7 @@ const setTitle = createTitleSideEffect({
 const history = Browser({
   query: {
     parse: queryString.parse,
-    stringify: queryString.stringify,
+    stringify: query => queryString.stringify(query, { strict: false, encode: false }),
   }
 });
 const router = curi(history, routes, {

@@ -20,7 +20,7 @@ export default [{
   match: {
     response: ({ set }) => {
       set.body(PageCustomers);
-      set.title("Shows");
+      set.title("Customers");
     }
   },
   children: [{

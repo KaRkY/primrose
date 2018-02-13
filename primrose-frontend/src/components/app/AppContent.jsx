@@ -49,7 +49,7 @@ const styles = theme => ({
   },
   center: {
     [theme.breakpoints.up("sm")]: {
-      "max-width": 1170,
+      //"max-width": 1170,
       margin: "0 auto",
     },
   },

@@ -44,6 +44,7 @@ public class JooqUtil {
             return null;
           }
         })
+        .filter(elem -> elem != null)
         .collect(Collectors.toList()))
       .orElseGet(() -> Collections.emptyList());
   }
