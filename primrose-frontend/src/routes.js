@@ -2,8 +2,6 @@ import PageHome from "./components/pages/PageHome";
 import PageCustomers from "./components/pages/PageCustomers";
 import PageCustomer from "./components/pages/PageCustomer";
 import PageNotFound from "./components/pages/PageNotFound";
-import { shows } from "./api";
-import NProgress from "nprogress";
 
 export default [{
   name: "Home",

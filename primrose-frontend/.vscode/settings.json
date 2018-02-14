@@ -7,7 +7,7 @@
   "editor.rulers": [120],
   "editor.suggestFontSize": 16,
   "editor.suggestLineHeight": 25,
-  "editor.insertSpaces": true
+  "editor.insertSpaces": true,
   "html.format.indentInnerHtml": true,
   "editor.tabSize": 2,
   "window.zoomLevel": 0,

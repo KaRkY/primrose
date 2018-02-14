@@ -1,9 +1,12 @@
 import React from "react";
 import compose from "recompose/compose";
+import lifecycle from "recompose/lifecycle";
+import withStateHandlers from "recompose/withStateHandlers";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
 import { Curious } from "@curi/react";
 import { withStyles } from "material-ui/styles";
+import NProgress from "nprogress";
 
 import List from "../list/List";
 
@@ -11,7 +14,7 @@ const contentStyle = theme => ({
 
 });
 
-const query = gql`
+const loadCustomers = gql`
 query loadCustomers($pageable: Pageable, $sort: [PropertySort]) {
   customers(pageable: $pageable, sort: $sort) {
     pageNumber
@@ -28,6 +31,14 @@ query loadCustomers($pageable: Pageable, $sort: [PropertySort]) {
 }
 `;
 
+const deleteCustomer = gql`
+mutation {
+	deleteCustomer(id: 1)
+}
+`;
+
+window.loadCustomers = loadCustomers;
+
 const parseDirection = (dir) => {
   if (dir && (dir.toUpperCase() === "ASC" || dir.toUpperCase() === "DESC" || dir.toUpperCase() === "DEFAULT")) {
     return dir.toUpperCase();
@@ -35,7 +46,7 @@ const parseDirection = (dir) => {
 };
 
 const enhance = compose(
-  graphql(query, {
+  graphql(loadCustomers, {
     options: ({ params, query }) => ({
       variables: {
         pageable: {
@@ -45,22 +56,86 @@ const enhance = compose(
         sort: (query && query.sortProperty && [{
           propertyName: query.sortProperty,
           direction: parseDirection(query.sortDirection)
-        }]) || [] 
+        }]) || []
       },
 
     }),
-    props: ({ data, ownProps }) => ({
+    props: ({ data, ownProps, ...rest }) => ({
       customers: data.customers && data.customers.data,
       currentPage: data.customers && data.customers.pageNumber,
       currentSize: data.customers && data.customers.pageSize,
-      size: parseInt(data.variables.pageable.pageSize),
-      page: parseInt(data.variables.pageable.pageNumber),
+      size: parseInt(data.variables.pageable.pageSize, 10),
+      page: parseInt(data.variables.pageable.pageNumber, 10),
       sort: data.variables.sort && data.variables.sort[0],
       total: data.customers && data.customers.totalSize,
       loading: data.loading,
       error: data.error,
     }),
   }),
+  graphql(deleteCustomer, { name: "deleteCustomer" }),
+  lifecycle({
+    componentDidMount() {
+      setTimeout(() => {
+        this.props.deleteCustomer({
+          update: (store) => {
+            console.log(store.data.data.ROOT_QUERY);
+            console.log(store.readQuery({
+              query: loadCustomers,
+              variables: {
+                pageable: {
+                  pageNumber: 0,
+                  pageSize: 10
+                },
+                sort: []
+              }
+            }));
+          }
+        });
+      }, 5000)
+      if (this.props.loading) {
+        NProgress.start();
+      }
+    },
+
+    componentWillReceiveProps(nextProps) {
+      if (this.props.loading !== nextProps.loading) {
+        if (nextProps.loading) {
+          NProgress.start();
+        } else {
+          NProgress.done();
+        }
+      }
+    }
+  }),
+  withStateHandlers(() => ({
+    selectedRows: []
+  }), {
+      selectRow: ({ selectedRows }) => (value, checked) => {
+        if (Array.isArray(value)) {
+          console.log(value, checked);
+          if (checked) {
+            return {
+              selectedRows: value
+            };
+          } else {
+            return {
+              selectedRows: selectedRows.filter(sr => value.find(vr => vr === sr) ? false : true)
+            };
+          }
+        } else {
+          if (checked) {
+            return {
+              selectedRows: [...selectedRows, value]
+            };
+          } else {
+            return {
+              selectedRows: selectedRows.filter(sr => sr !== value)
+            };
+          }
+        }
+      },
+      clearSelection: () => () => ({ selectedRows: [] }),
+    }),
   withStyles(contentStyle)
 );
 
@@ -118,7 +193,7 @@ const sortChange = (router, response) => (property) => {
 
 const getRowId = row => row.id;
 
-const Content = ({ customers, page, size, total, sort }) => (
+const Content = ({ customers, page, size, total, sort, loading, selectRow, clearSelection, selectedRows }) => (
   <Curious>{({ router, response, navigation }) => (
     <List title="Customers"
       columns={[
@@ -129,16 +204,19 @@ const Content = ({ customers, page, size, total, sort }) => (
         { id: "email", label: "Email" },
       ]}
       selectable
-      getRowId={getRowId}
+      loading={loading}
+      rowId={getRowId}
       data={customers}
-      count={total || 0}
-      page={page}
-      orderBy={sort && sort.propertyName}
-      order={sort && sort.direction.toLowerCase()}
-      onChangePage={pageChange(router, response)}
-      onChangeRowsPerPage={pageSizeChange(router, response)}
-      onSortHandler={sortChange(router, response)}
-      rowsPerPage={size}
+      totalSize={total || 0}
+      pageNumber={page}
+      pageSize={size}
+      selectedRows={selectedRows}
+      isSortedColumn={column => sort && (column.id === sort.propertyName)}
+      sortDirection={sort && sort.direction.toLowerCase()}
+      onSelectRow={selectRow}
+      onPageChange={pageChange(router, response)}
+      onRowsPerPageChange={pageSizeChange(router, response)}
+      onSortChange={sortChange(router, response)}
     />
   )}</Curious>
 );

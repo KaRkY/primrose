@@ -7,11 +7,10 @@ import queryString from "query-string";
 import NProgress from "nprogress";
 import createTitleSideEffect from "@curi/side-effect-title";
 import createActiveAddon from "@curi/addon-active";
-import { ApolloClient } from "apollo-client";
-import { HttpLink } from "apollo-link-http";
-import { InMemoryCache } from "apollo-cache-inmemory";
+import client from "./apollo";
 import registerServiceWorker from "./registerServiceWorker";
 
+window.apolloClient = client;
 NProgress.configure({ showSpinner: false });
 
 const setTitle = createTitleSideEffect({
@@ -30,10 +29,6 @@ const router = curi(history, routes, {
   addons: [createActiveAddon()],
 });
 
-const client = new ApolloClient({
-  link: new HttpLink({uri: "http://localhost:9080/graphql/"}),
-  cache: new InMemoryCache()
-});
 const root = document.getElementById("root");
 
 let render = () => {

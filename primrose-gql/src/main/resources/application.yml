@@ -8,6 +8,9 @@ spring:
     serialization:
       writeDatesAsTimestamps: false
     defaultPropertyInclusion: always
+  output:
+    ansi:
+      enabled: always
 
 graphql:
   servlet:

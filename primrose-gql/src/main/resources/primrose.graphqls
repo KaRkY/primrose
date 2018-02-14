@@ -71,3 +71,7 @@ type Query {
     customer(id: ID!): Customer!
     accounts(customer: ID!, pageable: Pageable, sort: [PropertySort]): AccountsPage
 }
+
+type Mutation {
+  deleteCustomer(id: ID!): ID!
+}
