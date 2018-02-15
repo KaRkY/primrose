@@ -1,6 +1,7 @@
 import React from "react";
 import compose from "recompose/compose";
 import lifecycle from "recompose/lifecycle";
+import withProps from "recompose/withProps";
 import withStateHandlers from "recompose/withStateHandlers";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
@@ -31,9 +32,9 @@ query loadCustomers($pageable: Pageable, $sort: [PropertySort]) {
 }
 `;
 
-const deleteCustomer = gql`
-mutation {
-	deleteCustomer(id: 1)
+const deleteCustomers = gql`
+mutation deleteCustomers($ids: [ID]!) {
+	deleteCustomers(ids: $ids)
 }
 `;
 
@@ -46,8 +47,30 @@ const parseDirection = (dir) => {
 };
 
 const enhance = compose(
+  withStateHandlers(() => ({
+    selectedRows: [],
+    deleting: false,
+  }), {
+      selectRow: ({ selectedRows, ...rest }) => (value, checked) => {
+        if (checked) {
+          return {
+            selectedRows: value,
+            ...rest
+          };
+        } else {
+          return {
+            selectedRows: selectedRows.filter(sr => value.find(vr => vr === sr) ? false : true),
+            ...rest
+          };
+        }
+      },
+      clearSelection: ({ selectedRows, ...rest }) => () => ({ selectedRows: [], ...rest }),
+      onDeleting: ({ deleting, ...rest }) => (value) => ({ deleting: value, ...rest }),
+    }),
   graphql(loadCustomers, {
     options: ({ params, query }) => ({
+      fetchPolicy: "network-only",
+      notifyOnNetworkStatusChange: true,
       variables: {
         pageable: {
           pageNumber: (query && query.page) || 0,
@@ -64,6 +87,7 @@ const enhance = compose(
       customers: data.customers && data.customers.data,
       currentPage: data.customers && data.customers.pageNumber,
       currentSize: data.customers && data.customers.pageSize,
+      networkStatus: data.networkStatus,
       size: parseInt(data.variables.pageable.pageSize, 10),
       page: parseInt(data.variables.pageable.pageNumber, 10),
       sort: data.variables.sort && data.variables.sort[0],
@@ -72,70 +96,44 @@ const enhance = compose(
       error: data.error,
     }),
   }),
-  graphql(deleteCustomer, { name: "deleteCustomer" }),
+  graphql(deleteCustomers, {
+    props: ({ mutate, ownProps }) => ({
+      deleteCustomers: () => {
+        ownProps.onDeleting(true);
+        return mutate({
+          variables: {
+            ids: ownProps.selectedRows
+          },
+
+          refetchQueries: ["loadCustomers"],
+        })
+          .then(result => result.data.deleteCustomers)
+          .then(result => {
+            ownProps.selectRow(result, false);
+            ownProps.onDeleting(false);
+            return result;
+          })
+      },
+    }),
+    options: { refetchQueries: [{ query: loadCustomers }] }
+  }),
+  withProps(({ networkStatus }) => ({
+    loadPage: networkStatus === 1,
+    loading: [1, 2, 4, 6].indexOf(networkStatus) > -1
+  })),
   lifecycle({
     componentDidMount() {
-      setTimeout(() => {
-        this.props.deleteCustomer({
-          update: (store) => {
-            console.log(store.data.data.ROOT_QUERY);
-            console.log(store.readQuery({
-              query: loadCustomers,
-              variables: {
-                pageable: {
-                  pageNumber: 0,
-                  pageSize: 10
-                },
-                sort: []
-              }
-            }));
-          }
-        });
-      }, 5000)
-      if (this.props.loading) {
+      if (this.props.loadPage) {
         NProgress.start();
       }
     },
 
     componentWillReceiveProps(nextProps) {
-      if (this.props.loading !== nextProps.loading) {
-        if (nextProps.loading) {
-          NProgress.start();
-        } else {
-          NProgress.done();
-        }
+      if (this.props.loadPage && !nextProps.loadPage) {
+        NProgress.done();
       }
     }
   }),
-  withStateHandlers(() => ({
-    selectedRows: []
-  }), {
-      selectRow: ({ selectedRows }) => (value, checked) => {
-        if (Array.isArray(value)) {
-          console.log(value, checked);
-          if (checked) {
-            return {
-              selectedRows: value
-            };
-          } else {
-            return {
-              selectedRows: selectedRows.filter(sr => value.find(vr => vr === sr) ? false : true)
-            };
-          }
-        } else {
-          if (checked) {
-            return {
-              selectedRows: [...selectedRows, value]
-            };
-          } else {
-            return {
-              selectedRows: selectedRows.filter(sr => sr !== value)
-            };
-          }
-        }
-      },
-      clearSelection: () => () => ({ selectedRows: [] }),
-    }),
   withStyles(contentStyle)
 );
 
@@ -193,7 +191,7 @@ const sortChange = (router, response) => (property) => {
 
 const getRowId = row => row.id;
 
-const Content = ({ customers, page, size, total, sort, loading, selectRow, clearSelection, selectedRows }) => (
+const Content = ({ customers, page, size, total, sort, loading, deleting, selectRow, clearSelection, selectedRows, deleteCustomers }) => (
   <Curious>{({ router, response, navigation }) => (
     <List title="Customers"
       columns={[
@@ -205,18 +203,20 @@ const Content = ({ customers, page, size, total, sort, loading, selectRow, clear
       ]}
       selectable
       loading={loading}
+      deleting={console.log(deleting) || deleting}
       rowId={getRowId}
-      data={customers}
+      data={customers || []}
       totalSize={total || 0}
       pageNumber={page}
       pageSize={size}
       selectedRows={selectedRows}
       isSortedColumn={column => sort && (column.id === sort.propertyName)}
       sortDirection={sort && sort.direction.toLowerCase()}
-      onSelectRow={selectRow}
+      onSelectRows={selectRow}
       onPageChange={pageChange(router, response)}
       onRowsPerPageChange={pageSizeChange(router, response)}
       onSortChange={sortChange(router, response)}
+      onDelete={deleteCustomers}
     />
   )}</Curious>
 );

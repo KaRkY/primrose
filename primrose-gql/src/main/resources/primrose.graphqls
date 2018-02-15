@@ -73,5 +73,5 @@ type Query {
 }
 
 type Mutation {
-  deleteCustomer(id: ID!): ID!
+  deleteCustomers(ids: [ID]!): [ID]!
 }

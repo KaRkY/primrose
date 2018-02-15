@@ -1,8 +1,10 @@
 import React from "react";
 import compose from "recompose/compose";
+import withHandlers from "recompose/withHandlers";
 import { withStyles } from "material-ui/styles";
 
 import Paper from "material-ui/Paper";
+import Button from "material-ui/Button";
 import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
 import Tooltip from "material-ui/Tooltip";
@@ -18,10 +20,20 @@ import Table, {
   TableRow,
   TableSortLabel,
 } from "material-ui/Table";
+import { IconButton } from "material-ui";
+import KeyboardArrowRight from "material-ui-icons/KeyboardArrowRight";
 
 const styles = theme => ({
   root: {
     position: "relative",
+  },
+
+  grow: {
+    flex: "1 1 auto",
+  },
+
+  panelRow: {
+    backgroundColor: theme.palette.background.default,
   },
 
   loadingContainer: {
@@ -44,22 +56,18 @@ const styles = theme => ({
 });
 
 const enhance = compose(
+  withHandlers({
+    onPageChange: ({ onPageChange }) => (event, page) => onPageChange && onPageChange(page),
+    onChangeRowsPerPage: ({ onChangeRowsPerPage }) => (event) => onChangeRowsPerPage && onChangeRowsPerPage(event.target.value),
+    onSelectRows: ({ onSelectRows }) => (rows) => (event, checked) => onSelectRows && onSelectRows(rows, checked),
+    onDelete: ({ onDelete }) => (event) => onDelete && onDelete(),
+  }),
   withStyles(styles)
 );
 
 const createSortHandler = (onSortHandler, property) => () => onSortHandler && onSortHandler(property);
 const empty = [];
-const getList = (list, loading) => {
-  if (list) {
-    if (loading) {
-      return empty;
-    } else {
-      return list;
-    }
-  } else {
-    return empty;
-  }
-};
+const getList = (list, loading) => list || empty;
 const extractId = (getId, obj) => {
   if (typeof getId === "function") {
     return getId(obj);
@@ -72,11 +80,6 @@ const extractId = (getId, obj) => {
   }
 }
 
-const createPageChange = (onPageChange) => (event, page) => onPageChange(page);
-const createChangeRowsPerPage = (onChangeRowsPerPage) => (event) => onChangeRowsPerPage(event.target.value);
-const createSelectRow = (onSelectRow, rowId) => (event, checked) => onSelectRow && onSelectRow(rowId, checked);
-const createSelectAllRows = (onSelectRow, rows) => (event, checked) => onSelectRow && onSelectRow(rows, checked);
-
 const List = ({
   classes,
   title,
@@ -88,37 +91,55 @@ const List = ({
   selectable,
   selectedRows,
   loading,
+  deleting,
   sortDirection,
   isSortedColumn,
   rowsPerPageOptions,
-  onSelectRow,
+  onSelectRows,
   onSortChange,
   onPageChange,
   onRowsPerPageChange,
+  onDelete,
   rowId }) => {
-  const numRows = getList(data, loading).length;
+  const numRows = data.length;
   const emptyRows = pageSize - numRows;
-  const rowData = getList(data, loading);
   const numSelected = (selectedRows && selectedRows.length);
 
   return (
     <Paper className={classes.root}>
       <Toolbar>
         <Typography variant="title">{title}</Typography>
+        <div className={classes.grow} />
+        {numSelected > 0 && (
+          <Tooltip id="appbar-theme" title="Delete selected customers" enterDelay={300}>
+            <Button disabled={deleting} variant="raised" color="secondary" onClick={onDelete}>
+              Delete
+              {deleting && <CircularProgress color={"inherit"} size={24} />}
+            </Button>
+          </Tooltip>
+        )}
       </Toolbar>
-      <Table>
+      <Table style={{ "table-layout": "fixed" }}>
+        <colgroup>
+          <col style={{ width: 48 }} />
+          {selectable && (<col style={{ width: 58 }} />)}
+          {columns.map(column => (
+            <col key={column.id} style={column.numeric && { width: 58 }} />
+          ))}
+        </colgroup>
         <TableHead>
           <TableRow>
+            <TableCell padding="checkbox" />
             {selectable && (
               <TableCell padding="checkbox">
                 <Checkbox
                   indeterminate={numSelected > 0 && numSelected < numRows}
                   checked={numSelected === numRows}
-                  onChange={createSelectAllRows(onSelectRow, rowData.map(row => extractId(rowId, row)))}
+                  onChange={onSelectRows(data.map(row => extractId(rowId, row)))}
                 />
               </TableCell>
             )}
-            {getList(columns).map(column => (
+            {columns.map(column => (
               <TableCell key={column.id}
                 numeric={column.numeric}
                 padding={column.disablePadding ? "none" : "default"}
@@ -142,36 +163,43 @@ const List = ({
         </TableHead>
 
         <TableBody>
-          {rowData.map(row => (
-            <TableRow hover key={extractId(rowId, row)}>
-              {selectable && (
+          {data.map(row => (
+            <React.Fragment>
+              <TableRow hover key={extractId(rowId, row)}>
                 <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={(selectedRows && selectedRows.find(el => el === extractId(rowId, row))) ? true : false}
-                    onChange={createSelectRow(onSelectRow, extractId(rowId, row))}
-                  />
+                  <IconButton>
+                    <KeyboardArrowRight />
+                  </IconButton>
                 </TableCell>
-              )}
-              {getList(columns).map(column => (
-                <TableCell key={column.id}
-                  numeric={column.numeric}
-                  padding={column.disablePadding ? "none" : "default"}>
-                  {row[column.id]}
-                </TableCell>
-              ))}
-            </TableRow>
+                {selectable && (
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={(selectedRows && selectedRows.find(el => el === extractId(rowId, row))) ? true : false}
+                      onChange={onSelectRows([extractId(rowId, row)])}
+                    />
+                  </TableCell>
+                )}
+                {columns.map(column => (
+                  <TableCell key={column.id}
+                    numeric={column.numeric}
+                    padding={column.disablePadding ? "none" : "default"}>
+                    {row[column.id]}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </React.Fragment>
           ))}
 
           {emptyRows > 0 && (
             <TableRow style={{ height: 49 * emptyRows }}>
-              <TableCell colSpan={6} />
+              <TableCell colSpan={columns.length + (selectable ? 2 : 1)} />
             </TableRow>
           )}
         </TableBody>
         <TableFooter>
           <TableRow>
             <TablePagination
-              colSpan={6}
+              colSpan={columns.length + (selectable ? 2 : 1)}
               count={totalSize}
               rowsPerPage={pageSize}
               page={pageNumber}
@@ -181,8 +209,8 @@ const List = ({
               nextIconButtonProps={{
                 "aria-label": "Next Page",
               }}
-              onChangePage={createPageChange(onPageChange)}
-              onChangeRowsPerPage={createChangeRowsPerPage(onRowsPerPageChange)}
+              onChangePage={onPageChange}
+              onChangeRowsPerPage={onRowsPerPageChange}
               rowsPerPageOptions={rowsPerPageOptions}
             />
           </TableRow>
