@@ -96,18 +96,18 @@ const enhance = compose(
   ),
 );
 
-const App = ({ classes, mobile, body: Body, data, params, query, title, onDrawerOpen, onDrawerClose, drawerOpen }) => (
+const App = ({ classes, mobile, router, response: { body: Body, ...rest}, onDrawerOpen, onDrawerClose, drawerOpen }) => (
   <React.Fragment>
     <Reboot />
     <div className={classes.appFrame}>
       <AppToolbar mobile={mobile} drawerOpen={drawerOpen} onDrawerOpen={onDrawerOpen}>
-        <Typography variant="title" color="inherit">{title}</Typography>
+        <Typography variant="title" color="inherit">{Response.title}</Typography>
       </AppToolbar>
       <AppDrawer mobile={mobile} open={drawerOpen} onClose={onDrawerClose}>
         <AppNav />
       </AppDrawer>
       <AppContent mobile={mobile} drawerOpen={drawerOpen}>
-        <Body data={data} params={params} query={query} />
+        <Body router={router} response={rest} />
       </AppContent>
     </div>
   </React.Fragment>

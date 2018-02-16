@@ -8,20 +8,12 @@ import Button from "material-ui/Button";
 import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
 import Tooltip from "material-ui/Tooltip";
-import Checkbox from "material-ui/Checkbox";
 import Fade from "material-ui/transitions/Fade";
 import { CircularProgress } from "material-ui/Progress";
-import Table, {
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-} from "material-ui/Table";
-import { IconButton } from "material-ui";
-import KeyboardArrowRight from "material-ui-icons/KeyboardArrowRight";
+import Table from "material-ui/Table";
+import AdvancedTableHead from "./AdvancedTableHead";
+import AdvancedTableBody from "./AdvancedTableBody";
+import AdvancedTableFooter from "./AdvancedTableFooter";
 
 const styles = theme => ({
   root: {
@@ -30,6 +22,10 @@ const styles = theme => ({
 
   grow: {
     flex: "1 1 auto",
+  },
+
+  table: {
+    tableLayout: "fixed",
   },
 
   panelRow: {
@@ -57,17 +53,13 @@ const styles = theme => ({
 
 const enhance = compose(
   withHandlers({
-    onPageChange: ({ onPageChange }) => (event, page) => onPageChange && onPageChange(page),
-    onChangeRowsPerPage: ({ onChangeRowsPerPage }) => (event) => onChangeRowsPerPage && onChangeRowsPerPage(event.target.value),
-    onSelectRows: ({ onSelectRows }) => (rows) => (event, checked) => onSelectRows && onSelectRows(rows, checked),
+    onSelectRows: ({ onSelectRows }) => (rows) => (event, checked) => onSelectRows && onSelectRows(event, rows, checked),
+    onSelectRow: ({ onSelectRows }) => (event, row, checked) => onSelectRows && onSelectRows(event, [row], checked),
     onDelete: ({ onDelete }) => (event) => onDelete && onDelete(),
   }),
   withStyles(styles)
 );
 
-const createSortHandler = (onSortHandler, property) => () => onSortHandler && onSortHandler(property);
-const empty = [];
-const getList = (list, loading) => list || empty;
 const extractId = (getId, obj) => {
   if (typeof getId === "function") {
     return getId(obj);
@@ -84,25 +76,27 @@ const List = ({
   classes,
   title,
   columns,
-  data,
+  rows,
   totalSize,
   pageSize,
   pageNumber,
   selectable,
+  detailed,
   selectedRows,
   loading,
   deleting,
   sortDirection,
-  isSortedColumn,
+  sortColumn,
   rowsPerPageOptions,
+  renderPanel,
   onSelectRows,
+  onSelectRow,
   onSortChange,
   onPageChange,
-  onRowsPerPageChange,
+  onPageSizeChange,
   onDelete,
   rowId }) => {
-  const numRows = data.length;
-  const emptyRows = pageSize - numRows;
+  const numRows = rows.length;
   const numSelected = (selectedRows && selectedRows.length);
 
   return (
@@ -119,7 +113,7 @@ const List = ({
           </Tooltip>
         )}
       </Toolbar>
-      <Table style={{ "table-layout": "fixed" }}>
+      <Table className={classes.table}>
         <colgroup>
           <col style={{ width: 48 }} />
           {selectable && (<col style={{ width: 58 }} />)}
@@ -127,94 +121,39 @@ const List = ({
             <col key={column.id} style={column.numeric && { width: 58 }} />
           ))}
         </colgroup>
-        <TableHead>
-          <TableRow>
-            <TableCell padding="checkbox" />
-            {selectable && (
-              <TableCell padding="checkbox">
-                <Checkbox
-                  indeterminate={numSelected > 0 && numSelected < numRows}
-                  checked={numSelected === numRows}
-                  onChange={onSelectRows(data.map(row => extractId(rowId, row)))}
-                />
-              </TableCell>
-            )}
-            {columns.map(column => (
-              <TableCell key={column.id}
-                numeric={column.numeric}
-                padding={column.disablePadding ? "none" : "default"}
-                sortDirection={isSortedColumn(column) ? sortDirection : false}>
-                <Tooltip
-                  title="Sort"
-                  placement={column.numeric ? "bottom-end" : "bottom-start"}
-                  enterDelay={300}
-                >
-                  <TableSortLabel
-                    active={isSortedColumn(column)}
-                    direction={sortDirection}
-                    onClick={createSortHandler(onSortChange, column.id)}
-                  >
-                    {column.label}
-                  </TableSortLabel>
-                </Tooltip>
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
+        <AdvancedTableHead
+          columns={columns}
+          selectable={selectable}
+          indeterminate={numSelected > 0 && numSelected < numRows}
+          checked={numSelected > 0 && numSelected === numRows}
+          sortDirection={sortDirection}
+          sortColumn={sortColumn}
+          onSelect={onSelectRows(rows.map(row => extractId(rowId, row)))}
+          onSortChange={onSortChange}
+        />
 
-        <TableBody>
-          {data.map(row => (
-            <React.Fragment>
-              <TableRow hover key={extractId(rowId, row)}>
-                <TableCell padding="checkbox">
-                  <IconButton>
-                    <KeyboardArrowRight />
-                  </IconButton>
-                </TableCell>
-                {selectable && (
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={(selectedRows && selectedRows.find(el => el === extractId(rowId, row))) ? true : false}
-                      onChange={onSelectRows([extractId(rowId, row)])}
-                    />
-                  </TableCell>
-                )}
-                {columns.map(column => (
-                  <TableCell key={column.id}
-                    numeric={column.numeric}
-                    padding={column.disablePadding ? "none" : "default"}>
-                    {row[column.id]}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </React.Fragment>
-          ))}
+        <AdvancedTableBody
+          columns={columns}
+          rows={rows}
+          detailed={detailed}
+          selectable={selectable}
+          pageSize={pageSize}
+          renderPanel={renderPanel}
+          selectedRows={selectedRows}
+          onSelectRow={onSelectRow}
+        />
 
-          {emptyRows > 0 && (
-            <TableRow style={{ height: 49 * emptyRows }}>
-              <TableCell colSpan={columns.length + (selectable ? 2 : 1)} />
-            </TableRow>
-          )}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TablePagination
-              colSpan={columns.length + (selectable ? 2 : 1)}
-              count={totalSize}
-              rowsPerPage={pageSize}
-              page={pageNumber}
-              backIconButtonProps={{
-                "aria-label": "Previous Page",
-              }}
-              nextIconButtonProps={{
-                "aria-label": "Next Page",
-              }}
-              onChangePage={onPageChange}
-              onChangeRowsPerPage={onRowsPerPageChange}
-              rowsPerPageOptions={rowsPerPageOptions}
-            />
-          </TableRow>
-        </TableFooter>
+        <AdvancedTableFooter
+          columns={columns}
+          detailed={detailed}
+          selectable={selectable}
+          pageSize={pageSize}
+          totalSize={totalSize}
+          pageNumber={pageNumber}
+          rowsPerPageOptions={rowsPerPageOptions}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+        />
       </Table>
       <Fade in={loading} unmountOnExit>
         <div className={classes.loadingContainer}>

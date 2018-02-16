@@ -19,7 +19,10 @@ export default (client) => ({ router }) => {
     <ApolloProvider client={client}>
       <MuiThemeProvider theme={themes["purpleTeal"]}>
         <CuriProvider router={router}>{({ response }) => (
-          <App body={response.body} data={response.data} title={response.title} params={response.params} query={response.location.query} />
+          <App 
+            router={router}
+            response={response}
+          />
       )}</CuriProvider>
       </MuiThemeProvider>
     </ApolloProvider>

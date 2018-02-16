@@ -1,15 +1,19 @@
 import React from "react";
 import compose from "recompose/compose";
-import lifecycle from "recompose/lifecycle";
 import withProps from "recompose/withProps";
 import withStateHandlers from "recompose/withStateHandlers";
+import withHandlers from "recompose/withHandlers";
+import { withStyles } from "material-ui/styles";
+
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
-import { Curious } from "@curi/react";
-import { withStyles } from "material-ui/styles";
-import NProgress from "nprogress";
+import get from "lodash/get";
+import difference from "lodash/difference";
+import union from "lodash/union";
 
 import List from "../list/List";
+import Paper from "material-ui/Paper";
+import Typography from "material-ui/Typography";
 
 const contentStyle = theme => ({
 
@@ -38,64 +42,71 @@ mutation deleteCustomers($ids: [ID]!) {
 }
 `;
 
-window.loadCustomers = loadCustomers;
-
-const parseDirection = (dir) => {
-  if (dir && (dir.toUpperCase() === "ASC" || dir.toUpperCase() === "DESC" || dir.toUpperCase() === "DEFAULT")) {
-    return dir.toUpperCase();
-  }
-};
-
 const enhance = compose(
-  withStateHandlers(() => ({
-    selectedRows: [],
-    deleting: false,
-  }), {
-      selectRow: ({ selectedRows, ...rest }) => (value, checked) => {
-        if (checked) {
-          return {
-            selectedRows: value,
-            ...rest
-          };
-        } else {
-          return {
-            selectedRows: selectedRows.filter(sr => value.find(vr => vr === sr) ? false : true),
-            ...rest
-          };
-        }
-      },
+  withHandlers({
+    onPageChange: ({ router, response: { name, params, location: { query } } }) => (event, page) => {
+      router.history.navigate(router.history.toHref({
+        pathname: router.addons.pathname(name, params),
+        query: Object.assign({}, query, { page }),
+      }));
+    },
+    onPageSizeChange: ({ router, response: { name, params, location: { query } } }) => (event, size) => {
+      router.history.navigate(router.history.toHref({
+        pathname: router.addons.pathname(name, params),
+        query: Object.assign({}, query, { size }),
+      }));
+    },
+    onSortChange: ({ router, response: { name, params, location: { query } } }) => (event, property) => {
+      router.history.navigate(router.history.toHref({
+        pathname: router.addons.pathname(name, params),
+        query: Object.assign({}, query, parseSort(query, property)),
+      }));
+    },
+  }),
+
+  withStateHandlers(
+    () => ({ selectedRows: [], deleting: false, }),
+    {
+      selectRow: ({ selectedRows, ...rest }) => (event, value, checked) => ({
+        selectedRows: checked ? union(selectedRows, value) : difference(selectedRows, value),
+        ...rest
+      }),
       clearSelection: ({ selectedRows, ...rest }) => () => ({ selectedRows: [], ...rest }),
       onDeleting: ({ deleting, ...rest }) => (value) => ({ deleting: value, ...rest }),
-    }),
+    }
+  ),
+
+  withProps((props) => ({
+    pageSize: parseInt(get(props, "response.location.query.size", 10), 10),
+    pageNumber: parseInt(get(props, "response.location.query.page", 0), 10),
+    sortProperty: get(props, "response.location.query.sortProperty"),
+    sortDirection: get(props, "response.location.query.sortDirection"),
+  })),
+
   graphql(loadCustomers, {
-    options: ({ params, query }) => ({
+    options: ({ pageNumber, pageSize, sortProperty, sortDirection }) => ({
       fetchPolicy: "network-only",
       notifyOnNetworkStatusChange: true,
       variables: {
         pageable: {
-          pageNumber: (query && query.page) || 0,
-          pageSize: (query && query.size) || 10
+          pageNumber: pageNumber,
+          pageSize
         },
-        sort: (query && query.sortProperty && [{
-          propertyName: query.sortProperty,
-          direction: parseDirection(query.sortDirection)
+        sort: (sortProperty && [{
+          propertyName: sortProperty,
+          direction: parseDirection(sortDirection)
         }]) || []
       },
 
     }),
-    props: ({ data, ownProps, ...rest }) => ({
+    props: ({ data }) => ({
       customers: data.customers && data.customers.data,
-      currentPage: data.customers && data.customers.pageNumber,
-      currentSize: data.customers && data.customers.pageSize,
       networkStatus: data.networkStatus,
-      size: parseInt(data.variables.pageable.pageSize, 10),
-      page: parseInt(data.variables.pageable.pageNumber, 10),
-      sort: data.variables.sort && data.variables.sort[0],
-      total: data.customers && data.customers.totalSize,
-      loading: data.loading,
+      totalSize: data.customers && data.customers.totalSize,
       error: data.error,
     }),
   }),
+
   graphql(deleteCustomers, {
     props: ({ mutate, ownProps }) => ({
       deleteCustomers: () => {
@@ -112,52 +123,73 @@ const enhance = compose(
             ownProps.selectRow(result, false);
             ownProps.onDeleting(false);
             return result;
-          })
+          });
       },
     }),
     options: { refetchQueries: [{ query: loadCustomers }] }
   }),
-  withProps(({ networkStatus }) => ({
-    loadPage: networkStatus === 1,
-    loading: [1, 2, 4, 6].indexOf(networkStatus) > -1
-  })),
-  lifecycle({
-    componentDidMount() {
-      if (this.props.loadPage) {
-        NProgress.start();
-      }
-    },
 
-    componentWillReceiveProps(nextProps) {
-      if (this.props.loadPage && !nextProps.loadPage) {
-        NProgress.done();
-      }
-    }
-  }),
+  withProps((props) => ({ loadPage: props.networkStatus === 1, loading: [1, 2, 4, 6].indexOf(props.networkStatus) > -1 })),
+
   withStyles(contentStyle)
 );
 
-const pageSizeChange = (router, response) => (size) => {
-  const location = router.history.toHref({
-    pathname: router.addons.pathname(response.name, response.params),
-    query: Object.assign({}, response.location.query, { size }),
-  });
-  router.history.navigate(location);
-};
+const getRowId = row => row.id;
 
-const pageChange = (router, response) => (page) => {
-  const location = router.history.toHref({
-    pathname: router.addons.pathname(response.name, response.params),
-    query: Object.assign({}, response.location.query, { page }),
-  });
-  router.history.navigate(location);
-};
+const Content = ({
+  customers,
+  pageNumber,
+  pageSize,
+  totalSize,
+  sortProperty,
+  sortDirection,
+  loading,
+  deleting,
+  selectRow,
+  clearSelection,
+  selectedRows,
+  deleteCustomers,
+  onPageChange,
+  onPageSizeChange,
+  onSortChange }) => (
+    <List title="Customers"
+      columns={[
+        { id: "id", label: "Id", numeric: true, disablePadding: true },
+        { id: "fullName", label: "Full name" },
+        { id: "displayName", label: "Display name" },
+        { id: "phone", label: "Phone" },
+        { id: "email", label: "Email" },
+      ]}
+      selectable
+      detailed
+      loading={loading}
+      deleting={deleting}
+      rowId={getRowId}
+      rows={customers || []}
+      totalSize={totalSize || 0}
+      pageNumber={pageNumber}
+      pageSize={pageSize}
+      selectedRows={selectedRows}
+      sortColumn={sortProperty}
+      sortDirection={sortDirection && sortDirection.toLowerCase()}
+      onSelectRows={selectRow}
+      onPageChange={onPageChange}
+      onPageSizeChange={onPageSizeChange}
+      onSortChange={onSortChange}
+      onDelete={deleteCustomers}
+      renderPanel={(row) => (
+        <Paper>
+          <Typography type="body2" component="pre">{JSON.stringify(row, null, 2)}</Typography>
+        </Paper>
+      )}
+    />
+  );
 
-const sortChange = (router, response) => (property) => {
-  const prop = response.location.query && response.location.query.sortProperty;
-  const dir = response.location.query
-    && response.location.query.sortDirection
-    && response.location.query.sortDirection.toUpperCase();
+export default enhance(Content);
+
+const parseSort = (query, property) => {
+  const prop = query && query.sortProperty;
+  const dir = query && query.sortDirection && query.sortDirection.toUpperCase();
 
   let sortProperty;
   let sortDirection;
@@ -182,43 +214,14 @@ const sortChange = (router, response) => (property) => {
     sortDirection = "ASC";
   }
 
-  const location = router.history.toHref({
-    pathname: router.addons.pathname(response.name, response.params),
-    query: Object.assign({}, response.location.query, { sortProperty, sortDirection }),
-  });
-  router.history.navigate(location);
+  return {
+    sortProperty,
+    sortDirection
+  };
 };
 
-const getRowId = row => row.id;
-
-const Content = ({ customers, page, size, total, sort, loading, deleting, selectRow, clearSelection, selectedRows, deleteCustomers }) => (
-  <Curious>{({ router, response, navigation }) => (
-    <List title="Customers"
-      columns={[
-        { id: "id", label: "Id", numeric: true, disablePadding: true },
-        { id: "fullName", label: "Full name" },
-        { id: "displayName", label: "Display name" },
-        { id: "phone", label: "Phone" },
-        { id: "email", label: "Email" },
-      ]}
-      selectable
-      loading={loading}
-      deleting={console.log(deleting) || deleting}
-      rowId={getRowId}
-      data={customers || []}
-      totalSize={total || 0}
-      pageNumber={page}
-      pageSize={size}
-      selectedRows={selectedRows}
-      isSortedColumn={column => sort && (column.id === sort.propertyName)}
-      sortDirection={sort && sort.direction.toLowerCase()}
-      onSelectRows={selectRow}
-      onPageChange={pageChange(router, response)}
-      onRowsPerPageChange={pageSizeChange(router, response)}
-      onSortChange={sortChange(router, response)}
-      onDelete={deleteCustomers}
-    />
-  )}</Curious>
-);
-
-export default enhance(Content);
+const parseDirection = (dir) => {
+  if (dir && (dir.toUpperCase() === "ASC" || dir.toUpperCase() === "DESC" || dir.toUpperCase() === "DEFAULT")) {
+    return dir.toUpperCase();
+  }
+};
