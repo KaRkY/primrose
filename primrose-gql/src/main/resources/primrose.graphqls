@@ -26,25 +26,11 @@ type Customer {
   accounts: [Account]
 }
 
-type CustomersPage {
-  pageNumber: Int!
-  pageSize: Int!
-  totalSize: Int!
-  data: [Customer]!
-}
-
 type Account {
   id: ID!
   name: String!
   customer: Customer!
   addresses: [TypedAddress]
-}
-
-type AccountsPage {
-  pageNumber: Int!
-  pageSize: Int!
-  totalSize: Int!
-  data: [Account]!
 }
 
 enum SortDirection {
@@ -67,9 +53,11 @@ scalar LocalDateTime
 
 # The Root Query for the application
 type Query {
-    customers(pageable: Pageable, sort: [PropertySort]): CustomersPage
+    customers(pageable: Pageable, sort: [PropertySort]): [Customer]!
     customer(id: ID!): Customer!
-    accounts(customer: ID!, pageable: Pageable, sort: [PropertySort]): AccountsPage
+    customersCount: Int!
+    accounts(customer: ID!, pageable: Pageable, sort: [PropertySort]): [Account]!
+    accountsCount(customer: ID!): Int!
 }
 
 type Mutation {

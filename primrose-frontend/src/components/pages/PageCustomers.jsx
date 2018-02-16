@@ -22,17 +22,13 @@ const contentStyle = theme => ({
 const loadCustomers = gql`
 query loadCustomers($pageable: Pageable, $sort: [PropertySort]) {
   customers(pageable: $pageable, sort: $sort) {
-    pageNumber
-    pageSize
-    totalSize
-    data {
-      id
-      fullName
-      displayName
-      email
-      phone
-    }
+    id
+    fullName
+    displayName
+    email
+    phone
   }
+  customersCount
 }
 `;
 
@@ -100,9 +96,9 @@ const enhance = compose(
 
     }),
     props: ({ data }) => ({
-      customers: data.customers && data.customers.data,
+      customers: data.customers,
       networkStatus: data.networkStatus,
-      totalSize: data.customers && data.customers.totalSize,
+      totalSize: data.customersCount,
       error: data.error,
     }),
   }),

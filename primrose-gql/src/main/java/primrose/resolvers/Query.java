@@ -11,9 +11,8 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import primrose.pagination.ImmutablePageable;
 import primrose.pagination.SortDirection;
 import primrose.query.CustomerQuery;
-import primrose.types.AccountPage;
+import primrose.types.Account;
 import primrose.types.Customer;
-import primrose.types.CustomersPage;
 import primrose.types.Pageable;
 import primrose.types.PropertySort;
 
@@ -26,7 +25,7 @@ public class Query implements GraphQLQueryResolver {
     this.customerQuery = customerQuery;
   }
 
-  public CustomersPage customers(Pageable pageable, List<PropertySort> propertySort) {
+  public List<Customer> customers(Pageable pageable, List<PropertySort> propertySort) {
     return customerQuery.list(ImmutablePageable.builder()
       .pageNumber(pageable != null ? pageable.pageNumber() : 0)
       .pageSize(pageable != null ? pageable.pageSize() : 0)
@@ -35,12 +34,20 @@ public class Query implements GraphQLQueryResolver {
       .build());
   }
 
+  public Integer customersCount() {
+    return customerQuery.count();
+  }
+
   public Customer customer(Long id) {
     return customerQuery.load(id);
   }
 
-  public AccountPage accounts(Long customer, Pageable pageable, List<PropertySort> propertySort) {
+  public List<Account> accounts(Long customer, Pageable pageable, List<PropertySort> propertySort) {
 
     return null;
+  }
+
+  public Integer accountsCount(Long customer) {
+    return 0;
   }
 }
