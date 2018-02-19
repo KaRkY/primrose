@@ -1,7 +1,7 @@
 import React from "react";
 import compose from "recompose/compose";
 import withHandlers from "recompose/withHandlers";
-import withStateHandlers from "recompose/withStateHandlers";
+import withState from "recompose/withState";
 import { withStyles } from "material-ui/styles";
 
 import {
@@ -27,14 +27,10 @@ const styles = theme => ({
 });
 
 const enhance = compose(
-  withStateHandlers(
-    () => ({ open: false, }),
-    {
-      onPanelClick: ({ open }) => () => ({ open: !open }),
-    }
-  ),
+  withState("open", "setOpen", false),
   withHandlers({
     onSelect: ({ onSelect }) => (event, checked) => onSelect && onSelect(event, checked),
+    onOpenPanel: ({ open, setOpen }) => () => setOpen(!open),
   }),
   withStyles(styles)
 );
@@ -46,17 +42,17 @@ const AdvancedTableRow = ({
   detailed,
   selectable,
   selected,
-  onSelect,
   open,
   renderPanel,
-  onPanelClick,
+  onSelect,
+  onOpenPanel,
 }) => {
   return (
     <React.Fragment>
       <TableRow hover>
         {detailed && (
           <TableCell padding="checkbox">
-            <IconButton onClick={onPanelClick}>
+            <IconButton onClick={onOpenPanel}>
               {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
             </IconButton>
           </TableCell>
@@ -70,7 +66,7 @@ const AdvancedTableRow = ({
           </TableCell>
         )}
         {columns.map(column => (
-          <TableCell className={classes.tableCell} key={column.id}
+          <TableCell title={row[column.id]} className={classes.tableCell} key={column.id}
             numeric={column.numeric}
             padding={column.disablePadding ? "none" : "default"}>
             {row[column.id]}

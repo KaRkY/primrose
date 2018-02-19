@@ -1,44 +1,31 @@
 import React from "react";
 import compose from "recompose/compose";
 import withProps from "recompose/withProps";
-import withStateHandlers from "recompose/withStateHandlers";
+import withState from "recompose/withState";
 import withHandlers from "recompose/withHandlers";
 import { withStyles } from "material-ui/styles";
 
-import { graphql } from "react-apollo";
-import gql from "graphql-tag";
 import get from "lodash/get";
 import difference from "lodash/difference";
 import union from "lodash/union";
 
 import List from "../list/List";
 import Paper from "material-ui/Paper";
+import Grid from "material-ui/Grid";
 import Typography from "material-ui/Typography";
+import LoadCustomers from "../customers/LoadCustomers";
+import LoadCustomer from "../customers/LoadCustomer";
+import DeleteCustomers from "../customers/DeleteCustomers";
 
 const contentStyle = theme => ({
-
+  detailPanel: theme.mixins.gutters({
+    margin: theme.spacing.unit
+  })
 });
 
-const loadCustomers = gql`
-query loadCustomers($pageable: Pageable, $sort: [PropertySort]) {
-  customers(pageable: $pageable, sort: $sort) {
-    id
-    fullName
-    displayName
-    email
-    phone
-  }
-  customersCount
-}
-`;
-
-const deleteCustomers = gql`
-mutation deleteCustomers($ids: [ID]!) {
-	deleteCustomers(ids: $ids)
-}
-`;
-
 const enhance = compose(
+  withState("selectedRows", "setSelectedRows", []),
+
   withHandlers({
     onPageChange: ({ router, response: { name, params, location: { query } } }) => (event, page) => {
       router.history.navigate(router.history.toHref({
@@ -58,19 +45,10 @@ const enhance = compose(
         query: Object.assign({}, query, parseSort(query, property)),
       }));
     },
+    onSelectRows: ({ selectedRows, setSelectedRows, ...rest }) => (event, value, checked) => {
+      setSelectedRows(checked ? union(selectedRows, value) : difference(selectedRows, value));
+    },
   }),
-
-  withStateHandlers(
-    () => ({ selectedRows: [], deleting: false, }),
-    {
-      selectRow: ({ selectedRows, ...rest }) => (event, value, checked) => ({
-        selectedRows: checked ? union(selectedRows, value) : difference(selectedRows, value),
-        ...rest
-      }),
-      clearSelection: ({ selectedRows, ...rest }) => () => ({ selectedRows: [], ...rest }),
-      onDeleting: ({ deleting, ...rest }) => (value) => ({ deleting: value, ...rest }),
-    }
-  ),
 
   withProps((props) => ({
     pageSize: parseInt(get(props, "response.location.query.size", 10), 10),
@@ -79,104 +57,79 @@ const enhance = compose(
     sortDirection: get(props, "response.location.query.sortDirection"),
   })),
 
-  graphql(loadCustomers, {
-    options: ({ pageNumber, pageSize, sortProperty, sortDirection }) => ({
-      fetchPolicy: "network-only",
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        pageable: {
-          pageNumber: pageNumber,
-          pageSize
-        },
-        sort: (sortProperty && [{
-          propertyName: sortProperty,
-          direction: parseDirection(sortDirection)
-        }]) || []
-      },
-
-    }),
-    props: ({ data }) => ({
-      customers: data.customers,
-      networkStatus: data.networkStatus,
-      totalSize: data.customersCount,
-      error: data.error,
-    }),
-  }),
-
-  graphql(deleteCustomers, {
-    props: ({ mutate, ownProps }) => ({
-      deleteCustomers: () => {
-        ownProps.onDeleting(true);
-        return mutate({
-          variables: {
-            ids: ownProps.selectedRows
-          },
-
-          refetchQueries: ["loadCustomers"],
-        })
-          .then(result => result.data.deleteCustomers)
-          .then(result => {
-            ownProps.selectRow(result, false);
-            ownProps.onDeleting(false);
-            return result;
-          });
-      },
-    }),
-    options: { refetchQueries: [{ query: loadCustomers }] }
-  }),
-
-  withProps((props) => ({ loadPage: props.networkStatus === 1, loading: [1, 2, 4, 6].indexOf(props.networkStatus) > -1 })),
-
   withStyles(contentStyle)
 );
 
 const getRowId = row => row.id;
 
 const Content = ({
-  customers,
+  classes,
   pageNumber,
   pageSize,
   totalSize,
   sortProperty,
   sortDirection,
-  loading,
-  deleting,
-  selectRow,
-  clearSelection,
   selectedRows,
-  deleteCustomers,
+  onSelectRows,
   onPageChange,
   onPageSizeChange,
   onSortChange }) => (
-    <List title="Customers"
-      columns={[
-        { id: "id", label: "Id", numeric: true, disablePadding: true },
-        { id: "fullName", label: "Full name" },
-        { id: "displayName", label: "Display name" },
-        { id: "phone", label: "Phone" },
-        { id: "email", label: "Email" },
-      ]}
-      selectable
-      detailed
-      loading={loading}
-      deleting={deleting}
-      rowId={getRowId}
-      rows={customers || []}
-      totalSize={totalSize || 0}
+    <LoadCustomers
       pageNumber={pageNumber}
       pageSize={pageSize}
-      selectedRows={selectedRows}
-      sortColumn={sortProperty}
-      sortDirection={sortDirection && sortDirection.toLowerCase()}
-      onSelectRows={selectRow}
-      onPageChange={onPageChange}
-      onPageSizeChange={onPageSizeChange}
-      onSortChange={onSortChange}
-      onDelete={deleteCustomers}
-      renderPanel={(row) => (
-        <Paper>
-          <Typography type="body2" component="pre">{JSON.stringify(row, null, 2)}</Typography>
-        </Paper>
+      sortProperty={sortProperty}
+      sortDirection={sortDirection}
+      render={({ customers, networkStatus, totalSize, error }) => (
+        <DeleteCustomers
+          selectedRows={selectedRows}
+          render={({ deleteCustomers, deleting }) => (
+            <List title="Customers"
+              columns={[
+                { id: "type", label: "Type" },
+                { id: "relationType", label: "Relation type" },
+                { id: "fullName", label: "Full name" },
+                { id: "displayName", label: "Display name" },
+              ]}
+              selectable
+              detailed
+              loading={[1, 2, 4, 6].indexOf(networkStatus) > -1}
+              deleting={deleting}
+              rowId={getRowId}
+              rows={customers || []}
+              totalSize={totalSize || 0}
+              pageNumber={pageNumber}
+              pageSize={pageSize}
+              selectedRows={selectedRows}
+              sortColumn={sortProperty}
+              sortDirection={sortDirection && sortDirection.toLowerCase()}
+              onSelectRows={onSelectRows}
+              onPageChange={onPageChange}
+              onPageSizeChange={onPageSizeChange}
+              onSortChange={onSortChange}
+              onDelete={deleteCustomers}
+              renderPanel={(row) => (
+                <Paper className={classes.detailPanel}>
+                  <LoadCustomer
+                    id={row.id}
+                    render={({ customer }) =>
+                      customer ? (
+                        <React.Fragment>
+                          <Grid container>
+                            <Grid item xs={2}><Typography variant="body2">Display name:</Typography></Grid>
+                            <Grid item><Typography variant="body2">{customer.displayName}</Typography></Grid>
+                          </Grid>
+                          <Grid container>
+                            <Grid item xs={2}><Typography variant="body2">Full name:</Typography></Grid>
+                            <Grid item><Typography variant="body2">{customer.fullName}</Typography></Grid>
+                          </Grid>
+                        </React.Fragment>
+                      ) : null}
+                  />
+                </Paper>
+              )}
+            />
+          )}
+        />
       )}
     />
   );
@@ -216,8 +169,3 @@ const parseSort = (query, property) => {
   };
 };
 
-const parseDirection = (dir) => {
-  if (dir && (dir.toUpperCase() === "ASC" || dir.toUpperCase() === "DESC" || dir.toUpperCase() === "DEFAULT")) {
-    return dir.toUpperCase();
-  }
-};

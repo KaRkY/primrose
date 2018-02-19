@@ -4,14 +4,12 @@ import Browser from "@hickory/browser";
 import curi from "@curi/core";
 import routes from "./routes";
 import queryString from "query-string";
-import NProgress from "nprogress";
 import createTitleSideEffect from "@curi/side-effect-title";
 import createActiveAddon from "@curi/addon-active";
 import client from "./apollo";
 import registerServiceWorker from "./registerServiceWorker";
 
 window.apolloClient = client;
-NProgress.configure({ showSpinner: false });
 
 const setTitle = createTitleSideEffect({
   suffix: "Primrose",

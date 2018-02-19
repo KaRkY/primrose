@@ -55,7 +55,7 @@ const enhance = compose(
   withHandlers({
     onSelectRows: ({ onSelectRows }) => (rows) => (event, checked) => onSelectRows && onSelectRows(event, rows, checked),
     onSelectRow: ({ onSelectRows }) => (event, row, checked) => onSelectRows && onSelectRows(event, [row], checked),
-    onDelete: ({ onDelete }) => (event) => onDelete && onDelete(),
+    onDelete: ({ onDelete }) => (event) => onDelete && onDelete(event),
   }),
   withStyles(styles)
 );
@@ -115,7 +115,7 @@ const List = ({
       </Toolbar>
       <Table className={classes.table}>
         <colgroup>
-          <col style={{ width: 48 }} />
+          {detailed && <col style={{ width: 48 }} />}
           {selectable && (<col style={{ width: 58 }} />)}
           {columns.map(column => (
             <col key={column.id} style={column.numeric && { width: 58 }} />
@@ -123,6 +123,7 @@ const List = ({
         </colgroup>
         <AdvancedTableHead
           columns={columns}
+          detailed={detailed}
           selectable={selectable}
           indeterminate={numSelected > 0 && numSelected < numRows}
           checked={numSelected > 0 && numSelected === numRows}

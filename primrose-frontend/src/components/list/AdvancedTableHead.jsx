@@ -27,6 +27,7 @@ const enhance = compose(
 const AdvancedTableHead = ({
   classes,
   columns,
+  detailed,
   selectable,
   checked,
   indeterminate,
@@ -37,7 +38,7 @@ const AdvancedTableHead = ({
 }) => (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox" />
+        {detailed && <TableCell padding="checkbox" />}
         {selectable && (
           <TableCell padding="checkbox">
             <Checkbox
