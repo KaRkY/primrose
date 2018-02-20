@@ -16,11 +16,31 @@ import Typography from "material-ui/Typography";
 import LoadCustomers from "../customers/LoadCustomers";
 import LoadCustomer from "../customers/LoadCustomer";
 import DeleteCustomers from "../customers/DeleteCustomers";
+import Fade from "material-ui/transitions/Fade";
+import Loading from "../Loading";
 
 const contentStyle = theme => ({
   detailPanel: theme.mixins.gutters({
+    position: "relative",
     margin: theme.spacing.unit
-  })
+  }),
+
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+  },
+
+  loadingIcon: {
+    position: "absolute",
+    margin: "auto",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  }
 });
 
 const enhance = compose(
@@ -111,19 +131,21 @@ const Content = ({
                 <Paper className={classes.detailPanel}>
                   <LoadCustomer
                     id={row.id}
-                    render={({ customer }) =>
-                      customer ? (
-                        <React.Fragment>
-                          <Grid container>
-                            <Grid item xs={2}><Typography variant="body2">Display name:</Typography></Grid>
-                            <Grid item><Typography variant="body2">{customer.displayName}</Typography></Grid>
-                          </Grid>
-                          <Grid container>
-                            <Grid item xs={2}><Typography variant="body2">Full name:</Typography></Grid>
-                            <Grid item><Typography variant="body2">{customer.fullName}</Typography></Grid>
-                          </Grid>
-                        </React.Fragment>
-                      ) : null}
+                    render={({ customer, networkStatus }) => (
+                      <React.Fragment>
+                        <Grid container>
+                          <Grid item xs={2}><Typography variant="body2">Display name:</Typography></Grid>
+                          <Grid item><Typography variant="body2">{customer && customer.displayName}</Typography></Grid>
+                        </Grid>
+                        <Grid container>
+                          <Grid item xs={2}><Typography variant="body2">Full name:</Typography></Grid>
+                          <Grid item><Typography variant="body2">{customer && customer.fullName}</Typography></Grid>
+                        </Grid>
+                        <Fade in={[1, 2, 4, 6].indexOf(networkStatus) > -1} unmountOnExit>
+                          <Loading classes={{ root: classes.loadingContainer, icon: classes.loadingIcon }} />
+                        </Fade>
+                      </React.Fragment>
+                    )}
                   />
                 </Paper>
               )}

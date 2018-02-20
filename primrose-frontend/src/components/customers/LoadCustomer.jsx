@@ -20,8 +20,6 @@ query loadCustomer($id: ID!) {
 
 const hoc = graphql(loadCustomer, {
   options: ({ id }) => ({
-    fetchPolicy: "network-only",
-    notifyOnNetworkStatusChange: true,
     variables: {
       id
     },

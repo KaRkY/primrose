@@ -1,6 +1,6 @@
 {
-  "workbench.iconTheme": "material-icon-theme",
-  "workbench.colorTheme": "Monokai",
+  "workbench.iconTheme": "file-icons",
+  "workbench.colorTheme": "Atom One Dark",
   "editor.wordWrapColumn": 120,
   "editor.fontSize": 16,
   "editor.lineHeight": 20,

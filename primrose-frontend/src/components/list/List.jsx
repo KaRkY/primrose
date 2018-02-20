@@ -14,6 +14,7 @@ import Table from "material-ui/Table";
 import AdvancedTableHead from "./AdvancedTableHead";
 import AdvancedTableBody from "./AdvancedTableBody";
 import AdvancedTableFooter from "./AdvancedTableFooter";
+import Loading from "../Loading";
 
 const styles = theme => ({
   root: {
@@ -38,7 +39,6 @@ const styles = theme => ({
     left: 0,
     width: "100%",
     height: "100%",
-    background: theme.palette.action.disabledBackground,
   },
 
   loadingIcon: {
@@ -157,9 +157,7 @@ const List = ({
         />
       </Table>
       <Fade in={loading} unmountOnExit>
-        <div className={classes.loadingContainer}>
-          <CircularProgress className={classes.loadingIcon} />
-        </div>
+        <Loading classes={{ root: classes.loadingContainer, icon: classes.loadingIcon}} />
       </Fade>
     </Paper>
   );
