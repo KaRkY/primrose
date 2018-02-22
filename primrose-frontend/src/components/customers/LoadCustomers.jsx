@@ -24,7 +24,7 @@ const parseDirection = (dir) => {
 
 const hoc = graphql(loadCustomers, {
   options: ({ pageNumber, pageSize, sortProperty, sortDirection }) => ({
-    fetchPolicy: "network-only",
+    //fetchPolicy: "network-only",
     notifyOnNetworkStatusChange: true,
     variables: {
       pageable: {

@@ -102,6 +102,7 @@ const Content = ({
       render={({ customers, networkStatus, totalSize, error }) => (
         <DeleteCustomers
           selectedRows={selectedRows}
+          onSelectRows={onSelectRows}
           render={({ deleteCustomers, deleting }) => (
             <List title="Customers"
               columns={[

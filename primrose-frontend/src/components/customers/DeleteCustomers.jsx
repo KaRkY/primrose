@@ -19,18 +19,21 @@ const hoc = compose(
   ),
   graphql(deleteCustomers, {
     props: ({ mutate, ownProps }) => ({
-      deleteCustomers: () => {
+      deleteCustomers: (event) => {
         ownProps.onDeleting(true);
         return mutate({
           variables: {
             ids: ownProps.selectedRows
           },
-  
+          update: (proxy) => {
+            console.log(proxy);
+            proxy.reset();
+          },
           refetchQueries: ["loadCustomers"],
         })
           .then(result => result.data.deleteCustomers)
           .then(result => {
-            ownProps.selectRow(result, false);
+            ownProps.onSelectRows(event, result, false);
             ownProps.onDeleting(false);
             return result;
           });

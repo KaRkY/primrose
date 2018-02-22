@@ -9,7 +9,6 @@ import createActiveAddon from "@curi/addon-active";
 import client from "./apollo";
 import registerServiceWorker from "./registerServiceWorker";
 
-window.apolloClient = client;
 
 const setTitle = createTitleSideEffect({
   suffix: "Primrose",
@@ -19,11 +18,16 @@ const setTitle = createTitleSideEffect({
 const history = Browser({
   query: {
     parse: queryString.parse,
-    stringify: query => queryString.stringify(query, { strict: false, encode: false }),
+    stringify: query => queryString.stringify(query, {
+      strict: false,
+      encode: false
+    }),
   }
 });
 const router = curi(history, routes, {
-  sideEffects: [{ fn: setTitle }],
+  sideEffects: [{
+    fn: setTitle
+  }],
   addons: [createActiveAddon()],
 });
 
@@ -40,13 +44,7 @@ if (module.hot) {
   const renderApp = render;
   const renderError = (error) => {
     const RedBox = require("redbox-react").default;
-    ReactDOM.render( <
-      RedBox error = {
-        error
-      }
-      />,
-      root,
-    );
+    ReactDOM.render(<RedBox error={error}/>, root);
   };
 
   // In development, we wrap the rendering function to catch errors,
