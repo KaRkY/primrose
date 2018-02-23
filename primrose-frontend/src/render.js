@@ -13,17 +13,13 @@ const themes = {
   ...other,
 };
 
+const renderApp = () => <App />
 
 export default (client) => ({ router }) => {
   ReactDOM.render((
     <ApolloProvider client={client}>
       <MuiThemeProvider theme={themes["purpleTeal"]}>
-        <CuriProvider router={router}>{({ response }) => (
-          <App 
-            router={router}
-            response={response}
-          />
-      )}</CuriProvider>
+        <CuriProvider router={router}>{renderApp}</CuriProvider>
       </MuiThemeProvider>
     </ApolloProvider>
   ), root);

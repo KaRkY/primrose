@@ -47,35 +47,13 @@ const enhance = compose(
   withState("selectedRows", "setSelectedRows", []),
 
   withHandlers({
-    onPageChange: ({ router, response: { name, params, location: { query } } }) => (event, page) => {
-      router.history.navigate(router.history.toHref({
-        pathname: router.addons.pathname(name, params),
-        query: Object.assign({}, query, { page }),
-      }));
-    },
-    onPageSizeChange: ({ router, response: { name, params, location: { query } } }) => (event, size) => {
-      router.history.navigate(router.history.toHref({
-        pathname: router.addons.pathname(name, params),
-        query: Object.assign({}, query, { size }),
-      }));
-    },
-    onSortChange: ({ router, response: { name, params, location: { query } } }) => (event, property) => {
-      router.history.navigate(router.history.toHref({
-        pathname: router.addons.pathname(name, params),
-        query: Object.assign({}, query, parseSort(query, property)),
-      }));
-    },
+    onPageChange: ({ router, onPageChange }) => (event, page) => onPageChange && onPageChange(router, page),
+    onPageSizeChange: ({ router, onSizeChange }) => (event, size) => onSizeChange && onSizeChange(router, size),
+    onSortChange: ({ router, onSortChange }) => (event, property) => onSortChange && onSortChange(router, property),
     onSelectRows: ({ selectedRows, setSelectedRows, ...rest }) => (event, value, checked) => {
       setSelectedRows(checked ? union(selectedRows, value) : difference(selectedRows, value));
     },
   }),
-
-  withProps((props) => ({
-    pageSize: parseInt(get(props, "response.location.query.size", 10), 10),
-    pageNumber: parseInt(get(props, "response.location.query.page", 0), 10),
-    sortProperty: get(props, "response.location.query.sortProperty"),
-    sortDirection: get(props, "response.location.query.sortDirection"),
-  })),
 
   withStyles(contentStyle)
 );
@@ -158,37 +136,3 @@ const Content = ({
   );
 
 export default enhance(Content);
-
-const parseSort = (query, property) => {
-  const prop = query && query.sortProperty;
-  const dir = query && query.sortDirection && query.sortDirection.toUpperCase();
-
-  let sortProperty;
-  let sortDirection;
-  if (prop === property) {
-    sortProperty = prop;
-    switch (dir) {
-      case "ASC":
-        sortDirection = "DESC";
-        break;
-
-      case "DESC":
-        sortDirection = undefined;
-        sortProperty = undefined;
-        break;
-
-      default:
-        sortDirection = "ASC";
-        break;
-    }
-  } else {
-    sortProperty = property;
-    sortDirection = "ASC";
-  }
-
-  return {
-    sortProperty,
-    sortDirection
-  };
-};
-
