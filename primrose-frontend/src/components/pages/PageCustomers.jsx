@@ -1,19 +1,19 @@
 import React from "react";
 import compose from "recompose/compose";
-import withProps from "recompose/withProps";
 import withState from "recompose/withState";
 import withHandlers from "recompose/withHandlers";
 import { withStyles } from "material-ui/styles";
 
-import get from "lodash/get";
 import difference from "lodash/difference";
 import union from "lodash/union";
+
+import DataLoading from "../DataLoading";
+import gql from "graphql-tag";
 
 import List from "../list/List";
 import Paper from "material-ui/Paper";
 import Grid from "material-ui/Grid";
 import Typography from "material-ui/Typography";
-import LoadCustomers from "../customers/LoadCustomers";
 import LoadCustomer from "../customers/LoadCustomer";
 import DeleteCustomers from "../customers/DeleteCustomers";
 import Fade from "material-ui/transitions/Fade";
@@ -60,6 +60,25 @@ const enhance = compose(
 
 const getRowId = row => row.id;
 
+export const loadCustomers = gql`
+query loadCustomers($pageable: Pageable, $sort: [PropertySort]) {
+  customers(pageable: $pageable, sort: $sort) {
+    id
+    type
+    relationType
+    fullName
+    displayName
+  }
+  customersCount
+}
+`;
+
+const parseDirection = (dir) => {
+  if (dir && (dir.toUpperCase() === "ASC" || dir.toUpperCase() === "DESC" || dir.toUpperCase() === "DEFAULT")) {
+    return dir.toUpperCase();
+  }
+};
+
 const Content = ({
   classes,
   pageNumber,
@@ -72,12 +91,23 @@ const Content = ({
   onPageChange,
   onPageSizeChange,
   onSortChange }) => (
-    <LoadCustomers
-      pageNumber={pageNumber}
-      pageSize={pageSize}
-      sortProperty={sortProperty}
-      sortDirection={sortDirection}
-      render={({ customers, networkStatus, totalSize, error }) => (
+    <DataLoading
+      url="http://localhost:9080/graphql/"
+      method="post"
+      data={{
+        query: loadCustomers.loc.source.body,
+        variables: {
+          pageable: {
+            pageNumber,
+            pageSize
+          },
+          sort: (sortProperty && [{
+            propertyName: sortProperty,
+            direction: parseDirection(sortDirection)
+          }]) || []
+        }
+      }}
+      render={props => (
         <DeleteCustomers
           selectedRows={selectedRows}
           onSelectRows={onSelectRows}
@@ -91,11 +121,11 @@ const Content = ({
               ]}
               selectable
               detailed
-              loading={[1, 2, 4, 6].indexOf(networkStatus) > -1}
+              loading={props.networkState === "loading"}
               deleting={deleting}
               rowId={getRowId}
-              rows={customers || []}
-              totalSize={totalSize || 0}
+              rows={(props.response && props.response.data && props.response.data.data.customers) || []}
+              totalSize={(props.response && props.response.data && props.response.data.data.customersCount) || 0}
               pageNumber={pageNumber}
               pageSize={pageSize}
               selectedRows={selectedRows}
@@ -131,8 +161,7 @@ const Content = ({
             />
           )}
         />
-      )}
-    />
+      )} />
   );
 
 export default enhance(Content);

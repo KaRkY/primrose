@@ -1,5 +1,3 @@
-import get from "lodash/get";
-
 import PageHome from "./components/pages/PageHome";
 import PageCustomers from "./components/pages/PageCustomers";
 import PageCustomer from "./components/pages/PageCustomer";

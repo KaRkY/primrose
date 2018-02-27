@@ -25,5 +25,3 @@ const Loading = ({ classes }) => (
 );
 
 export default enhance(Loading);
-
-const isEmptyChildren = children => React.Children.count(children) === 0;
