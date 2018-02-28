@@ -44,6 +44,7 @@ const AdvancedTableRow = ({
   selected,
   open,
   renderPanel,
+  colSpan,
   onSelect,
   onOpenPanel,
 }) => {
@@ -75,7 +76,7 @@ const AdvancedTableRow = ({
       </TableRow>
       <Fade in={open} unmountOnExit>
         <TableRow>
-          <TableCell className={classes.panelRow} colSpan={columns.length + (selectable ? 1 : 0) + (detailed ? 1 : 0)}>
+          <TableCell className={classes.panelRow} colSpan={colSpan}>
             {renderPanel && renderPanel(row)}
           </TableCell>
         </TableRow>

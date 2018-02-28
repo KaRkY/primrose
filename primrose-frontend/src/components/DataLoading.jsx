@@ -51,12 +51,6 @@ class DataLoading extends React.Component {
     this.fetch();
   }
 
-  shouldComponentUpdate(prevProps, nextState) {
-    const omitedProps = ["render", "component", "children"];
-    return !isEqual(omit(prevProps, omitedProps), omit(this.props, omitedProps))
-    || !isEqual(this.state, nextState);
-  }
-
   componentDidUpdate(prevProps) {
     const omitedProps = ["render", "component", "children"];
     if(!isEqual(omit(prevProps, omitedProps), omit(this.props, omitedProps))) {
