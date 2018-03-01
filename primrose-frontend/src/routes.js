@@ -1,3 +1,7 @@
+import difference from "lodash/difference";
+import union from "lodash/union";
+import normalizeArray from "./util/normalizeArray";
+
 import PageHome from "./components/pages/PageHome";
 import PageCustomers from "./components/pages/PageCustomers";
 import PageCustomer from "./components/pages/PageCustomer";
@@ -7,7 +11,9 @@ export default [{
   name: "Home",
   path: "",
   match: {
-    response: ({ set }) => {
+    response: ({
+      set
+    }) => {
       set.body(PageHome);
       set.title("Home");
     }
@@ -16,30 +22,77 @@ export default [{
   name: "Customers",
   path: "customers",
   match: {
-    response: function({ set,  route }) {
-      const {name, params, location: { query }} = route;
+    response: function ({
+      set,
+      route
+    }) {
+      const {
+        name,
+        params,
+        location: {
+          query
+        }
+      } = route;
+
+      const normalizedSelectedRows = normalizeArray(query.selected);
+      const normalizedOpenedPanels = normalizeArray(query.opened);
 
       set.data({
         pageSize: parseInt(query.size || 10, 10),
         pageNumber: parseInt(query.page || 0, 10),
         sortProperty: query.sortProperty,
         sortDirection: query.sortDirection,
+        selectedRows: normalizedSelectedRows,
+        openPanels: normalizedOpenedPanels,
         onPageChange: (router, page) => {
           router.history.navigate(router.history.toHref({
             pathname: router.addons.pathname(name, params),
-            query: Object.assign({}, query, { page }),
+            query: {
+              ...query,
+              page,
+              opened: undefined,
+              selected: undefined,
+            },
           }));
         },
         onPageSizeChange: (router, size) => {
           router.history.navigate(router.history.toHref({
             pathname: router.addons.pathname(name, params),
-            query: Object.assign({}, query, { size }),
+            query: {
+              ...query,
+              size,
+              opened: undefined,
+              selected: undefined,
+            },
           }));
         },
         onSortChange: (router, property) => {
           router.history.navigate(router.history.toHref({
             pathname: router.addons.pathname(name, params),
-            query: Object.assign({}, query, parseSort(query, property)),
+            query: {
+              ...query,
+              ...parseSort(query, property),
+              opened: undefined,
+              selected: undefined,
+            },
+          }));
+        },
+        onSelectedRowsChange: (router, selectedRows, checked) => {
+          router.history.replace(router.history.toHref({
+            pathname: router.addons.pathname(name, params),
+            query: {
+              ...query,
+              selected: (checked ? union(normalizedSelectedRows, selectedRows) : difference(normalizedSelectedRows, selectedRows))
+            },
+          }));
+        },
+        onPanelsOpenChange: (router, panels, open) => {
+          router.history.replace(router.history.toHref({
+            pathname: router.addons.pathname(name, params),
+            query: {
+              ...query,
+              opened: (open ? union(normalizedOpenedPanels, panels) : difference(normalizedOpenedPanels, panels))
+            },
           }));
         },
       });
@@ -51,17 +104,22 @@ export default [{
     name: "Customer",
     path: ":id",
     match: {
-      response: ({ set, resolved }) => {
+      response: ({
+        set,
+        resolved
+      }) => {
         set.body(PageCustomer);
         set.title("Customer");
       }
     },
   }]
-},{
+}, {
   name: "Not Found",
   path: "(.*)",
   match: {
-    response: ({ set }) => {
+    response: ({
+      set
+    }) => {
       set.body(PageNotFound);
       set.title("Not Found");
     }

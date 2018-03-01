@@ -18,6 +18,8 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
 
+    <spotless.version>1.0.0.BETA4</spotless.version>
+
     <database.url>jdbc:postgresql://localhost:5432/postgres</database.url>
     <database.user>postgres</database.user>
     <database.password>developer</database.password>
@@ -34,6 +36,22 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <encoding>UTF-8</encoding>
+            <eclipse>
+              <file>${basedir}/format.xml</file>
+              <version>4.7.2</version>
+            </eclipse>
+          </java>
+          <lineEndings>UNIX</lineEndings>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

@@ -1,11 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import defaultTheme, * as other from "./themes";
+import axios from "axios";
 
 import Main from "./Main";
 import { MuiThemeProvider } from "material-ui/styles";
 import { CuriProvider } from "@curi/react";
-import { ApolloProvider } from "react-apollo";
+import { AxiosProvider } from "react-axios";
 
 
 const themes = {
@@ -13,14 +14,19 @@ const themes = {
   ...other,
 };
 
-export default (client) => ({ router }) => {
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:9080/graphql/",
+  timeout: 5000,
+});
+
+export default () => ({ router }) => {
   ReactDOM.render((
-    <ApolloProvider client={client}>
-      <MuiThemeProvider theme={themes["purpleTeal"]}>
+    <MuiThemeProvider theme={themes["purpleTeal"]}>
+      <AxiosProvider instance={axiosInstance}>
         <CuriProvider router={router}>
           {(props) => <Main {...props}/>}
         </CuriProvider>
-      </MuiThemeProvider>
-    </ApolloProvider>
+      </AxiosProvider>
+    </MuiThemeProvider>
   ), root);
 };

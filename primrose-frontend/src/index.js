@@ -6,7 +6,6 @@ import routes from "./routes";
 import queryString from "query-string";
 import createTitleSideEffect from "@curi/side-effect-title";
 import createActiveAddon from "@curi/addon-active";
-import client from "./apollo";
 import registerServiceWorker from "./registerServiceWorker";
 
 
@@ -35,7 +34,7 @@ const root = document.getElementById("root");
 
 let render = () => {
   const exec = require("./render").default;
-  router.respond(exec(client));
+  router.respond(exec());
 };
 
 if (module.hot) {

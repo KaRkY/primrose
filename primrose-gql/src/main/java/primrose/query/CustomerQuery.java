@@ -29,64 +29,64 @@ public class CustomerQuery {
 
   public List<Customer> list(Pageable pageable) {
     SelectSeekStepN<Record> select = create
-        .select()
-        .from(Tables.CUSTOMERS)
-        .join(Tables.CUSTOMER_TYPES).onKey(Tables.CUSTOMERS.CUSTOMER_TYPE)
-        .join(Tables.CUSTOMER_RELATION_TYPES).onKey(Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE)
-        .orderBy(JooqUtil.map(
-            pageable.sortProperties(),
-            property -> {
-              switch (property) {
-              case "type":
-                return Tables.CUSTOMER_TYPES.NAME;
+      .select()
+      .from(Tables.CUSTOMERS)
+      .join(Tables.CUSTOMER_TYPES).onKey(Tables.CUSTOMERS.CUSTOMER_TYPE)
+      .join(Tables.CUSTOMER_RELATION_TYPES).onKey(Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE)
+      .orderBy(JooqUtil.map(
+        pageable.sortProperties(),
+        property -> {
+          switch (property) {
+          case "type":
+            return Tables.CUSTOMER_TYPES.NAME;
 
-              case "fullName":
-                return Tables.CUSTOMERS.FULL_NAME;
+          case "fullName":
+            return Tables.CUSTOMERS.FULL_NAME;
 
-              case "displayName":
-                return Tables.CUSTOMERS.DISPLAY_NAME;
+          case "displayName":
+            return Tables.CUSTOMERS.DISPLAY_NAME;
 
-              case "email":
-                return Tables.CUSTOMERS.EMAIL;
+          case "email":
+            return Tables.CUSTOMERS.EMAIL;
 
-              case "phone":
-                return Tables.CUSTOMERS.PHONE;
+          case "phone":
+            return Tables.CUSTOMERS.PHONE;
 
-              case "id":
-                return Tables.CUSTOMERS.ID;
+          case "id":
+            return Tables.CUSTOMERS.ID;
 
-              default:
-                return null;
-              }
-            }));
+          default:
+            return null;
+          }
+        }));
 
     ResultQuery<Record> resQuery = null;
     if (pageable.paged()) {
       resQuery = select
-          .offset((int) pageable.offset())
-          .limit(pageable.pageSize());
+        .offset((int) pageable.offset())
+        .limit(pageable.pageSize());
     } else {
       resQuery = select;
     }
 
     return resQuery
-        .fetch()
-        .map(record -> {
-          CustomersRecord customersRecord = record.into(CustomersRecord.class);
-          CustomerTypesRecord customerTypesRecord = record.into(CustomerTypesRecord.class);
-          CustomerRelationTypesRecord customerRelationTypesRecord = record.into(CustomerRelationTypesRecord.class);
+      .fetch()
+      .map(record -> {
+        CustomersRecord customersRecord = record.into(CustomersRecord.class);
+        CustomerTypesRecord customerTypesRecord = record.into(CustomerTypesRecord.class);
+        CustomerRelationTypesRecord customerRelationTypesRecord = record.into(CustomerRelationTypesRecord.class);
 
-          return ImmutableCustomer.builder()
-              .id(customersRecord.getId())
-              .type(customerTypesRecord.getName())
-              .relationType(customerRelationTypesRecord.getName())
-              .fullName(customersRecord.getFullName())
-              .displayName(Optional.ofNullable(customersRecord.getDisplayName()))
-              .email(customersRecord.getEmail())
-              .phone(Optional.ofNullable(customersRecord.getPhone()))
-              .description(Optional.ofNullable(customersRecord.getDescription()))
-              .build();
-        });
+        return ImmutableCustomer.builder()
+          .id(customersRecord.getId())
+          .type(customerTypesRecord.getName())
+          .relationType(customerRelationTypesRecord.getName())
+          .fullName(customersRecord.getFullName())
+          .displayName(Optional.ofNullable(customersRecord.getDisplayName()))
+          .email(customersRecord.getEmail())
+          .phone(Optional.ofNullable(customersRecord.getPhone()))
+          .description(Optional.ofNullable(customersRecord.getDescription()))
+          .build();
+      });
   }
 
   public Integer count() {
@@ -95,26 +95,26 @@ public class CustomerQuery {
 
   public Customer load(long id) {
     return create
-        .select()
-        .from(Tables.CUSTOMERS)
-        .join(Tables.CUSTOMER_TYPES).onKey(Tables.CUSTOMERS.CUSTOMER_TYPE)
-        .join(Tables.CUSTOMER_RELATION_TYPES).onKey(Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE)
-        .where(Tables.CUSTOMERS.ID.eq(id))
-        .fetchOne(record -> {
-          CustomersRecord customersRecord = record.into(CustomersRecord.class);
-          CustomerTypesRecord customerTypesRecord = record.into(CustomerTypesRecord.class);
-          CustomerRelationTypesRecord customerRelationTypesRecord = record.into(CustomerRelationTypesRecord.class);
+      .select()
+      .from(Tables.CUSTOMERS)
+      .join(Tables.CUSTOMER_TYPES).onKey(Tables.CUSTOMERS.CUSTOMER_TYPE)
+      .join(Tables.CUSTOMER_RELATION_TYPES).onKey(Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE)
+      .where(Tables.CUSTOMERS.ID.eq(id))
+      .fetchOne(record -> {
+        CustomersRecord customersRecord = record.into(CustomersRecord.class);
+        CustomerTypesRecord customerTypesRecord = record.into(CustomerTypesRecord.class);
+        CustomerRelationTypesRecord customerRelationTypesRecord = record.into(CustomerRelationTypesRecord.class);
 
-          return ImmutableCustomer.builder()
-              .id(customersRecord.getId())
-              .type(customerTypesRecord.getName())
-              .relationType(customerRelationTypesRecord.getName())
-              .fullName(customersRecord.getFullName())
-              .displayName(Optional.ofNullable(customersRecord.getDisplayName()))
-              .email(customersRecord.getEmail())
-              .phone(Optional.ofNullable(customersRecord.getPhone()))
-              .description(Optional.ofNullable(customersRecord.getDescription()))
-              .build();
-        });
+        return ImmutableCustomer.builder()
+          .id(customersRecord.getId())
+          .type(customerTypesRecord.getName())
+          .relationType(customerRelationTypesRecord.getName())
+          .fullName(customersRecord.getFullName())
+          .displayName(Optional.ofNullable(customersRecord.getDisplayName()))
+          .email(customersRecord.getEmail())
+          .phone(Optional.ofNullable(customersRecord.getPhone()))
+          .description(Optional.ofNullable(customersRecord.getDescription()))
+          .build();
+      });
   }
 }

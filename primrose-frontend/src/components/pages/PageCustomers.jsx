@@ -1,30 +1,32 @@
 import React from "react";
 import compose from "recompose/compose";
-import withState from "recompose/withState";
 import withHandlers from "recompose/withHandlers";
 import { withStyles } from "material-ui/styles";
 
-import difference from "lodash/difference";
-import union from "lodash/union";
-
-import DataLoading from "../DataLoading";
+import { Post } from "react-axios";
 import gql from "graphql-tag";
 
 import DataGrid from "../Grid/Grid";
 import Paper from "material-ui/Paper";
 import Grid from "material-ui/Grid";
 import Typography from "material-ui/Typography";
-import LoadCustomer from "../customers/LoadCustomer";
-import DeleteCustomers from "../customers/DeleteCustomers";
 import Fade from "material-ui/transitions/Fade";
 import Loading from "../Loading";
+import Toolbar from "material-ui/Toolbar";
+import PersonAddIcon from "material-ui-icons/PersonAdd";
+import DeleteIcon from "material-ui-icons/Delete";
 import IconButton from "material-ui/IconButton";
-import DeleteForever from "material-ui-icons/DeleteForever";
-import FileDownload from "material-ui-icons/FileDownload";
 import Tooltip from "material-ui/Tooltip";
-import { CircularProgress } from "material-ui/Progress";
 
 const contentStyle = theme => ({
+  root: {
+    position: "relative",
+  },
+
+  grow: {
+    flex: "1 1 auto",
+  },
+
   detailPanel: theme.mixins.gutters({
     position: "relative",
     margin: theme.spacing.unit
@@ -49,15 +51,12 @@ const contentStyle = theme => ({
 });
 
 const enhance = compose(
-  withState("selectedRows", "setSelectedRows", []),
-
   withHandlers({
     onPageChange: ({ router, onPageChange }) => (event, page) => onPageChange && onPageChange(router, page),
     onPageSizeChange: ({ router, onPageSizeChange }) => (event, size) => onPageSizeChange && onPageSizeChange(router, size),
     onSortChange: ({ router, onSortChange }) => (event, property) => onSortChange && onSortChange(router, property),
-    onSelectRows: ({ selectedRows, setSelectedRows, ...rest }) => (event, value, checked) => {
-      setSelectedRows(checked ? union(selectedRows, value) : difference(selectedRows, value));
-    },
+    onSelectedRowsChange: ({ router, onSelectedRowsChange }) => (event, value, checked) => onSelectedRowsChange && onSelectedRowsChange(router, value, checked),
+    onPanelsOpenChange: ({ router, onPanelsOpenChange }) => (event, value, open) => onPanelsOpenChange && onPanelsOpenChange(router, value, open),
   }),
 
   withStyles(contentStyle)
@@ -66,16 +65,37 @@ const enhance = compose(
 const getRowId = row => row.id;
 
 export const loadCustomers = gql`
-query loadCustomers($pageable: Pageable, $sort: [PropertySort]) {
-  customers(pageable: $pageable, sort: $sort) {
-    id
-    type
-    relationType
-    fullName
-    displayName
+  query loadCustomers($pageable: Pageable, $sort: [PropertySort]) {
+    customers(pageable: $pageable, sort: $sort) {
+      id
+      type
+      relationType
+      fullName
+      displayName
+    }
+    customersCount
   }
-  customersCount
-}
+`;
+
+export const loadCustomer = gql`
+  query loadCustomer($id: ID!) {
+    customer(id: $id) {
+      id
+      type
+      relationType
+      fullName
+      displayName
+      email
+      phone
+      description
+    }
+  }
+`;
+
+export const deleteCustomers = gql`
+  mutation deleteCustomers($ids: [ID]!) {
+    deleteCustomers(ids: $ids)
+  }
 `;
 
 const parseDirection = (dir) => {
@@ -92,38 +112,61 @@ const Content = ({
   sortProperty,
   sortDirection,
   selectedRows,
-  onSelectRows,
+  openPanels,
+  onSelectedRowsChange,
+  onPanelsOpenChange,
   onPageChange,
   onPageSizeChange,
   onSortChange }) => (
-    <DataLoading
-      url="http://localhost:9080/graphql/"
-      method="post"
-      data={{
-        query: loadCustomers.loc.source.body,
+    <Post data={{
+      query: loadCustomers.loc.source.body,
+      variables: {
+        pageable: {
+          pageNumber,
+          pageSize
+        },
+        sort: (sortProperty && [{
+          propertyName: sortProperty,
+          direction: parseDirection(sortDirection)
+        }]) || []
+      }
+    }}>{(customersErros, customersResponse, isCustomersLoading, reloadCustomers) => (
+      <Post data={{
+        query: deleteCustomers.loc.source.body,
         variables: {
-          pageable: {
-            pageNumber,
-            pageSize
-          },
-          sort: (sortProperty && [{
-            propertyName: sortProperty,
-            direction: parseDirection(sortDirection)
-          }]) || []
+          ids: selectedRows
         }
       }}
-      render={props => (
-        <DeleteCustomers
-          selectedRows={selectedRows}
-          onSelectRows={onSelectRows}
-          render={({ deleteCustomers, deleting }) => (
+        debounce={500}
+        debounceImmediate={true}
+        onSuccess={() => reloadCustomers()}
+        isReady={false}>{(deleteError, deleteResponse, isDeleting, deleteCustomers) => (
+          <Paper className={classes.root}>
+            <Toolbar>
+              <div className={classes.grow} />
+              <Tooltip
+                title="New Customer"
+                enterDelay={300}
+              >
+                <IconButton>
+                  <PersonAddIcon />
+                </IconButton>
+              </Tooltip>
+              {selectedRows && selectedRows.length > 0 && (
+                <Tooltip
+                  title="Delete Customers"
+                  enterDelay={300}
+                >
+                  <IconButton disabled={isDeleting} onClick={() => deleteCustomers()}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Toolbar>
             <DataGrid
-              loading={props.networkState === "loading"}
               rowId={getRowId}
-              rows={(props.response && props.response.data && props.response.data.data.customers) || []}
+              rows={(customersResponse && customersResponse.data && customersResponse.data.data.customers) || []}
             >
-              <DataGrid.Title>Customers</DataGrid.Title>
-
               <DataGrid.Columns>
                 {[
                   { id: "type", label: "Type" },
@@ -134,7 +177,7 @@ const Content = ({
               </DataGrid.Columns>
 
               <DataGrid.Pagination
-                totalSize={(props.response && props.response.data && props.response.data.data.customersCount) || 0}
+                totalSize={(customersResponse && customersResponse.data && customersResponse.data.data.customersCount)}
                 pageNumber={pageNumber}
                 pageSize={pageSize}
                 onPageChange={onPageChange}
@@ -149,60 +192,44 @@ const Content = ({
 
               <DataGrid.Selectable
                 selectedRows={selectedRows}
-                onSelectRows={onSelectRows}
+                onSelectRows={onSelectedRowsChange}
               />
 
-              <DataGrid.Actions>
-                {selectedRows && selectedRows.length > 0 && (
-                  <React.Fragment>
-                    <Tooltip title="Delete selected customers" enterDelay={300}>
-                      <IconButton
-                        disabled={deleting}
-                        variant="raised"
-                        color="secondary"
-                        onClick={() => deleteCustomers(selectedRows)}>
-                        {deleting ? <CircularProgress color="secondary" size={24} /> : <DeleteForever />}
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Download" enterDelay={300}>
-                      <IconButton
-                        variant="raised"
-                        color="secondary">
-                        <FileDownload />
-                      </IconButton>
-                    </Tooltip>
-                  </React.Fragment>
-                )}
-              </DataGrid.Actions>
-
               <DataGrid.RenderPanel
+                openPanels={openPanels}
+                onOpenPanels={onPanelsOpenChange}
                 render={(row) => (
                   <Paper className={classes.detailPanel}>
-                    <LoadCustomer
-                      id={row.id}
-                      render={({ customer, networkStatus }) => (
-                        <React.Fragment>
-                          <Grid container>
-                            <Grid item xs={2}><Typography variant="body2">Display name:</Typography></Grid>
-                            <Grid item><Typography variant="body2">{customer && customer.displayName}</Typography></Grid>
-                          </Grid>
-                          <Grid container>
-                            <Grid item xs={2}><Typography variant="body2">Full name:</Typography></Grid>
-                            <Grid item><Typography variant="body2">{customer && customer.fullName}</Typography></Grid>
-                          </Grid>
-                          <Fade in={[1, 2, 4, 6].indexOf(networkStatus) > -1} unmountOnExit>
-                            <Loading classes={{ root: classes.loadingContainer, icon: classes.loadingIcon }} />
-                          </Fade>
-                        </React.Fragment>
-                      )}
-                    />
+                    <Post data={{
+                      query: loadCustomer.loc.source.body,
+                      variables: {
+                        id: row.id
+                      }
+                    }}>{(customerError, customerResponse, isCustomerLoading, reloadCustomer) => (
+                      <React.Fragment>
+                        <Grid container>
+                          <Grid item xs={2}><Typography variant="body2">Display name:</Typography></Grid>
+                          <Grid item><Typography variant="body2">{customerResponse && customerResponse.data && customerResponse.data.data.customer.displayName}</Typography></Grid>
+                        </Grid>
+                        <Grid container>
+                          <Grid item xs={2}><Typography variant="body2">Full name:</Typography></Grid>
+                          <Grid item><Typography variant="body2">{customerResponse && customerResponse.data && customerResponse.data.data.customer.fullName}</Typography></Grid>
+                        </Grid>
+                        <Fade in={isCustomerLoading} unmountOnExit>
+                          <Loading classes={{ root: classes.loadingContainer, icon: classes.loadingIcon }} />
+                        </Fade>
+                      </React.Fragment>
+                    )}</Post>
                   </Paper>
                 )}
               />
             </DataGrid>
-          )}
-        />
-      )} />
+            <Fade in={isCustomersLoading} unmountOnExit>
+              <Loading classes={{ root: classes.loadingContainer, icon: classes.loadingIcon }} />
+            </Fade>
+          </Paper >
+        )}</Post>
+    )}</Post>
   );
 
 export default enhance(Content);
