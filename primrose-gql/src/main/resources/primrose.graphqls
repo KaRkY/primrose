@@ -49,12 +49,24 @@ input Pageable {
   pageSize: Int!
 }
 
+input CustomerInput {
+  type: String!
+  relationType: String!
+  fullName: String!
+  displayName: String
+  email: String!
+  phone: String
+  description: String
+}
+
 scalar LocalDateTime
 
 # The Root Query for the application
 type Query {
     customers(pageable: Pageable, sort: [PropertySort]): [Customer]!
     customer(id: ID!): Customer!
+    customerTypes: [String]!
+    customerRelationTypes: [String]!
     customersCount: Int!
     accounts(customer: ID!, pageable: Pageable, sort: [PropertySort]): [Account]!
     accountsCount(customer: ID!): Int!
@@ -62,4 +74,5 @@ type Query {
 
 type Mutation {
   deleteCustomers(ids: [ID]!): [ID]!
+  createCustomer(customer: CustomerInput!): ID!
 }

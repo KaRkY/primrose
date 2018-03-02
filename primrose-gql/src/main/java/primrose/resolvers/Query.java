@@ -11,10 +11,10 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import primrose.pagination.ImmutablePageable;
 import primrose.pagination.SortDirection;
 import primrose.query.CustomerQuery;
-import primrose.types.Account;
-import primrose.types.Customer;
-import primrose.types.Pageable;
-import primrose.types.PropertySort;
+import primrose.types.output.Account;
+import primrose.types.output.Customer;
+import primrose.types.output.Pageable;
+import primrose.types.output.PropertySort;
 
 @Component
 public class Query implements GraphQLQueryResolver {
@@ -40,6 +40,14 @@ public class Query implements GraphQLQueryResolver {
 
   public Customer customer(Long id) {
     return customerQuery.load(id);
+  }
+
+  public List<String> customerTypes() {
+    return customerQuery.listTypes();
+  }
+
+  public List<String> customerRelationTypes() {
+    return customerQuery.listRelationTypes();
   }
 
   public List<Account> accounts(Long customer, Pageable pageable, List<PropertySort> propertySort) {

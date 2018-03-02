@@ -6,15 +6,14 @@ import { withStyles } from "material-ui/styles";
 import { Post } from "react-axios";
 import gql from "graphql-tag";
 
-import DataGrid from "../Grid/Grid";
+import DataGrid from "../Data/DataGrid";
 import Paper from "material-ui/Paper";
-import Grid from "material-ui/Grid";
-import Typography from "material-ui/Typography";
 import Fade from "material-ui/transitions/Fade";
 import Loading from "../Loading";
 import Toolbar from "material-ui/Toolbar";
 import PersonAddIcon from "material-ui-icons/PersonAdd";
 import DeleteIcon from "material-ui-icons/Delete";
+import EditIcon from "material-ui-icons/Edit";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
 
@@ -56,7 +55,7 @@ const enhance = compose(
     onPageSizeChange: ({ router, onPageSizeChange }) => (event, size) => onPageSizeChange && onPageSizeChange(router, size),
     onSortChange: ({ router, onSortChange }) => (event, property) => onSortChange && onSortChange(router, property),
     onSelectedRowsChange: ({ router, onSelectedRowsChange }) => (event, value, checked) => onSelectedRowsChange && onSelectedRowsChange(router, value, checked),
-    onPanelsOpenChange: ({ router, onPanelsOpenChange }) => (event, value, open) => onPanelsOpenChange && onPanelsOpenChange(router, value, open),
+    onNewCustomer: ({ router, onNewCustomer }) => (event) => onNewCustomer && onNewCustomer(router),
   }),
 
   withStyles(contentStyle)
@@ -74,21 +73,6 @@ export const loadCustomers = gql`
       displayName
     }
     customersCount
-  }
-`;
-
-export const loadCustomer = gql`
-  query loadCustomer($id: ID!) {
-    customer(id: $id) {
-      id
-      type
-      relationType
-      fullName
-      displayName
-      email
-      phone
-      description
-    }
   }
 `;
 
@@ -112,12 +96,11 @@ const Content = ({
   sortProperty,
   sortDirection,
   selectedRows,
-  openPanels,
   onSelectedRowsChange,
-  onPanelsOpenChange,
   onPageChange,
   onPageSizeChange,
-  onSortChange }) => (
+  onSortChange,
+  onNewCustomer, }) => (
     <Post data={{
       query: loadCustomers.loc.source.body,
       variables: {
@@ -148,7 +131,7 @@ const Content = ({
                 title="New Customer"
                 enterDelay={300}
               >
-                <IconButton>
+                <IconButton onClick={onNewCustomer}>
                   <PersonAddIcon />
                 </IconButton>
               </Tooltip>
@@ -176,6 +159,11 @@ const Content = ({
                 ]}
               </DataGrid.Columns>
 
+              {/* 
+                Set on page change listener after data has been loaded 
+                Pagination has a rule that it fires page change to valid page
+                so it must be ignored. Maybe set page 0 until data is loaded that might help.
+              */}
               <DataGrid.Pagination
                 totalSize={(customersResponse && customersResponse.data && customersResponse.data.data.customersCount)}
                 pageNumber={pageNumber}
@@ -195,35 +183,18 @@ const Content = ({
                 onSelectRows={onSelectedRowsChange}
               />
 
-              <DataGrid.RenderPanel
-                openPanels={openPanels}
-                onOpenPanels={onPanelsOpenChange}
-                render={(row) => (
-                  <Paper className={classes.detailPanel}>
-                    <Post data={{
-                      query: loadCustomer.loc.source.body,
-                      variables: {
-                        id: row.id
-                      }
-                    }}>{(customerError, customerResponse, isCustomerLoading, reloadCustomer) => (
-                      <React.Fragment>
-                        <Grid container>
-                          <Grid item xs={2}><Typography variant="body2">Display name:</Typography></Grid>
-                          <Grid item><Typography variant="body2">{customerResponse && customerResponse.data && customerResponse.data.data.customer.displayName}</Typography></Grid>
-                        </Grid>
-                        <Grid container>
-                          <Grid item xs={2}><Typography variant="body2">Full name:</Typography></Grid>
-                          <Grid item><Typography variant="body2">{customerResponse && customerResponse.data && customerResponse.data.data.customer.fullName}</Typography></Grid>
-                        </Grid>
-                        <Fade in={isCustomerLoading} unmountOnExit>
-                          <Loading classes={{ root: classes.loadingContainer, icon: classes.loadingIcon }} />
-                        </Fade>
-                      </React.Fragment>
-                    )}</Post>
-                  </Paper>
-                )}
-              />
+              <DataGrid.RowActions>{row => (
+                <React.Fragment>
+                  <IconButton>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton>
+                    <DeleteIcon />
+                  </IconButton>
+                </React.Fragment>
+              )}</DataGrid.RowActions>
             </DataGrid>
+
             <Fade in={isCustomersLoading} unmountOnExit>
               <Loading classes={{ root: classes.loadingContainer, icon: classes.loadingIcon }} />
             </Fade>

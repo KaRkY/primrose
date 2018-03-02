@@ -1,4 +1,4 @@
-package primrose.types;
+package primrose.types.output;
 
 import org.immutables.value.Value;
 

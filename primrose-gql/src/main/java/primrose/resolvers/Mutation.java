@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 
 import primrose.mutation.CustomerMutation;
+import primrose.types.input.Customer;
 
 @Component
 public class Mutation implements GraphQLMutationResolver {
@@ -20,5 +21,9 @@ public class Mutation implements GraphQLMutationResolver {
   public List<Long> deleteCustomers(List<Long> ids) {
     customerMutation.deleteCustomers(ids);
     return ids;
+  }
+
+  public Long createCustomer(Customer customer) {
+    return customerMutation.createCustomer(customer);
   }
 }

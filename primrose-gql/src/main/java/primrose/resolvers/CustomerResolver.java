@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 import com.coxautodev.graphql.tools.GraphQLResolver;
 
 import graphql.execution.batched.Batched;
-import primrose.types.Account;
-import primrose.types.Customer;
 import primrose.types.ImmutableAccount;
 import primrose.types.ImmutableTypedAddress;
-import primrose.types.TypedAddress;
+import primrose.types.output.Account;
+import primrose.types.output.Customer;
+import primrose.types.output.TypedAddress;
 
 @Component
 public class CustomerResolver implements GraphQLResolver<Customer> {

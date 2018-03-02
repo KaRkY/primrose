@@ -5,6 +5,7 @@ import normalizeArray from "./util/normalizeArray";
 import PageHome from "./components/pages/PageHome";
 import PageCustomers from "./components/pages/PageCustomers";
 import PageCustomer from "./components/pages/PageCustomer";
+import PageNewCustomer from "./components/pages/PageNewCustomer";
 import PageNotFound from "./components/pages/PageNotFound";
 
 export default [{
@@ -35,7 +36,6 @@ export default [{
       } = route;
 
       const normalizedSelectedRows = normalizeArray(query.selected);
-      const normalizedOpenedPanels = normalizeArray(query.opened);
 
       set.data({
         pageSize: parseInt(query.size || 10, 10),
@@ -43,14 +43,12 @@ export default [{
         sortProperty: query.sortProperty,
         sortDirection: query.sortDirection,
         selectedRows: normalizedSelectedRows,
-        openPanels: normalizedOpenedPanels,
         onPageChange: (router, page) => {
           router.history.navigate(router.history.toHref({
             pathname: router.addons.pathname(name, params),
             query: {
               ...query,
               page,
-              opened: undefined,
               selected: undefined,
             },
           }));
@@ -61,7 +59,6 @@ export default [{
             query: {
               ...query,
               size,
-              opened: undefined,
               selected: undefined,
             },
           }));
@@ -72,7 +69,6 @@ export default [{
             query: {
               ...query,
               ...parseSort(query, property),
-              opened: undefined,
               selected: undefined,
             },
           }));
@@ -86,13 +82,9 @@ export default [{
             },
           }));
         },
-        onPanelsOpenChange: (router, panels, open) => {
-          router.history.replace(router.history.toHref({
-            pathname: router.addons.pathname(name, params),
-            query: {
-              ...query,
-              opened: (open ? union(normalizedOpenedPanels, panels) : difference(normalizedOpenedPanels, panels))
-            },
+        onNewCustomer: (router) => {
+          router.history.navigate(router.history.toHref({
+            pathname: router.addons.pathname("NewCustomer"),
           }));
         },
       });
@@ -101,6 +93,18 @@ export default [{
     }
   },
   children: [{
+    name: "NewCustomer",
+    path: "new",
+    match: {
+      response: ({
+        set,
+        resolved
+      }) => {
+        set.body(PageNewCustomer);
+        set.title("New Customer");
+      }
+    },
+  }, {
     name: "Customer",
     path: ":id",
     match: {

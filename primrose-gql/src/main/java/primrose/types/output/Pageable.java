@@ -1,8 +1,10 @@
-package primrose.types;
+package primrose.types.output;
 
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import primrose.types.ImmutablePageable;
 
 @Value.Immutable
 @JsonDeserialize(as = ImmutablePageable.class)

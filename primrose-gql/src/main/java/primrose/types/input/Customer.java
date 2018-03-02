@@ -1,13 +1,14 @@
-package primrose.types;
+package primrose.types.input;
 
 import java.util.Optional;
 
 import org.immutables.value.Value;
 
-@Value.Immutable
-public interface Customer {
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-  Long id();
+@Value.Immutable
+@JsonDeserialize(as = ImmutableCustomer.class)
+public interface Customer {
 
   String type();
 

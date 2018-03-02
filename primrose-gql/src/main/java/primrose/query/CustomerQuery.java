@@ -15,8 +15,8 @@ import pimrose.jooq.tables.records.CustomerTypesRecord;
 import pimrose.jooq.tables.records.CustomersRecord;
 import primrose.jooq.JooqUtil;
 import primrose.pagination.Pageable;
-import primrose.types.Customer;
 import primrose.types.ImmutableCustomer;
+import primrose.types.output.Customer;
 
 @Component
 public class CustomerQuery {
@@ -116,5 +116,19 @@ public class CustomerQuery {
           .description(Optional.ofNullable(customersRecord.getDescription()))
           .build();
       });
+  }
+
+  public List<String> listTypes() {
+    return create
+      .select(Tables.CUSTOMER_TYPES.NAME)
+      .from(Tables.CUSTOMER_TYPES)
+      .fetch(record -> record.get(Tables.CUSTOMER_TYPES.NAME));
+  }
+
+  public List<String> listRelationTypes() {
+    return create
+      .select(Tables.CUSTOMER_RELATION_TYPES.NAME)
+      .from(Tables.CUSTOMER_RELATION_TYPES)
+      .fetch(record -> record.get(Tables.CUSTOMER_RELATION_TYPES.NAME));
   }
 }
