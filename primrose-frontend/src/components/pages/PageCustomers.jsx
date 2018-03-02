@@ -14,10 +14,12 @@ import Toolbar from "material-ui/Toolbar";
 import PersonAddIcon from "material-ui-icons/PersonAdd";
 import DeleteIcon from "material-ui-icons/Delete";
 import EditIcon from "material-ui-icons/Edit";
+import ZoomInIcon from "material-ui-icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
+import Hidden from "material-ui/Hidden";
 
-const contentStyle = theme => ({
+const contentStyle = theme => console.log(theme) || ({
   root: {
     position: "relative",
   },
@@ -56,6 +58,7 @@ const enhance = compose(
     onSortChange: ({ router, onSortChange }) => (event, property) => onSortChange && onSortChange(router, property),
     onSelectedRowsChange: ({ router, onSelectedRowsChange }) => (event, value, checked) => onSelectedRowsChange && onSelectedRowsChange(router, value, checked),
     onNewCustomer: ({ router, onNewCustomer }) => (event) => onNewCustomer && onNewCustomer(router),
+    onEditCustomer: ({ router, onEditCustomer }) => (id) => onEditCustomer && onEditCustomer(router, id),
   }),
 
   withStyles(contentStyle)
@@ -88,6 +91,13 @@ const parseDirection = (dir) => {
   }
 };
 
+const columns = [
+  { id: "type", label: "Type" },
+  { id: "relationType", label: "Relation type" },
+  { id: "fullName", label: "Full name" },
+  { id: "displayName", label: "Display name" },
+];
+
 const Content = ({
   classes,
   pageNumber,
@@ -100,7 +110,9 @@ const Content = ({
   onPageChange,
   onPageSizeChange,
   onSortChange,
-  onNewCustomer, }) => (
+  onNewCustomer,
+  onEditCustomer,
+}) => (
     <Post data={{
       query: loadCustomers.loc.source.body,
       variables: {
@@ -146,54 +158,71 @@ const Content = ({
                 </Tooltip>
               )}
             </Toolbar>
-            <DataGrid
-              rowId={getRowId}
-              rows={(customersResponse && customersResponse.data && customersResponse.data.data.customers) || []}
-            >
-              <DataGrid.Columns>
-                {[
-                  { id: "type", label: "Type" },
-                  { id: "relationType", label: "Relation type" },
-                  { id: "fullName", label: "Full name" },
-                  { id: "displayName", label: "Display name" },
-                ]}
-              </DataGrid.Columns>
+            <Hidden smDown>
+              <DataGrid
+                rowId={getRowId}
+                rows={(customersResponse && customersResponse.data && customersResponse.data.data.customers) || []}
+                columns={columns}
+              >
 
-              {/* 
+                {/* 
                 Set on page change listener after data has been loaded 
                 Pagination has a rule that it fires page change to valid page
                 so it must be ignored. Maybe set page 0 until data is loaded that might help.
               */}
-              <DataGrid.Pagination
-                totalSize={(customersResponse && customersResponse.data && customersResponse.data.data.customersCount)}
-                pageNumber={pageNumber}
-                pageSize={pageSize}
-                onPageChange={onPageChange}
-                onPageSizeChange={onPageSizeChange}
-              />
+                <DataGrid.Pagination
+                  totalSize={(customersResponse && customersResponse.data && customersResponse.data.data.customersCount)}
+                  pageNumber={pageNumber}
+                  pageSize={pageSize}
+                  onPageChange={onPageChange}
+                  onPageSizeChange={onPageSizeChange}
+                />
 
-              <DataGrid.Sortable
-                sortColumn={sortProperty}
-                sortDirection={sortDirection && sortDirection.toLowerCase()}
-                onSortChange={onSortChange}
-              />
+                <DataGrid.Sortable
+                  sortColumn={sortProperty}
+                  sortDirection={sortDirection && sortDirection.toLowerCase()}
+                  onSortChange={onSortChange}
+                />
 
-              <DataGrid.Selectable
-                selectedRows={selectedRows}
-                onSelectRows={onSelectedRowsChange}
-              />
+                <DataGrid.Selectable
+                  selectedRows={selectedRows}
+                  onSelectRows={onSelectedRowsChange}
+                />
 
-              <DataGrid.RowActions>{row => (
-                <React.Fragment>
-                  <IconButton>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton>
-                    <DeleteIcon />
-                  </IconButton>
-                </React.Fragment>
-              )}</DataGrid.RowActions>
-            </DataGrid>
+                <DataGrid.RowActions num={3}>{row => (
+                  <React.Fragment>
+                    <Tooltip
+                      title="Open Customer"
+                      enterDelay={300}
+                    >
+                      <IconButton>
+                        <ZoomInIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip
+                      title="Edit Customer"
+                      enterDelay={300}
+                    >
+                      <IconButton onClick={() => onEditCustomer(row.id)}>
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip
+                      title="Delete Customer"
+                      enterDelay={300}
+                    >
+                      <IconButton>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </React.Fragment>
+                )}</DataGrid.RowActions>
+              </DataGrid>
+            </Hidden>
+
+            <Hidden mdUp>
+                Data List
+            </Hidden>
 
             <Fade in={isCustomersLoading} unmountOnExit>
               <Loading classes={{ root: classes.loadingContainer, icon: classes.loadingIcon }} />

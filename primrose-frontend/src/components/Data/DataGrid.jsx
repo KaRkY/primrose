@@ -23,7 +23,7 @@ import Table, {
   TableSortLabel,
 } from "material-ui/Table";
 
-const styles = theme => console.log(theme) || ({
+const styles = theme => ({
   "data-grid-table": {
     tableLayout: "fixed",
   },
@@ -63,9 +63,6 @@ const extractId = (getId, obj) => {
   }
 }
 
-const Columns = () => null;
-Columns.displayName = "Columns";
-
 const Pagination = () => null;
 Pagination.displayName = "Pagination";
 
@@ -87,18 +84,16 @@ RowActions.displayName = "RowActions";
 const DataGrid = ({
   classes,
   rows = [],
+  columns,
   rowId,
   children }) => {
 
-  const columnsComponent = findByType(children, Columns)[0];
   const paginationComponent = findByType(children, Pagination)[0];
   const sortableComponent = findByType(children, Sortable)[0];
   const selectableComponent = findByType(children, Selectable)[0];
   const renderPanelComponent = findByType(children, RenderPanel)[0];
   const renderCellComponent = findByType(children, RenderCell)[0];
   const rowActionsComponent = findByType(children, RowActions)[0];
-
-  const columns = get(columnsComponent, "props.children", []);
 
   const isPaginated = paginationComponent ? true : false;
   const pageSize = get(paginationComponent, "props.pageSize", 10);
@@ -128,6 +123,7 @@ const DataGrid = ({
   const renderCell = extractRenderMethod(get(renderCellComponent, "props", {}));
 
   const isRowActions = rowActionsComponent ? true : false;
+  const numOfActions = get(rowActionsComponent, "props.num", 1);
   const rowActions = extractRenderMethod(get(rowActionsComponent, "props", {}));
 
   const numRows = rows.length;
@@ -135,15 +131,16 @@ const DataGrid = ({
   const numUnselected = unselectedRows.length;
   const emptyRows = pageSize - numRows;
   const colSpan = columns.length + (isSelectable ? 1 : 0) + (isDetailed ? 1 : 0) + (isRowActions ? 1 : 0);
-
+    console.log({ width: (48 * numOfActions) });
   return (
-    <Table className={classes.root}>
+    <Table className={classes["data-grid-table"]}>
       <colgroup>
         {isDetailed && <col style={{ width: 48 }} />}
         {isSelectable && (<col style={{ width: 58 }} />)}
         {columns.map(column => (
           <col key={column.id} style={column.numeric && { width: 58 }} />
         ))}
+        {isRowActions && <col style={{ width: (48 * (numOfActions + 1)) }} />}
       </colgroup>
 
       <TableHead className={classes["data-grid-head"]}>
@@ -184,7 +181,7 @@ const DataGrid = ({
                 : column.label}
             </TableCell>
           ))}
-          {isRowActions && <TableCell padding="checkbox" />}
+          {isRowActions && <TableCell className={classes["data-grid-cell"]} padding="checkbox" />}
         </TableRow>
       </TableHead>
 
@@ -212,18 +209,25 @@ const DataGrid = ({
                     />
                   </TableCell>
                 )}
-                {columns.map(column => (
-                  <TableCell
-                    key={column.id}
-                    title={row[column.id]}
-                    className={classes["data-grid-cell"]}
-                    numeric={column.numeric}
-                    padding={column.disablePadding ? "none" : "default"}
-                    data-header={column.label}>
-                    {isRenderCell ? renderCell(column) : row[column.id]}
-                  </TableCell>
-                ))}
-                {isRowActions && <TableCell className={classes.tableCell} padding="checkbox">{rowActions(row)}</TableCell>}
+                {columns.map(column => {
+                  const value = isRenderCell ? renderCell(column) : row[column.id];
+                  return (
+                    <TableCell
+                      key={column.id}
+                      className={classes["data-grid-cell"]}
+                      numeric={column.numeric}
+                      padding={column.disablePadding ? "none" : "default"}
+                      data-header={column.label}>
+                      <Tooltip
+                        title={value}
+                        enterDelay={300}
+                      >
+                        <span>{value}</span>
+                      </Tooltip>
+                    </TableCell>
+                  );
+                })}
+                {isRowActions && <TableCell className={classes["data-grid-cell"]} padding="checkbox">{rowActions(row)}</TableCell>}
               </TableRow>
               <Fade in={isPanelOpen} unmountOnExit>
                 <TableRow>
@@ -269,7 +273,6 @@ const DataGrid = ({
 };
 
 const ComposedDataGrid = enhance(DataGrid);
-ComposedDataGrid.Columns = Columns;
 ComposedDataGrid.Pagination = Pagination;
 ComposedDataGrid.Sortable = Sortable;
 ComposedDataGrid.Selectable = Selectable;

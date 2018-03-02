@@ -17,7 +17,7 @@
     "material-ui": "1.0.0-beta.35",
     "material-ui-icons": "1.0.0-beta.35",
     "normalizr": "3.2.4",
-    "prop-types": "15.6.0",
+    "prop-types": "15.6.1",
     "query-string": "5.1.0",
     "react": "16.2.0",
     "react-axios": "^2.0.0",
@@ -25,7 +25,8 @@
     "react-dom": "16.2.0",
     "recompose": "0.26.0",
     "redbox-react": "1.5.0",
-    "xstate": "^3.0.4"
+    "xstate": "^3.1.0",
+    "yup": "^0.24.1"
   },
   "devDependencies": {
     "react-scripts": "1.1.1"

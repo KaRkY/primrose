@@ -4,7 +4,7 @@ import compose from "recompose/compose";
 import withStateHandlers from "recompose/withStateHandlers";
 import withWidth, { isWidthDown } from "material-ui/utils/withWidth";
 import mapProps from "recompose/mapProps";
-import findByType from "../../util/findByType";
+import findByType from "../util/findByType";
 import get from "lodash/get";
 import classNames from "classnames";
 

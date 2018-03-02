@@ -2,11 +2,12 @@ import difference from "lodash/difference";
 import union from "lodash/union";
 import normalizeArray from "./util/normalizeArray";
 
-import PageHome from "./components/pages/PageHome";
-import PageCustomers from "./components/pages/PageCustomers";
-import PageCustomer from "./components/pages/PageCustomer";
-import PageNewCustomer from "./components/pages/PageNewCustomer";
-import PageNotFound from "./components/pages/PageNotFound";
+import PageHome from "./components/Pages/PageHome";
+import PageCustomers from "./components/Pages/PageCustomers";
+import PageCustomer from "./components/Pages/PageCustomer";
+import PageNewCustomer from "./components/Pages/PageNewCustomer";
+import PageEditCustomer from "./components/Pages/PageEditCustomer";
+import PageNotFound from "./components/Pages/PageNotFound";
 
 export default [{
   name: "Home",
@@ -84,7 +85,12 @@ export default [{
         },
         onNewCustomer: (router) => {
           router.history.navigate(router.history.toHref({
-            pathname: router.addons.pathname("NewCustomer"),
+            pathname: router.addons.pathname("New Customer"),
+          }));
+        },
+        onEditCustomer: (router, id) => {
+          router.history.navigate(router.history.toHref({
+            pathname: router.addons.pathname("Edit Customer", { id }),
           }));
         },
       });
@@ -93,7 +99,7 @@ export default [{
     }
   },
   children: [{
-    name: "NewCustomer",
+    name: "New Customer",
     path: "new",
     match: {
       response: ({
@@ -116,6 +122,23 @@ export default [{
         set.title("Customer");
       }
     },
+    children: [{
+      name: "Edit Customer",
+      path: "edit",
+      match: {
+        response: ({
+          set,
+          route,
+          resolved
+        }) => {
+          set.data({
+            id: parseInt(route.params.id, 10),
+          });
+          set.body(PageEditCustomer);
+          set.title("Edit Customer");
+        }
+      },
+    }],
   }]
 }, {
   name: "Not Found",

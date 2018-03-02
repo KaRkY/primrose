@@ -1,7 +1,7 @@
 import React from "react";
 
-import App from "./components/app/App";
-import NavItem from "./components/nav/NavItem";
+import App from "./components/App";
+import NavItem from "./components/Nav/NavItem";
 import List from "material-ui/List";
 import IconButton from "material-ui/IconButton";
 import MoreVert from "material-ui-icons/MoreVert";

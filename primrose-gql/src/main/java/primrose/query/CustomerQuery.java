@@ -15,8 +15,8 @@ import pimrose.jooq.tables.records.CustomerTypesRecord;
 import pimrose.jooq.tables.records.CustomersRecord;
 import primrose.jooq.JooqUtil;
 import primrose.pagination.Pageable;
-import primrose.types.ImmutableCustomer;
 import primrose.types.output.Customer;
+import primrose.types.output.ImmutableCustomer;
 
 @Component
 public class CustomerQuery {

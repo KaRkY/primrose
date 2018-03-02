@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import com.coxautodev.graphql.tools.GraphQLResolver;
 
 import graphql.execution.batched.Batched;
-import primrose.types.ImmutableAccount;
-import primrose.types.ImmutableTypedAddress;
 import primrose.types.output.Account;
 import primrose.types.output.Customer;
+import primrose.types.output.ImmutableAccount;
+import primrose.types.output.ImmutableTypedAddress;
 import primrose.types.output.TypedAddress;
 
 @Component

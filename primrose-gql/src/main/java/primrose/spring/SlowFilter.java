@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Profile("dev")
-@Component
+//@Component
 public class SlowFilter implements Filter {
 
   private Random random;
