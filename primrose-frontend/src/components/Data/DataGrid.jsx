@@ -131,7 +131,7 @@ const DataGrid = ({
   const numUnselected = unselectedRows.length;
   const emptyRows = pageSize - numRows;
   const colSpan = columns.length + (isSelectable ? 1 : 0) + (isDetailed ? 1 : 0) + (isRowActions ? 1 : 0);
-    console.log({ width: (48 * numOfActions) });
+
   return (
     <Table className={classes["data-grid-table"]}>
       <colgroup>
@@ -219,7 +219,7 @@ const DataGrid = ({
                       padding={column.disablePadding ? "none" : "default"}
                       data-header={column.label}>
                       <Tooltip
-                        title={value}
+                        title={value || ""}
                         enterDelay={300}
                       >
                         <span>{value}</span>

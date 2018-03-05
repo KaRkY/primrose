@@ -7,6 +7,7 @@ import { Post } from "react-axios";
 import gql from "graphql-tag";
 
 import DataGrid from "../Data/DataGrid";
+import DataList from "../Data/DataList";
 import Paper from "material-ui/Paper";
 import Fade from "material-ui/transitions/Fade";
 import Loading from "../Loading";
@@ -18,6 +19,7 @@ import ZoomInIcon from "material-ui-icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
 import Hidden from "material-ui/Hidden";
+
 
 const contentStyle = theme => console.log(theme) || ({
   root: {
@@ -221,7 +223,55 @@ const Content = ({
             </Hidden>
 
             <Hidden mdUp>
-                Data List
+              <DataList
+                rowId={getRowId}
+                rows={(customersResponse && customersResponse.data && customersResponse.data.data.customers) || []}
+                columns={columns}
+                heading={row => row.displayName ? row.displayName : row.fullName}
+              >
+
+                {/* 
+                Set on page change listener after data has been loaded 
+                Pagination has a rule that it fires page change to valid page
+                so it must be ignored. Maybe set page 0 until data is loaded that might help.
+              */}
+                <DataList.Pagination
+                  totalSize={(customersResponse && customersResponse.data && customersResponse.data.data.customersCount)}
+                  pageNumber={pageNumber}
+                  pageSize={pageSize}
+                  onPageChange={onPageChange}
+                  onPageSizeChange={onPageSizeChange}
+                />
+
+                <DataList.PanelActions num={3}>{row => (
+                  <React.Fragment>
+                    <Tooltip
+                      title="Open Customer"
+                      enterDelay={300}
+                    >
+                      <IconButton>
+                        <ZoomInIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip
+                      title="Edit Customer"
+                      enterDelay={300}
+                    >
+                      <IconButton onClick={() => onEditCustomer(row.id)}>
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip
+                      title="Delete Customer"
+                      enterDelay={300}
+                    >
+                      <IconButton>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </React.Fragment>
+                )}</DataList.PanelActions>
+              </DataList>
             </Hidden>
 
             <Fade in={isCustomersLoading} unmountOnExit>

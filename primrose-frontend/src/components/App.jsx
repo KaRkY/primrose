@@ -109,7 +109,7 @@ const styles = theme => ({
 
 const enhance = compose(
   withWidth(),
-  mapProps(({ width, ...rest }) => ({ mobile: isWidthDown("sm", width), ...rest })),
+  mapProps(({ width, ...rest }) => ({ mobile: isWidthDown("md", width), ...rest })),
   withStateHandlers(
     ({ mobile }) => ({ drawerOpen: !mobile }),
     {

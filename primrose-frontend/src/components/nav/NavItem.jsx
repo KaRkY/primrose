@@ -22,7 +22,7 @@ const styles = theme => ({
     },
   },
   activeMenuItemText: {},
-  activeMenuItemIcon: {}
+  activeMenuItemIcon: {},
 });
 
 const enhance = compose(
