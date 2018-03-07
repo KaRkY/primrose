@@ -87,6 +87,7 @@ const DataGrid = ({
   columns,
   rowId,
   children }) => {
+    console.time("render");
 
   const paginationComponent = findByType(children, Pagination)[0];
   const sortableComponent = findByType(children, Sortable)[0];
@@ -132,7 +133,7 @@ const DataGrid = ({
   const emptyRows = pageSize - numRows;
   const colSpan = columns.length + (isSelectable ? 1 : 0) + (isDetailed ? 1 : 0) + (isRowActions ? 1 : 0);
 
-  return (
+  const result = (
     <Table className={classes["data-grid-table"]}>
       <colgroup>
         {isDetailed && <col style={{ width: 48 }} />}
@@ -270,6 +271,8 @@ const DataGrid = ({
       )}
     </Table>
   );
+  console.timeEnd("render");
+  return result;
 };
 
 const ComposedDataGrid = enhance(DataGrid);

@@ -1,15 +1,15 @@
 import React from "react";
 
 import App from "./components/App";
-import NavItem from "./components/Nav/NavItem";
 import List from "material-ui/List";
 import IconButton from "material-ui/IconButton";
 import MoreVert from "material-ui-icons/MoreVert";
 import Tooltip from "material-ui/Tooltip";
+import Switcher from "./components/Switcher";
 
-const Main = ({ response, router }) => (
+const Main = () => (
   <App>
-    <App.Toolbar position="fixed" title={response.title}>
+    <App.Toolbar position="fixed" title={"test"}>
       <Tooltip title="Actions" enterDelay={300}>
         <IconButton
           variant="raised"
@@ -20,14 +20,10 @@ const Main = ({ response, router }) => (
     </App.Toolbar>
 
     <App.Navigation>
-      <List component="nav">
-        <NavItem to="Home" text="Home" />
-        <NavItem to="Customers" text="Customers" partial />
-      </List>
     </App.Navigation>
 
     <App.Content>
-      {React.createElement(response.body, { router, ...response.data })}
+      <Switcher />
     </App.Content>
   </App>
 );
