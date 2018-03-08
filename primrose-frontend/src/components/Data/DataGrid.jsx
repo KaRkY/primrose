@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
 import findByType from "../../util/findByType";
@@ -282,5 +283,50 @@ ComposedDataGrid.Selectable = Selectable;
 ComposedDataGrid.RenderPanel = RenderPanel;
 ComposedDataGrid.RenderCell = RenderCell;
 ComposedDataGrid.RowActions = RowActions;
+ComposedDataGrid.propTypes = {
+  rows: PropTypes.array.isRequired,
+
+  columns: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    width: PropTypes.number,
+    getCellValue: PropTypes.func,
+    formatter: PropTypes.func,
+  })).isRequired,
+
+  getRowId: PropTypes.func,
+
+  pagination: PropTypes.shape({
+    page: PropTypes.number.isRequired,
+    size: PropTypes.number.isRequired,
+    totalSize: PropTypes.number.isRequired,
+    rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
+    onPageChange: PropTypes.func.isRequired,
+    onPageSizeChange: PropTypes.func.isRequired,
+  }),
+
+  sorting: PropTypes.shape({
+    column: PropTypes.string,
+    direction: PropTypes.oneOf([ "asc", "desc" ]),
+    onSortChange: PropTypes.func.isRequired,
+  }),
+
+  filtering: PropTypes.shape({
+    onFilterChange: PropTypes.func.isRequired
+  }),
+
+  selecting: PropTypes.shape({
+    rowIds: PropTypes.array,
+    onSelectRowsChange: PropTypes.func.isRequired,
+  }),
+
+  detailed: PropTypes.shape({
+    rowIds: PropTypes.array,
+    onOpenRowsChange: PropTypes.func.isRequired,
+    render: PropTypes.func.isRequired,
+  }),
+
+  rowActions: PropTypes.arrayOf(PropTypes.func),
+};
 
 export default ComposedDataGrid;
