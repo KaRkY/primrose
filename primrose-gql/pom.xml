@@ -55,14 +55,14 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>primrose.Main</mainClass>
+        </configuration>
         <executions>
           <execution>
             <goals>
               <goal>repackage</goal>
             </goals>
-            <configuration>
-              <mainClass>primrose.Main</mainClass>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -130,37 +130,6 @@
 
           </generator>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-javadoc</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <sourcepath>${project.basedir}/src;${project.basedir}/target/generated-sources/annotations</sourcepath>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
