@@ -5,7 +5,7 @@ import classnames from "classnames";
 import { withStyles } from "material-ui/styles";
 
 import { ListItem, ListItemText } from "material-ui/List";
-import { Link } from "@curi/react";
+import { NavLink } from "react-router-dom";
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -26,7 +26,7 @@ const styles = theme => ({
 });
 
 const enhance = compose(
-  withStyles(styles)
+  withStyles(styles),
 );
 
 const merge = classes => props => {
@@ -34,11 +34,11 @@ const merge = classes => props => {
   return props;
 };
 
-function NavItem({ classes, text, to, params, details, partial, ...rest }) {
+function NavItem({ classes, text, to, ...rest }) {
   return (
     <ListItem
       component={(props) => (
-        <Link to={to} params={params} details={details} active={{ partial, merge: merge(classes) }} {...props} />
+        <NavLink to={to} activeClassName={classes.activeMenuItem} {...props} {...rest} />
       )}
       button>
       <ListItemText classes={{ primary: classes.activeMenuItemText }} primary={text} />

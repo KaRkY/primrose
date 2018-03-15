@@ -306,8 +306,10 @@ ComposedDataGrid.propTypes = {
   }),
 
   sorting: PropTypes.shape({
-    column: PropTypes.string,
-    direction: PropTypes.oneOf([ "asc", "desc" ]),
+    sort: PropTypes.shape({
+      column: PropTypes.string.isRequired,
+      direction: PropTypes.oneOf([ "asc", "desc" ]).isRequired,
+    }),
     onSortChange: PropTypes.func.isRequired,
   }),
 

@@ -56,7 +56,8 @@ create table phone_number_types(
 
 insert into phone_number_types(slug, name) values 
 ('work', 'Work'),
-('home', 'Home');
+('home', 'Home'),
+('other', 'Other');
 
 create table email_types(
   id    bigserial not null,
@@ -68,13 +69,51 @@ create table email_types(
 
 insert into email_types(slug, name) values 
 ('work', 'Work'),
-('home', 'Home');
+('home', 'Home'),
+('other', 'Other');
+
+create table contact_types(
+  id    bigserial not null,
+  slug  text      not null  unique,
+  name  text      not null  unique,
+  
+  primary key (id)
+);
+
+insert into contact_types(slug, name) values 
+('sales', 'Sales'),
+('manager', 'Manager');
 /*
  * 
  * TABLES
  * 
  */
 
+create table addresses(
+  id            bigserial not null,
+  street        text      not null,
+  street_number text      not null,
+  city          text      not null,
+  postal_code   text      not null,
+  state         text,
+  country       text      not null,
+  
+  primary key (id)
+);
+
+create table phone_numbers(
+  id    bigserial not null,
+  phone text,
+  
+  primary key (id)
+);
+
+create table emails(
+  id    bigserial not null,
+  email text,
+  
+  primary key (id)
+);
 
 create table customers(
   id                      bigserial not null,
@@ -83,75 +122,152 @@ create table customers(
   customer_relation_type  bigint    not null,
   full_name               text      not null,
   display_name            text,
-  email                   text,
-  phone                   text,
   description             text,
   
   primary key (id),
-  foreign key (customer_type)             references customer_types(id),
-  foreign key (customer_relation_type)    references customer_relation_types(id)
+  foreign key (customer_type)           references customer_types(id),
+  foreign key (customer_relation_type)  references customer_relation_types(id)
 );
 
 create table customer_addresses(
-  id            bigserial not null,
-  customer      bigint    not null,
-  street        text      not null,
-  street_number text      not null,
-  city          text      not null,
-  postal_code   text      not null,
-  state         text,
-  country       text      not null,
-  address_type  bigint    not null,
+  address       bigint  not null,
+  customer      bigint  not null,
+  address_type  bigint  not null,
   
-  primary key (id, customer),
+  primary key (address, customer),
+  foreign key (address)       references addresses(id),
   foreign key (customer)      references customers(id),
   foreign key (address_type)  references address_types(id)
 );
 
-create table accounts(
-  id        bigserial not null,
-  customer  bigint    not null,
-  slug      text      not null  unique,
-  name      text      not null,
+create table customer_phone_numbers(
+  phone             bigint  not null,
+  customer          bigint  not null,
+  phone_number_type bigint,
   
-  primary key (id, customer),
+  primary key (phone, customer),
+  foreign key (phone)             references phone_numbers(id),
+  foreign key (customer)          references customers(id),
+  foreign key (phone_number_type) references phone_number_types(id)
+);
+
+create table customer_emails(
+  email       bigint  not null,
+  customer    bigint  not null,
+  email_type  bigint,
+  
+  primary key (email, customer),
+  foreign key (email)       references emails(id),
+  foreign key (customer)    references customers(id),
+  foreign key (email_type)  references email_types(id)
+);
+
+create table accounts(
+  id          bigserial not null,
+  customer    bigint    not null,
+  slug        text      not null  unique,
+  name        text      not null,
+  description text,
+  
+  primary key (id),
   foreign key (customer)  references customers(id)
 );
 
 create table account_addresses(
-  id            bigserial not null,
-  account       bigint    not null,
-  customer      bigint    not null,
-  street        text      not null,
-  street_number text      not null,
-  city          text      not null,
-  postal_code   text      not null,
-  state         text,
-  country       text      not null,
-  address_type  bigint    not null,
+  address       bigint  not null,
+  account       bigint  not null,
+  address_type  bigint  not null,
   
-  primary key (id, account, customer),
-  foreign key (customer, account) references accounts(customer, id),
+  primary key (address, account),
+  foreign key (address)       references addresses(id),
+  foreign key (account)       references accounts(id),
   foreign key (address_type)  references address_types(id)
 );
 
-create table contacts(
-  id            bigserial not null,
-  customer      bigint    not null,
-  full_name     text      not null,
+create table account_phone_numbers(
+  phone             bigint  not null,
+  account           bigint  not null,
+  phone_number_type bigint,
   
-  primary key (id, customer),
-  foreign key (customer)  references customers(id)
+  primary key (phone, account),
+  foreign key (phone)             references phone_numbers(id),
+  foreign key (account)           references accounts(id),
+  foreign key (phone_number_type) references phone_number_types(id)
+);
+
+create table account_emails(
+  email       bigint  not null,
+  account     bigint  not null,
+  email_type  bigint,
+  
+  primary key (email, account),
+  foreign key (email)       references emails(id),
+  foreign key (account)     references accounts(id),
+  foreign key (email_type)  references email_types(id)
+);
+
+create table contacts(
+  id          bigserial not null,
+  slug        text      not null unique,
+  full_name   text      not null,
+  description text,
+  
+  primary key (id)
+);
+
+create table contact_addresses(
+  address       bigint  not null,
+  contact       bigint  not null,
+  address_type  bigint  not null,
+  
+  primary key (address, contact),
+  foreign key (address)       references addresses(id),
+  foreign key (contact)       references contacts(id),
+  foreign key (address_type)  references address_types(id)
+);
+
+create table contact_phone_numbers(
+  phone             bigint  not null,
+  contact           bigint  not null,
+  phone_number_type bigint,
+  
+  primary key (phone, contact),
+  foreign key (phone)             references phone_numbers(id),
+  foreign key (contact)           references contacts(id),
+  foreign key (phone_number_type) references phone_number_types(id)
+);
+
+create table contact_emails(
+  email       bigint  not null,
+  contact     bigint  not null,
+  email_type  bigint,
+  
+  primary key (email, contact),
+  foreign key (email)       references emails(id),
+  foreign key (contact)     references contacts(id),
+  foreign key (email_type)  references email_types(id)
+);
+
+create table customer_contacts(
+  contact       bigint  not null,
+  customer      bigint  not null,
+  contact_type  bigint not null,
+  
+  primary key (contact, customer),
+  foreign key (contact)       references contacts(id),
+  foreign key (customer)      references customers(id),
+  foreign key (contact_type)  references contact_types(id)
 );
 
 create table account_contacts(
-  customer  bigint  not null,
-  contact   bigint  not null,
-  account   bigint  not null,
+  contact       bigint  not null,
+  account       bigint  not null,
+  contact_type  bigint not null,
   
-  primary key (customer, contact, account),
-  foreign key (customer, contact) references contacts(customer, id),
-  foreign key (customer, account) references accounts(customer, id)
+  primary key (contact, account),
+  foreign key (contact)       references contacts(id),
+  foreign key (account)       references accounts(id),
+  foreign key (contact_type)  references contact_types(id)
 );
 
 /*

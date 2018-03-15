@@ -1,11 +1,11 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { withStyles } from "material-ui/styles";
 import compose from "recompose/compose";
 import withStateHandlers from "recompose/withStateHandlers";
 import withWidth, { isWidthDown } from "material-ui/utils/withWidth";
 import mapProps from "recompose/mapProps";
-import findByType from "../util/findByType";
-import get from "lodash/get";
+import pure from "recompose/pure";
 import classNames from "classnames";
 
 import Reboot from "material-ui/Reboot";
@@ -120,54 +120,43 @@ const enhance = compose(
   withStyles(styles, { withTheme: true }),
 );
 
-const Toolbar = () => null;
-Toolbar.displayName = "Toolbar";
+const App = (props) => {
 
-const Navigation = () => null;
-Navigation.displayName = "Navigation";
-
-const Content = () => null;
-Content.displayName = "Content";
-
-const App = ({ classes, theme, mobile, onDrawerOpen, onDrawerClose, drawerOpen, children }) => {
-  const toolbarComponent = findByType(children, Toolbar)[0];
-  const navigationComponent = findByType(children, Navigation)[0];
-  const contentComponent = findByType(children, Content)[0];
-
-  const isToolbar = toolbarComponent ? true : false;
-  const title = get(toolbarComponent, "props.title");
-  const position = get(toolbarComponent, "props.position");
-  const toolbarActions = get(toolbarComponent, "props.children", null);
-
-  const isNavigation = navigationComponent ? true : false;
-  const navigation = get(navigationComponent, "props.children", null);
-
-  const isContent = contentComponent ? true : false;
-  const content = get(contentComponent, "props.children", null);
+  const {
+    classes,
+    theme,
+    mobile,
+    drawerOpen,
+    onDrawerOpen,
+    onDrawerClose,
+    toolbar,
+    navigation,
+    content
+  } = props;
 
   const anchor = theme.direction === "rtl" ? "right" : "left";
 
   const toolbarClasses = classNames(classes["app-bar"], {
-    [classes["app-bar-shift"]]: isNavigation && drawerOpen && !mobile,
-    [classes[`app-bar-shift-${anchor}`]]: isNavigation && drawerOpen && !mobile,
+    [classes["app-bar-shift"]]: !!navigation && drawerOpen && !mobile,
+    [classes[`app-bar-shift-${anchor}`]]: !!navigation && drawerOpen && !mobile,
   });
 
   const contentClasses = classNames(classes["app-content"], classes[`app-content-${anchor}`], {
-    [classes["app-content-shift"]]: isNavigation && drawerOpen && !mobile,
-    [classes[`app-content-shift-${anchor}`]]: isNavigation && drawerOpen && !mobile,
+    [classes["app-content-shift"]]: !!navigation && drawerOpen && !mobile,
+    [classes[`app-content-shift-${anchor}`]]: !!navigation && drawerOpen && !mobile,
   });
 
   return (
     <React.Fragment>
       <Reboot />
       <div className={classes.root}>
-        {isToolbar && (
+        {toolbar && (
           <AppBar
-            position={position}
+            position={toolbar.position}
             className={toolbarClasses}>
             <AppToolbar>
 
-              {isNavigation && !drawerOpen && <IconButton
+              {navigation && !drawerOpen && <IconButton
                 color="default"
                 aria-label="open drawer"
                 onClick={onDrawerOpen}
@@ -175,14 +164,14 @@ const App = ({ classes, theme, mobile, onDrawerOpen, onDrawerClose, drawerOpen, 
                 <MenuIcon />
               </IconButton>}
 
-              <Typography variant="title" color="inherit">{title}</Typography>
+              <Typography variant="title" color="inherit">{toolbar.title}</Typography>
               <div className={classes.grow} />
-              {toolbarActions}
+              {toolbar.actions}
             </AppToolbar>
           </AppBar>
         )}
 
-        {isNavigation && (
+        {navigation && (
           <Drawer
             variant={mobile ? "temporary" : "persistent"}
             anchor={anchor}
@@ -207,7 +196,7 @@ const App = ({ classes, theme, mobile, onDrawerOpen, onDrawerClose, drawerOpen, 
           </Drawer>
         )}
 
-        {isContent && (
+        {content && (
           <main className={contentClasses}>
             <div className={classes["app-center"]}>
               {content}
@@ -220,8 +209,17 @@ const App = ({ classes, theme, mobile, onDrawerOpen, onDrawerClose, drawerOpen, 
 };
 
 const EnhancedApp = enhance(App);
-EnhancedApp.Toolbar = Toolbar;
-EnhancedApp.Navigation = Navigation;
-EnhancedApp.Content = Content;
+EnhancedApp.propTypes = {
+  toolbar: PropTypes.shape({
+    title: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.element,
+    ]).isRequired,
+    position: PropTypes.oneOf(["static, fixed"]),
+    actions: PropTypes.element,
+  }),
+  navigation: PropTypes.element,
+  content: PropTypes.element,
+};
 
 export default EnhancedApp;
