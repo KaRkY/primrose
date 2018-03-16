@@ -8,7 +8,7 @@ create schema primrose;
  */
 
 create table customer_types(
-  id    bigserial not null,
+  id    bigserial,
   slug  text      not null  unique,
   name  text      not null  unique,
   
@@ -33,7 +33,7 @@ insert into address_types(slug, name) values
 ('shipping', 'Shipping');
 
 create table customer_relation_types(
-  id    bigserial not null,
+  id    bigserial,
   slug  text      not null  unique,
   name  text      not null  unique,
   
@@ -47,7 +47,7 @@ insert into customer_relation_types(slug, name) values
 ('reseller', 'Reseller');
 
 create table phone_number_types(
-  id    bigserial not null,
+  id    bigserial,
   slug  text      not null  unique,
   name  text      not null  unique,
   
@@ -60,7 +60,7 @@ insert into phone_number_types(slug, name) values
 ('other', 'Other');
 
 create table email_types(
-  id    bigserial not null,
+  id    bigserial,
   slug  text      not null  unique,
   name  text      not null  unique,
   
@@ -73,7 +73,7 @@ insert into email_types(slug, name) values
 ('other', 'Other');
 
 create table contact_types(
-  id    bigserial not null,
+  id    bigserial,
   slug  text      not null  unique,
   name  text      not null  unique,
   
@@ -83,6 +83,20 @@ create table contact_types(
 insert into contact_types(slug, name) values 
 ('sales', 'Sales'),
 ('manager', 'Manager');
+
+create table meeting_types(
+  id    bigserial,
+  slug  text      not null  unique,
+  name  text      not null  unique,
+  
+  primary key (id)
+);
+
+insert into meeting_types(slug, name) values 
+('call', 'Call'),
+('on-site', 'On Site'),
+('email', 'Email'),
+('mail', 'mail');
 /*
  * 
  * TABLES
@@ -90,33 +104,36 @@ insert into contact_types(slug, name) values
  */
 
 create table addresses(
-  id            bigserial not null,
+  id            bigserial,
   street        text      not null,
   street_number text      not null,
   city          text      not null,
   postal_code   text      not null,
   state         text,
   country       text      not null,
+  deleted       boolean   not null default false,
   
   primary key (id)
 );
 
 create table phone_numbers(
-  id    bigserial not null,
-  phone text,
+  id      bigserial,
+  phone   text      not null unique,
+  deleted boolean   not null default false,
   
   primary key (id)
 );
 
 create table emails(
-  id    bigserial not null,
-  email text,
+  id      bigserial,
+  email   text      not null unique,
+  deleted boolean   not null default false,
   
   primary key (id)
 );
 
 create table customers(
-  id                      bigserial not null,
+  id                      bigserial,
   slug                    text      not null  unique,
   customer_type           bigint    not null,
   customer_relation_type  bigint    not null,
@@ -133,6 +150,9 @@ create table customer_addresses(
   address       bigint  not null,
   customer      bigint  not null,
   address_type  bigint  not null,
+
+  valid_from    timestamp with time zone not null default now(),
+  valid_to      timestamp with time zone,
   
   primary key (address, customer),
   foreign key (address)       references addresses(id),
@@ -145,6 +165,9 @@ create table customer_phone_numbers(
   customer          bigint  not null,
   phone_number_type bigint,
   
+  valid_from        timestamp with time zone not null default now(),
+  valid_to          timestamp with time zone,
+  
   primary key (phone, customer),
   foreign key (phone)             references phone_numbers(id),
   foreign key (customer)          references customers(id),
@@ -156,6 +179,9 @@ create table customer_emails(
   customer    bigint  not null,
   email_type  bigint,
   
+  valid_from  timestamp with time zone not null default now(),
+  valid_to    timestamp with time zone,
+  
   primary key (email, customer),
   foreign key (email)       references emails(id),
   foreign key (customer)    references customers(id),
@@ -163,11 +189,14 @@ create table customer_emails(
 );
 
 create table accounts(
-  id          bigserial not null,
+  id          bigserial,
   customer    bigint    not null,
   slug        text      not null  unique,
   name        text      not null,
   description text,
+  
+  valid_from  timestamp with time zone not null default now(),
+  valid_to    timestamp with time zone,
   
   primary key (id),
   foreign key (customer)  references customers(id)
@@ -177,6 +206,9 @@ create table account_addresses(
   address       bigint  not null,
   account       bigint  not null,
   address_type  bigint  not null,
+  
+  valid_from    timestamp with time zone not null default now(),
+  valid_to      timestamp with time zone,
   
   primary key (address, account),
   foreign key (address)       references addresses(id),
@@ -189,6 +221,9 @@ create table account_phone_numbers(
   account           bigint  not null,
   phone_number_type bigint,
   
+  valid_from        timestamp with time zone not null default now(),
+  valid_to          timestamp with time zone,
+  
   primary key (phone, account),
   foreign key (phone)             references phone_numbers(id),
   foreign key (account)           references accounts(id),
@@ -200,6 +235,9 @@ create table account_emails(
   account     bigint  not null,
   email_type  bigint,
   
+  valid_from  timestamp with time zone not null default now(),
+  valid_to    timestamp with time zone,
+  
   primary key (email, account),
   foreign key (email)       references emails(id),
   foreign key (account)     references accounts(id),
@@ -207,7 +245,7 @@ create table account_emails(
 );
 
 create table contacts(
-  id          bigserial not null,
+  id          bigserial,
   slug        text      not null unique,
   full_name   text      not null,
   description text,
@@ -220,6 +258,9 @@ create table contact_addresses(
   contact       bigint  not null,
   address_type  bigint  not null,
   
+  valid_from    timestamp with time zone not null default now(),
+  valid_to      timestamp with time zone,
+  
   primary key (address, contact),
   foreign key (address)       references addresses(id),
   foreign key (contact)       references contacts(id),
@@ -230,6 +271,9 @@ create table contact_phone_numbers(
   phone             bigint  not null,
   contact           bigint  not null,
   phone_number_type bigint,
+  
+  valid_from        timestamp with time zone not null default now(),
+  valid_to          timestamp with time zone,
   
   primary key (phone, contact),
   foreign key (phone)             references phone_numbers(id),
@@ -242,6 +286,9 @@ create table contact_emails(
   contact     bigint  not null,
   email_type  bigint,
   
+  valid_from  timestamp with time zone not null default now(),
+  valid_to    timestamp with time zone,
+  
   primary key (email, contact),
   foreign key (email)       references emails(id),
   foreign key (contact)     references contacts(id),
@@ -251,7 +298,10 @@ create table contact_emails(
 create table customer_contacts(
   contact       bigint  not null,
   customer      bigint  not null,
-  contact_type  bigint not null,
+  contact_type  bigint  not null,
+  
+  valid_from    timestamp with time zone not null default now(),
+  valid_to      timestamp with time zone,
   
   primary key (contact, customer),
   foreign key (contact)       references contacts(id),
@@ -262,13 +312,147 @@ create table customer_contacts(
 create table account_contacts(
   contact       bigint  not null,
   account       bigint  not null,
-  contact_type  bigint not null,
+  contact_type  bigint  not null,
+  
+  valid_from    timestamp with time zone not null default now(),
+  valid_to      timestamp with time zone,
   
   primary key (contact, account),
   foreign key (contact)       references contacts(id),
   foreign key (account)       references accounts(id),
   foreign key (contact_type)  references contact_types(id)
 );
+
+create table meetings(
+  id                bigserial,
+  name              text                      not null,
+  date              timestamp with time zone  not null,
+  planned_duration  interval                  not null,
+  actual_duration   interval                  not null,
+  organizer         text                      not null,
+  meeting_type      bigint                    not null,
+  description       text,
+  
+  primary key (id),
+  foreign key (meeting_type)  references meeting_types(id)
+);
+
+create table meeting_notes(
+  id      bigserial,
+  meeting bigint    not null,
+  note    text      not null,
+  
+  primary key (id, meeting),
+  foreign key (meeting) references meetings(id)
+);
+
+create table customer_meeting_participants(
+  meeting       bigint  not null,
+  customer      bigint  not null,
+  
+  primary key (meeting, customer),
+  foreign key (meeting)       references meetings(id),
+  foreign key (customer)      references customers(id)
+);
+
+create table app_users(
+  id        bigserial,
+  username  text      not null unique,
+  name      text,
+  email     bigint,
+  
+  primary key (id),
+  foreign key (email) references emails(id)
+);
+
+create table app_user_phone_numbers(
+  phone             bigint  not null,
+  app_user          bigint  not null,
+  phone_number_type bigint,
+  primary_phone     boolean,
+  
+  valid_from        timestamp with time zone not null default now(),
+  valid_to          timestamp with time zone,
+  
+  primary key (phone, app_user),
+  foreign key (phone)             references phone_numbers(id),
+  foreign key (app_user)          references app_users(id),
+  foreign key (phone_number_type) references phone_number_types(id)
+);
+
+create table user_emails(
+  email         bigint  not null,
+  app_user      bigint  not null,
+  email_type    bigint,
+  primary_email boolean,
+  
+  valid_from  timestamp with time zone not null default now(),
+  valid_to    timestamp with time zone,
+  
+  primary key (email, app_user),
+  foreign key (email)       references emails(id),
+  foreign key (app_user)    references app_users(id),
+  foreign key (email_type)  references email_types(id)
+);
+
+create table app_roles(
+  id    bigserial,
+  slug  text      not null unique,
+  name  text      not null unique,
+  
+  primary key (id)
+);
+
+create table app_user_roles(
+  app_user  bigint,
+  app_role  bigint,
+  
+  primary key (app_user, app_role),
+  foreign key (app_user)  references app_users(id),
+  foreign key (app_role)  references app_roles(id)
+);
+
+create table app_scopes(
+  id    bigserial,
+  slug  text      not null unique,
+  name  text      not null unique,
+  
+  primary key (id)
+);
+
+create table app_user_scope_permissions(
+  app_user  bigint,
+  app_scope bigint,
+  p_access  boolean not null,
+  p_create  boolean,
+  p_read    boolean,
+  p_edit    boolean,
+  p_delete  boolean,
+  
+  primary key (app_user, app_scope),
+  foreign key (app_user)  references app_users(id),
+  foreign key (app_scope) references app_scopes(id)
+);
+
+create table app_role_scope_permissions(
+  app_role  bigint,
+  app_scope bigint,
+  p_access  boolean not null,
+  p_create  boolean,
+  p_read    boolean,
+  p_edit    boolean,
+  p_delete  boolean,
+  
+  primary key (app_role, app_scope),
+  foreign key (app_role)  references app_roles(id),
+  foreign key (app_scope) references app_scopes(id)
+);
+
+create table departments(
+  id  bigserial
+);
+
+
 
 /*
  * 
