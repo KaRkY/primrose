@@ -27,7 +27,7 @@
     "redbox-react": "1.5.0",
     "redux": "3.7.2",
     "redux-devtools-extension": "2.13.2",
-    "redux-first-router": "0.0.8-rudy",
+    "redux-first-router": "0.0.9-rudy",
     "redux-first-router-link": "0.0.3-rudy",
     "reselect": "3.0.1",
     "router5": "5.8.2",
