@@ -5,8 +5,8 @@ import compose from "recompose/compose";
 import withStateHandlers from "recompose/withStateHandlers";
 import withWidth, { isWidthDown } from "material-ui/utils/withWidth";
 import mapProps from "recompose/mapProps";
-import pure from "recompose/pure";
 import classNames from "classnames";
+import dynamic from "./dynamic";
 
 import Reboot from "material-ui/Reboot";
 import Typography from "material-ui/Typography";
@@ -191,7 +191,7 @@ const App = (props) => {
                 </IconButton>
               </div>
               <Divider />
-              {navigation}
+              {navigation.children}
             </div>
           </Drawer>
         )}
@@ -199,7 +199,7 @@ const App = (props) => {
         {content && (
           <main className={contentClasses}>
             <div className={classes["app-center"]}>
-              {content}
+              {content.children}
             </div>
           </main>
         )}
@@ -215,11 +215,42 @@ EnhancedApp.propTypes = {
       PropTypes.string,
       PropTypes.element,
     ]).isRequired,
-    position: PropTypes.oneOf(["static, fixed"]),
+    position: PropTypes.oneOf(["static", "fixed"]),
     actions: PropTypes.element,
   }),
-  navigation: PropTypes.element,
-  content: PropTypes.element,
+  navigation: PropTypes.shape({
+    children: PropTypes.element
+  }),
+  content: PropTypes.shape({
+    children: PropTypes.element
+  }),
 };
+
+export const DApp = dynamic({
+  Toolbar: {
+    key: "toolbar",
+    propTypes: {
+      title: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.element,
+      ]).isRequired,
+      position: PropTypes.oneOf(["static", "fixed"]),
+    },
+    renderChildren: true,
+    mapProps: {
+      children: "actions"
+    }
+  },
+
+  Navigation: {
+    key: "navigation",
+    renderChildren: true,
+  },
+
+  Content: {
+    key: "content",
+    renderChildren: true,
+  },
+})(EnhancedApp);
 
 export default EnhancedApp;

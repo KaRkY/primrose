@@ -11,6 +11,8 @@ import { Provider } from "react-redux";
 import { MuiThemeProvider } from "material-ui/styles";
 
 const root = document.getElementById("root");
+const history = createHistory();
+const store = configureStore(history);
 
 const themes = {
   default: defaultTheme,
@@ -20,7 +22,9 @@ const themes = {
 const render = (Main) => {
   ReactDOM.render((
     <MuiThemeProvider theme={themes["purpleTeal"]}>
-      <Main />
+      <Provider store={store}>
+        <Main />
+      </Provider>
     </MuiThemeProvider>
   ), root);
 };

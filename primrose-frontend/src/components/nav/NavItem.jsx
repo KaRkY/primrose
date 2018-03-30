@@ -1,11 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import compose from "recompose/compose";
-import classnames from "classnames";
 import { withStyles } from "material-ui/styles";
 
 import { ListItem, ListItemText } from "material-ui/List";
-import { NavLink } from "react-router-dom";
+import { NavLink } from "redux-first-router-link";
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -28,11 +27,6 @@ const styles = theme => ({
 const enhance = compose(
   withStyles(styles),
 );
-
-const merge = classes => props => {
-  props.className = classnames(props.className, classes.activeMenuItem);
-  return props;
-};
 
 function NavItem({ classes, text, to, ...rest }) {
   return (

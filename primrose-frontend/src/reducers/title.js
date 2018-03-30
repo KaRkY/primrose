@@ -14,6 +14,3 @@ export default (state = "Home", action = {}) => {
       return state;
   }
 };
-
-const capitalize = str =>
-  str.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());

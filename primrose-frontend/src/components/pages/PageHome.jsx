@@ -6,7 +6,7 @@ import Input, { InputLabel } from "material-ui/Input";
 import Button from "material-ui/Button";
 import { FormControl, FormHelperText } from "material-ui/Form";
 import Grid from "material-ui/Grid";
-import { Formik } from "formik";
+import { Form, Field } from "react-final-form";
 
 const contentStyle = theme => ({
   container: {
@@ -23,14 +23,12 @@ const enhance = compose(
 );
 
 const Content = ({ classes }) => (
-  <Formik
+  <Form
     initialValues={{
       firstName: "",
       lastName: "",
     }}
-    onSubmit={(values, { setSubmitting }) => {
-      setTimeout(() => setSubmitting(false), 2000);
-    }}
+    onSubmit={(values) => new Promise(resolve => setTimeout(() => resolve(), 2000))}
     validate={values => {
       // same as above, but feel free to move this into a class method now.
       let errors = {};
@@ -43,43 +41,48 @@ const Content = ({ classes }) => (
       return errors;
     }}
     render={({
-    values,
-      errors,
-      touched,
-      handleChange,
-      handleBlur,
       handleSubmit,
-      isSubmitting,
-      handleReset,
-  }) => (
-        <form onSubmit={handleSubmit} onReset={handleReset}>
+      reset,
+      submitting,
+      pristine,
+      values
+    }) => (
+        <form onSubmit={handleSubmit} onReset={reset}>
           <Grid container>
 
-            <Grid item xs={6}>
-              <FormControl error={touched.firstName && errors.firstName ? true : false} fullWidth>
-                <InputLabel htmlFor="firstName">First name</InputLabel>
-                <Input id="firstName" name="firstName" onChange={handleChange} onBlur={handleBlur} value={values.firstName} />
-                {touched.firstName && errors.firstName && <FormHelperText>{errors.firstName}</FormHelperText>}
-              </FormControl>
+            <Grid item xs={12} md={6}>
+              <Field name="firstName">
+                {({ input, meta }) => (
+                  <FormControl error={meta.touched && meta.error ? true : false} fullWidth>
+                    <InputLabel htmlFor={input.name}>First name</InputLabel>
+                    <Input id={input.name} type="text" {...input} />
+                    {meta.touched && meta.error && <FormHelperText>{meta.error}</FormHelperText>}
+                  </FormControl>
+                )}
+              </Field>
             </Grid>
 
-            <Grid item xs={6}>
-              <FormControl error={touched.lastName && errors.lastName ? true : false} fullWidth>
-                <InputLabel htmlFor="lastName">Last name</InputLabel>
-                <Input id="lastName" name="lastName" onChange={handleChange} onBlur={handleBlur} value={values.lastName} />
-                {touched.lastName && errors.lastName && <FormHelperText>{errors.lastName}</FormHelperText>}
-              </FormControl>
+            <Grid item xs={12} md={6}>
+              <Field name="lastName">
+                {({ input, meta }) => (
+                  <FormControl error={meta.touched && meta.error ? true : false} fullWidth>
+                    <InputLabel htmlFor={input.name}>Last name</InputLabel>
+                    <Input id={input.name} type="text" {...input} />
+                    {meta.touched && meta.error && <FormHelperText>{meta.error}</FormHelperText>}
+                  </FormControl>
+                )}
+              </Field>
             </Grid>
 
             <Grid item xs={12} md={6} container>
               <Grid item>
                 <FormControl>
-                  <Button variant="raised" color="secondary" type="submit" disabled={isSubmitting}>Submit</Button>
+                  <Button variant="raised" color="secondary" type="submit" disabled={submitting}>Submit</Button>
                 </FormControl>
               </Grid>
               <Grid item>
                 <FormControl>
-                  <Button variant="raised" type="reset" disabled={isSubmitting}>Reset</Button>
+                  <Button variant="raised" type="reset" disabled={submitting}>Reset</Button>
                 </FormControl>
               </Grid>
             </Grid>
