@@ -9,6 +9,8 @@ import defaultTheme, * as other from "./themes";
 import Main from "./Main";
 import { Provider } from "react-redux";
 import { MuiThemeProvider } from "material-ui/styles";
+import MomentUtils from "material-ui-pickers/utils/moment-utils";
+import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
 
 const root = document.getElementById("root");
 const history = createHistory();
@@ -22,9 +24,11 @@ const themes = {
 const render = (Main) => {
   ReactDOM.render((
     <MuiThemeProvider theme={themes["purpleTeal"]}>
-      <Provider store={store}>
-        <Main />
-      </Provider>
+      <MuiPickersUtilsProvider utils={MomentUtils}>
+        <Provider store={store}>
+          <Main />
+        </Provider>
+      </MuiPickersUtilsProvider>
     </MuiThemeProvider>
   ), root);
 };

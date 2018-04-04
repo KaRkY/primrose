@@ -8,7 +8,7 @@ import mapProps from "recompose/mapProps";
 import classNames from "classnames";
 import dynamic from "./dynamic";
 
-import Reboot from "material-ui/Reboot";
+import CssBaseline  from "material-ui/CssBaseline";
 import Typography from "material-ui/Typography";
 import Drawer from "material-ui/Drawer";
 import Divider from "material-ui/Divider";
@@ -148,7 +148,7 @@ const App = (props) => {
 
   return (
     <React.Fragment>
-      <Reboot />
+      <CssBaseline  />
       <div className={classes.root}>
         {toolbar && (
           <AppBar
