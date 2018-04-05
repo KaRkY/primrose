@@ -8,7 +8,7 @@ import mapProps from "recompose/mapProps";
 import classNames from "classnames";
 import dynamic from "./dynamic";
 
-import CssBaseline  from "material-ui/CssBaseline";
+import CssBaseline from "material-ui/CssBaseline";
 import Typography from "material-ui/Typography";
 import Drawer from "material-ui/Drawer";
 import Divider from "material-ui/Divider";
@@ -24,6 +24,7 @@ const styles = theme => ({
     position: "relative",
     display: "flex",
     width: "100%",
+    height: "100vh",
   },
 
   "app-bar": {
@@ -56,7 +57,6 @@ const styles = theme => ({
 
   "app-drawer-paper": {
     width: theme.drawer.width,
-    height: "100vh",
   },
 
   "app-content": {
@@ -68,15 +68,14 @@ const styles = theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    height: "calc(100% - 56px)",
+    minHeight: "calc(100vh - 56px)",
     marginTop: 56,
     [theme.breakpoints.up("sm")]: {
-      content: {
-        height: "calc(100% - 64px)",
-        marginTop: 64,
-      },
+      minHeight: "calc(100vh - 64px)",
+      marginTop: 64,
     },
   },
+
   "app-content-left": {
     marginLeft: 0,
   },
@@ -98,7 +97,9 @@ const styles = theme => ({
   "app-content-center": {
     [theme.breakpoints.up("sm")]: {
       //"max-width": 1170,
+      position: "relative",
       margin: "0 auto",
+      minHeight: "100%",
     },
   },
 
@@ -148,7 +149,7 @@ const App = (props) => {
 
   return (
     <React.Fragment>
-      <CssBaseline  />
+      <CssBaseline />
       <div className={classes.root}>
         {toolbar && (
           <AppBar
@@ -198,7 +199,7 @@ const App = (props) => {
 
         {content && (
           <main className={contentClasses}>
-            <div className={classes["app-center"]}>
+            <div className={classes["app-content-center"]}>
               {content.children}
             </div>
           </main>

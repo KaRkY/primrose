@@ -1,7 +1,7 @@
 import React from "react";
 import { withStyles } from "material-ui/styles";
 import Switch from "material-ui/Switch";
-import { FormControl, FormHelperText, FormGroup, FormControlLabel } from "material-ui/Form";
+import { FormControlLabel } from "material-ui/Form";
 import { Field } from "react-final-form";
 
 

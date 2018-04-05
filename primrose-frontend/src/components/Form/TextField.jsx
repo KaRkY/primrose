@@ -8,15 +8,16 @@ export const style = theme => ({
 
 });
 
-const TextField = props => (
-  <Field {...props}>
+const TextField = ({ children, ...restProps}) => (
+  <Field {...restProps}>
     {({ input, meta, ...rest }) => (
       <MUITextField 
         id={input.name}
         error={meta.touched && !!meta.error} 
         helperText={meta.touched && meta.error} 
         {...input}
-        {...rest}/>
+        {...rest}
+        children={children}/>
     )}
   </Field>
 );

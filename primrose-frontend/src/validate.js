@@ -1,4 +1,3 @@
-import yup from "yup";
 import { setIn } from "final-form";
 
 export default async (values, schema) => {

@@ -5,7 +5,6 @@ import findByType from "../../util/findByType";
 import extractRenderMethod from "../../util/extractRenderMethod";
 import get from "lodash/get";
 import identity from "lodash/identity";
-import difference from "lodash/difference";
 
 import ExpansionPanel, {
   ExpansionPanelSummary,
@@ -69,7 +68,7 @@ const DataList = ({
   children }) => {
 
   const paginationComponent = findByType(children, Pagination)[0];
-  const sortableComponent = findByType(children, Sortable)[0];
+  //const sortableComponent = findByType(children, Sortable)[0];
   const panelActionsComponent = findByType(children, PanelActions)[0];
   const renderCellComponent = findByType(children, RenderCell)[0];
 
@@ -83,16 +82,16 @@ const DataList = ({
   const onPageChange = get(paginationComponent, "props.onPageChange", identity);
   const onPageSizeChange = get(paginationComponent, "props.onPageSizeChange", identity);
 
-  const isSortable = sortableComponent ? true : false;
-  const sortDirection = get(sortableComponent, "props.sortDirection");
-  const sortColumn = get(sortableComponent, "props.sortColumn");
-  const onSortChange = get(sortableComponent, "props.onSortChange", identity);
+  //const isSortable = sortableComponent ? true : false;
+  //const sortDirection = get(sortableComponent, "props.sortDirection");
+  //const sortColumn = get(sortableComponent, "props.sortColumn");
+  //const onSortChange = get(sortableComponent, "props.onSortChange", identity);
 
   const isRenderCell = renderCellComponent ? true : false;
   const renderCell = extractRenderMethod(get(renderCellComponent, "props", {}));
 
   const isPanelActions = panelActionsComponent ? true : false;
-  const numOfActions = get(panelActionsComponent, "props.num", 1);
+  //const numOfActions = get(panelActionsComponent, "props.num", 1);
   const panelActions = extractRenderMethod(get(panelActionsComponent, "props", {}));
 
   return (

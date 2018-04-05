@@ -1,4 +1,4 @@
-import { redirect, NOT_FOUND } from "redux-first-router";
+//import { redirect, NOT_FOUND } from "redux-first-router";
 import axios from "./axios";
 import gql from "graphql-tag";
 import { normalize, schema } from "normalizr";

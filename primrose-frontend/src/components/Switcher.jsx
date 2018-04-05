@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
-import { TransitionGroup, Transition } from "transition-group";
+//import { TransitionGroup, Transition } from "transition-group";
 import universal from "react-universal-component";
 import isLoading from "../selectors/isLoading";
 
