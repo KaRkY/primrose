@@ -1,6 +1,9 @@
 import React from "react";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
+import withWidth from "material-ui/utils/withWidth";
+import yup from "yup";
+import validate from "../../validate";
 
 import Paper from "material-ui/Paper";
 import Button from "material-ui/Button";
@@ -10,15 +13,17 @@ import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
 import { InputAdornment } from "material-ui/Input";
 import Grid from "material-ui/Grid";
-import { Form, FormSpy } from "react-final-form";
+import { Form } from "react-final-form";
 import TextField from "../Form/TextField";
 import MenuItem from "material-ui/Menu/MenuItem";
 import arrayMutators from "final-form-arrays";
 import FieldArray from "../Form/FieldArray";
+import { diff } from "deep-object-diff";
 
 const contentStyle = theme => ({
-  root: theme.mixins.gutters({
-  }),
+  container: {
+    padding: 3 * theme.spacing.unit,
+  },
 
   buttons: {
     paddingTop: 3 * theme.spacing.unit,
@@ -33,19 +38,27 @@ const contentStyle = theme => ({
   },
 });
 
-
 const enhance = compose(
+  withWidth(),
   withStyles(contentStyle)
 );
 
-const Content = ({
-  classes,
-}) => (
+var schema = yup.object().shape({
+
+});
+
+const Content = ({ classes, width }) => (
+  <Paper classes={{ root: classes.container }} elevation={4}>
     <Form
+      initialValues={{"emails":[{"type":"home","value":"asd"},{"type":"work","value":"456dfgng"}],"fullName":"cvbcvb","displayName":"cvbcvb","customerType":"company","customerRelationType":"investor"}}
       onSubmit={values => {
         console.log(JSON.stringify(values));
+        console.log(diff(
+          {"emails":[{"type":"home","value":"asd"},{"type":"work","value":"456dfgng"}],"fullName":"cvbcvb","displayName":"cvbcvb","customerType":"company","customerRelationType":"investor"},
+          values
+        ))
       }}
-      validate={values => true}
+      validate={values => validate(values, schema)/*Slow check*/}
       mutators={{
         ...arrayMutators
       }}
@@ -59,7 +72,6 @@ const Content = ({
         values
       }) => (
           <form onSubmit={handleSubmit} onReset={reset}>
-            <FormSpy subscription={{ values: true }} onChange={console.log} />
             <Grid container spacing={16}>
 
               <Grid item xs={12} md={6}>
@@ -178,6 +190,7 @@ const Content = ({
             </Grid>
           </form>
         )} />
-  );
+  </Paper>
+);
 
 export default enhance(Content);

@@ -6,7 +6,6 @@ import withStateHandlers from "recompose/withStateHandlers";
 import withWidth, { isWidthDown } from "material-ui/utils/withWidth";
 import mapProps from "recompose/mapProps";
 import classNames from "classnames";
-import dynamic from "./dynamic";
 
 import CssBaseline from "material-ui/CssBaseline";
 import Typography from "material-ui/Typography";
@@ -226,32 +225,5 @@ EnhancedApp.propTypes = {
     children: PropTypes.element
   }),
 };
-
-export const DApp = dynamic({
-  Toolbar: {
-    key: "toolbar",
-    propTypes: {
-      title: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.element,
-      ]).isRequired,
-      position: PropTypes.oneOf(["static", "fixed"]),
-    },
-    renderChildren: true,
-    mapProps: {
-      children: "actions"
-    }
-  },
-
-  Navigation: {
-    key: "navigation",
-    renderChildren: true,
-  },
-
-  Content: {
-    key: "content",
-    renderChildren: true,
-  },
-})(EnhancedApp);
 
 export default EnhancedApp;

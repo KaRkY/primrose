@@ -6,7 +6,7 @@ export default createSelector(
   location,
   location => {
     const page = parseInt((location.query && location.query.page) || 0, 10);
-    const size = parseInt((location.query && location.query.size) || 10, 10);
+    const size = parseInt((location.query && location.query.size) || 5, 10);
 
     return {
       page,

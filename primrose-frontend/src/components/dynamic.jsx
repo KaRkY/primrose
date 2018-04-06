@@ -70,7 +70,7 @@ const generateComponents = config => {
 
 export default config => Component => {
 
-  const DynamicComponent = ({ children, ...rest }) => <Component {...extractFromChildren(children)} />;
+  const DynamicComponent = ({ children, ...rest }) => <Component {...extractFromChildren(children)} {...rest} />;
 
   if (config) {
     Object.assign(DynamicComponent, generateComponents(config));

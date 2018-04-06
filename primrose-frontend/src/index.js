@@ -11,7 +11,6 @@ import { Provider } from "react-redux";
 import { MuiThemeProvider } from "material-ui/styles";
 import MomentUtils from "material-ui-pickers/utils/moment-utils";
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
-import diff from "object-diff";
 
 const root = document.getElementById("root");
 const history = createHistory();
@@ -22,25 +21,9 @@ const themes = {
   ...other,
 };
 
-var a = {
-  speed: 4,
-  power: 54,
-  height: undefined,
-  level: 1,
-};
-
-var b = {
-
-  power: 22,			// changed 
-  level: undefined,	// changed 
-  weight: 10,			// added 
-};
-
-console.log(diff(a, b));
-
 const render = (Main) => {
   ReactDOM.render((
-    <MuiThemeProvider theme={themes["purpleTeal"]}>
+    <MuiThemeProvider theme={themes["indigoLightBlue"]}>
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <Provider store={store}>
           <Main />

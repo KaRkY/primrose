@@ -12,8 +12,7 @@ import normalizeArray from "../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
 
-import DataGrid from "../Data/DataGrid";
-import DataList from "../Data/DataList";
+import DataGrid from "../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
 import Toolbar from "material-ui/Toolbar";
 import PersonAddIcon from "material-ui-icons/PersonAdd";
@@ -22,7 +21,6 @@ import EditIcon from "material-ui-icons/Edit";
 import ZoomInIcon from "material-ui-icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
-import Hidden from "material-ui/Hidden";
 
 
 const contentStyle = theme => ({
@@ -57,37 +55,20 @@ const contentStyle = theme => ({
   }
 });
 
-const parseSort = (query, property) => {
-  const prop = query && query.sortProperty;
-  const dir = query && query.sortDirection && query.sortDirection.toUpperCase();
-
-  let sortProperty;
-  let sortDirection;
-  if (prop === property) {
-    sortProperty = prop;
-    switch (dir) {
-      case "ASC":
-        sortDirection = "DESC";
-        break;
-
-      case "DESC":
-        sortDirection = undefined;
-        sortProperty = undefined;
-        break;
-
-      default:
-        sortDirection = "ASC";
-        break;
-    }
+const lowercase = (value) => {
+  if (typeof value === "string") {
+    return value.toLowerCase();
   } else {
-    sortProperty = property;
-    sortDirection = "ASC";
+    return value;
   }
+};
 
-  return {
-    sortProperty,
-    sortDirection
-  };
+const uppercase = (value) => {
+  if (typeof value === "string") {
+    return value.toUpperCase();
+  } else {
+    return value;
+  }
 };
 
 const mapState = (state, props) => ({
@@ -99,6 +80,7 @@ const mapState = (state, props) => ({
 
 const mapDispatchTo = ({
   goToCustomers: actions.goToCustomers,
+  goToCustomerNew: actions.goToCustomerNew,
 });
 
 const enhance = compose(
@@ -106,12 +88,12 @@ const enhance = compose(
   withHandlers({
     onPageChange: ({ query, goToCustomers }) => (event, page) => goToCustomers({ ...query, page }),
     onPageSizeChange: ({ query, goToCustomers }) => (event, size) => goToCustomers({ ...query, size }),
-    onSortChange: ({ query, goToCustomers }) => (event, property) => goToCustomers({ ...query, ...parseSort(query, property) }),
+    onSortChange: ({ query, goToCustomers }) => (event, property, direction) => goToCustomers({ ...query, sortProperty: property, sortDirection: uppercase(direction)}),
     onSelectedRowsChange: ({ query, goToCustomers }) => (event, value, checked) => goToCustomers({
       ...query,
       selected: (checked ? union(normalizeArray(query.selected), value) : difference(normalizeArray(query.selected), value))
     }),
-    onNewCustomer: ({ router, onNewCustomer }) => (event) => onNewCustomer && onNewCustomer(router),
+    onNewCustomer: ({ goToCustomerNew }) => (event) => goToCustomerNew && goToCustomerNew(),
     onEditCustomer: ({ router, onEditCustomer }) => (id) => onEditCustomer && onEditCustomer(router, id),
   }),
   withStyles(contentStyle)
@@ -119,12 +101,7 @@ const enhance = compose(
 
 const getRowId = row => row.id;
 
-const columns = [
-  { id: "type", label: "Type" },
-  { id: "relationType", label: "Relation type" },
-  { id: "fullName", label: "Full name" },
-  { id: "displayName", label: "Display name" },
-];
+
 
 const Content = ({
   classes,
@@ -141,60 +118,62 @@ const Content = ({
   onEditCustomer,
   deleteCustomers,
 }) => (
-  <Paper className={classes.root}>
-    <Toolbar>
-      <div className={classes.grow} />
-      <Tooltip
-        title="New Customer"
-        enterDelay={300}
-      >
-        <IconButton onClick={onNewCustomer}>
-          <PersonAddIcon />
-        </IconButton>
-      </Tooltip>
-      {selectedRows && selectedRows.length > 0 && (
+    <Paper className={classes.root}>
+      <Toolbar>
+        <div className={classes.grow} />
         <Tooltip
-          title="Delete Customers"
+          title="New Customer"
           enterDelay={300}
         >
-          <IconButton disabled={isDeleting} onClick={() => deleteCustomers()}>
-            <DeleteIcon />
+          <IconButton onClick={onNewCustomer}>
+            <PersonAddIcon />
           </IconButton>
         </Tooltip>
-      )}
-    </Toolbar>
-    <Hidden smDown>
+        {selectedRows && selectedRows.length > 0 && (
+          <Tooltip
+            title="Delete Customers"
+            enterDelay={300}
+          >
+            <IconButton disabled={isDeleting} onClick={() => deleteCustomers()}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Toolbar>
       <DataGrid
-        rowId={getRowId}
+        getRowId={getRowId}
         rows={customers || []}
-        columns={columns}
       >
 
-        {/* 
-                Set on page change listener after data has been loaded 
-                Pagination has a rule that it fires page change to valid page
-                so it must be ignored. Maybe set page 0 until data is loaded that might help.
-              */}
+        <DataGrid.Columns>
+          <DataGrid.Column name="relationType" title="Relation type" />
+          <DataGrid.Column name="type" title="Type" />
+          <DataGrid.Column name="fullName" title="Full name" />
+          <DataGrid.Column name="displayName" title="Display name" />
+        </DataGrid.Columns>
+
         <DataGrid.Pagination
           totalSize={totalSize}
-          pageNumber={parseInt(query.page, 10)}
-          pageSize={parseInt(query.size, 10)}
+          page={parseInt(query.page, 10)}
+          size={parseInt(query.size, 10)}
           onPageChange={onPageChange}
           onPageSizeChange={onPageSizeChange}
         />
 
-        <DataGrid.Sortable
-          sortColumn={query.sortProperty}
-          sortDirection={query.sortDirection && query.sortDirection.toLowerCase()}
+        <DataGrid.Sorting
+          sort={query.sortProperty && {
+            column: query.sortProperty,
+            direction: lowercase(query.sortDirection),
+          }}
           onSortChange={onSortChange}
         />
 
-        <DataGrid.Selectable
-          selectedRows={selectedRows}
-          onSelectRows={onSelectedRowsChange}
+        <DataGrid.Selecting
+          rowIds={selectedRows || []}
+          onSelectRowsChange={onSelectedRowsChange}
         />
 
-        <DataGrid.RowActions num={3}>{row => (
+        <DataGrid.RowActions>{row => (
           <React.Fragment>
             <Tooltip
               title="Open Customer"
@@ -223,60 +202,7 @@ const Content = ({
           </React.Fragment>
         )}</DataGrid.RowActions>
       </DataGrid>
-    </Hidden>
-
-    <Hidden mdUp>
-      <DataList
-        rowId={getRowId}
-        rows={customers || []}
-        columns={columns}
-        heading={row => row.displayName ? row.displayName : row.fullName}
-      >
-
-        {/* 
-                Set on page change listener after data has been loaded 
-                Pagination has a rule that it fires page change to valid page
-                so it must be ignored. Maybe set page 0 until data is loaded that might help.
-              */}
-        <DataList.Pagination
-          totalSize={totalSize}
-          pageNumber={parseInt(query.page, 10)}
-          pageSize={parseInt(query.size, 10)}
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
-        />
-
-        <DataList.PanelActions num={3}>{row => (
-          <React.Fragment>
-            <Tooltip
-              title="Open Customer"
-              enterDelay={300}
-            >
-              <IconButton>
-                <ZoomInIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip
-              title="Edit Customer"
-              enterDelay={300}
-            >
-              <IconButton onClick={() => onEditCustomer(row.id)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip
-              title="Delete Customer"
-              enterDelay={300}
-            >
-              <IconButton>
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          </React.Fragment>
-        )}</DataList.PanelActions>
-      </DataList>
-    </Hidden>
-  </Paper >
-);
+    </Paper >
+  );
 
 export default enhance(Content);

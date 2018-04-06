@@ -28,7 +28,7 @@ const FieldArray = ({ classes, children, label, name, push }) => (
     <Toolbar>
       <Typography variant="title">{label}</Typography>
       <div className={classes.grow} />
-      <IconButton variant="raised" onClick={() => push(name)}>
+      <IconButton variant="raised" onClick={() => push(name, {})}>
         <AddIcon />
       </IconButton>
     </Toolbar>

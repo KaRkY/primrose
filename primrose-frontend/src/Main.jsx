@@ -1,6 +1,8 @@
 import React from "react";
+import { connect } from "react-redux";
+import compose from "recompose/compose";
 
-import { DApp } from "./components/App";
+import App from "./components/ChildConfigApp";
 import List from "material-ui/List";
 import IconButton from "material-ui/IconButton";
 import MoreVert from "material-ui-icons/MoreVert";
@@ -8,9 +10,19 @@ import Tooltip from "material-ui/Tooltip";
 import NavItem from "./components/nav/NavItem"
 import Switcher from "./components/Switcher";
 
-const Main = () => (
-  <DApp>
-    <DApp.Toolbar position="fixed" title={"test"}>
+const mapState = ({ title }) => ({
+  title,
+});
+
+const enhance = compose(
+  connect(mapState),
+);
+
+const Main = ({
+  title
+}) => (
+  <App>
+    <App.Toolbar position="fixed" title={title}>
       <Tooltip title="Actions" enterDelay={300}>
         <IconButton
           variant="raised"
@@ -18,19 +30,21 @@ const Main = () => (
           <MoreVert />
         </IconButton>
       </Tooltip>
-    </DApp.Toolbar>
+    </App.Toolbar>
 
-    <DApp.Navigation>
+    <App.Navigation>
       <List>
-        <NavItem to={{ type: "HOME" }} text="Home" />
+        <NavItem exact to={{ type: "HOME" }} text="Home" />
         <NavItem to={{ type: "CUSTOMERS" }} text="Customers" />
       </List>
-    </DApp.Navigation>
+    </App.Navigation>
 
-    <DApp.Content>
+    <App.Content>
       <Switcher />
-    </DApp.Content>
-  </DApp>
+    </App.Content>
+  </App>
 );
 
-export default Main;
+const EnhancedMain = enhance(Main);
+
+export default EnhancedMain;

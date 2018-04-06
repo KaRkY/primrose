@@ -3,4 +3,4 @@ import isCustomersPage from "./isCustomersPage";
 
 export default createSelector(
   isCustomersPage,
-  isLoading => isLoading);
+  isLoading => false);

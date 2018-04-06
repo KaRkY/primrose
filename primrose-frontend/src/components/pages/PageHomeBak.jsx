@@ -7,15 +7,8 @@ import validate from "../../validate";
 
 import Paper from "material-ui/Paper";
 import Button from "material-ui/Button";
-import { FormControl, FormGroup, FormLabel } from "material-ui/Form";
-import { RadioGroup } from "material-ui/Radio";
 import Grid from "material-ui/Grid";
 import { Form } from "react-final-form";
-import TextField from "../Form/TextField";
-import DateTimeField from "../Form/DateTimeField";
-import CheckboxField from "../Form/CheckboxField";
-import RadioField from "../Form/RadioField";
-import SwitchField from "../Form/SwitchField";
 import MonacoField from "../Form/MonacoField";
 
 const contentStyle = theme => ({

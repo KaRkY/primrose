@@ -2,10 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
-import findByType from "../../util/findByType";
-import extractRenderMethod from "../../util/extractRenderMethod";
-import get from "lodash/get";
-import identity from "lodash/identity";
 import difference from "lodash/difference";
 
 import Tooltip from "material-ui/Tooltip";
@@ -26,7 +22,7 @@ import Table, {
 
 const styles = theme => ({
   "data-grid-table": {
-    tableLayout: "fixed",
+
   },
 
   "data-grid-head": {
@@ -37,10 +33,29 @@ const styles = theme => ({
 
   },
 
+  "data-grid-checkbox": {
+    width: 1,
+  },
+
+  "data-grid-open-panel": {
+    width: 1,
+  },
+
+  "data-grid-actions": {
+    width: 1,
+  },
+
   "data-grid-cell": {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+  },
+
+  "data-grid-cell-max": {
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    width: "100%",
   },
 
   "data-grid-panel": {
@@ -59,112 +74,64 @@ const extractId = (getId, obj) => {
     if (typeof getId === "string") {
       return obj[getId];
     } else {
-      return obj.id;
+      return obj.name;
     }
   }
 }
 
-const Pagination = () => null;
-Pagination.displayName = "Pagination";
-
-const Sortable = () => null;
-Sortable.displayName = "Sortable";
-
-const Selectable = () => null;
-Selectable.displayName = "Selectable";
-
-const RenderPanel = () => null;
-RenderPanel.displayName = "RenderPanel";
-
-const RenderCell = () => null;
-RenderCell.displayName = "RenderCell";
-
-const RowActions = () => null;
-RowActions.displayName = "RowActions";
+const nextDirection = (sort, column) => {
+  if (sort && sort.column === column) {
+    switch (sort.direction) {
+      case "asc": return "desc";
+      case "desc": return undefined;
+      case undefined: return "asc";
+      default: return "asc";
+    }
+  } else {
+    return "asc";
+  }
+};
 
 const DataGrid = ({
   classes,
   rows = [],
   columns,
-  rowId,
-  children }) => {
-    console.time("render");
-
-  const paginationComponent = findByType(children, Pagination)[0];
-  const sortableComponent = findByType(children, Sortable)[0];
-  const selectableComponent = findByType(children, Selectable)[0];
-  const renderPanelComponent = findByType(children, RenderPanel)[0];
-  const renderCellComponent = findByType(children, RenderCell)[0];
-  const rowActionsComponent = findByType(children, RowActions)[0];
-
-  const isPaginated = paginationComponent ? true : false;
-  const pageSize = get(paginationComponent, "props.pageSize", 10);
-  const pageNumber = get(paginationComponent, "props.pageNumber", 0);
-  const specifiedSize = get(paginationComponent, "props.totalSize", 0);
-  // To prevent page change until data is loaded
-  const totalSize = specifiedSize ? specifiedSize : (pageSize * (pageNumber + 1));
-  const rowsPerPageOptions = get(paginationComponent, "props.rowsPerPageOptions", [5, 10, 25]);
-  const onPageChange = get(paginationComponent, "props.onPageChange", identity);
-  const onPageSizeChange = get(paginationComponent, "props.onPageSizeChange", identity);
-
-  const isSortable = sortableComponent ? true : false;
-  const sortDirection = get(sortableComponent, "props.sortDirection");
-  const sortColumn = get(sortableComponent, "props.sortColumn");
-  const onSortChange = get(sortableComponent, "props.onSortChange", identity);
-
-  const isSelectable = selectableComponent ? true : false;
-  const selectedRows = get(selectableComponent, "props.selectedRows", []);
-  const onSelectRows = get(selectableComponent, "props.onSelectRows", identity);
-
-  const isDetailed = renderPanelComponent ? true : false;
-  const openPanels = get(renderPanelComponent, "props.openPanels", []);
-  const onOpenPanels = get(renderPanelComponent, "props.onOpenPanels", identity);
-  const renderPanel = extractRenderMethod(get(renderPanelComponent, "props", {}));
-
-  const isRenderCell = renderCellComponent ? true : false;
-  const renderCell = extractRenderMethod(get(renderCellComponent, "props", {}));
-
-  const isRowActions = rowActionsComponent ? true : false;
-  const numOfActions = get(rowActionsComponent, "props.num", 1);
-  const rowActions = extractRenderMethod(get(rowActionsComponent, "props", {}));
-
+  getRowId,
+  pagination,
+  sorting,
+  filtering,
+  selecting,
+  detailed,
+  rowActions,
+}) => {
   const numRows = rows.length;
-  const unselectedRows = difference(rows.map(row => extractId(rowId, row)), selectedRows);
+  const unselectedRows = difference(rows.map(row => extractId(getRowId, row)), selecting ? selecting.rowIds : []);
   const numUnselected = unselectedRows.length;
-  const emptyRows = pageSize - numRows;
-  const colSpan = columns.length + (isSelectable ? 1 : 0) + (isDetailed ? 1 : 0) + (isRowActions ? 1 : 0);
+  const emptyRows = (pagination ? pagination.size : numRows) - numRows;
+  const colSpan = columns.length + (selecting ? 1 : 0) + (detailed ? 1 : 0) + (rowActions ? 1 : 0);
 
   const result = (
     <Table className={classes["data-grid-table"]}>
-      <colgroup>
-        {isDetailed && <col style={{ width: 48 }} />}
-        {isSelectable && (<col style={{ width: 58 }} />)}
-        {columns.map(column => (
-          <col key={column.id} style={column.numeric && { width: 58 }} />
-        ))}
-        {isRowActions && <col style={{ width: (48 * (numOfActions + 1)) }} />}
-      </colgroup>
-
       <TableHead className={classes["data-grid-head"]}>
         <TableRow>
-          {isDetailed && <TableCell padding="checkbox" />}
-          {isSelectable && (
+          {detailed && <TableCell padding="checkbox" />}
+          {selecting && (
             <TableCell padding="checkbox">
               <Checkbox
                 indeterminate={numUnselected > 0 && numUnselected < numRows}
-                checked={numUnselected === 0}
-                onChange={(event, checked) => onSelectRows(event, rows.map(row => extractId(rowId, row)), checked)}
+                checked={numUnselected === 0 && numRows > 0}
+                onChange={(event, checked) => selecting.onSelectRowsChange(event, rows.map(row => extractId(getRowId, row)), checked)}
               />
             </TableCell>
           )}
           {columns.map(column => (
             <TableCell
-              key={column.id}
+              key={column.name}
               className={classes["data-grid-cell"]}
               numeric={column.numeric}
               padding={column.disablePadding ? "none" : "default"}
-              sortDirection={isSortable ? (sortColumn === column.id ? sortDirection : false) : undefined}>
-              {isSortable
+              sortDirection={(sorting && sorting.sort) ? (sorting.sort.column === column.name ? sorting.sort.direction : false) : undefined}>
+              {sorting && column.sortable
                 ? (
                   <Tooltip
                     title="Sort"
@@ -172,54 +139,57 @@ const DataGrid = ({
                     enterDelay={300}
                   >
                     <TableSortLabel
-                      active={sortColumn === column.id}
-                      direction={sortDirection}
-                      onClick={event => onSortChange(event, column.id)}
+                      active={(sorting.sort && sorting.sort.column) === column.name}
+                      direction={sorting.sort && sorting.sort.direction}
+                      onClick={event => sorting.onSortChange(event, column.name, nextDirection(sorting.sort, column.name))}
                     >
-                      {column.label}
+                      {column.title || column.name}
                     </TableSortLabel>
                   </Tooltip>
                 )
-                : column.label}
+                : column.title || column.name}
             </TableCell>
           ))}
-          {isRowActions && <TableCell className={classes["data-grid-cell"]} padding="checkbox" />}
+          {rowActions && <TableCell padding="checkbox">Actions</TableCell>}
         </TableRow>
       </TableHead>
 
       <TableBody>
         {rows.map(row => {
-          const currentRowId = extractId(rowId, row);
-          const isSelected = selectedRows.find(el => el === currentRowId) ? true : false;
-          const isPanelOpen = openPanels.find(el => el === currentRowId) ? true : false;
+          const currentRowId = extractId(getRowId, row);
+          const selectedRowIds = (selecting && selecting.rowIds) || [];
+          const detailedRowIds = (detailed && detailed.rowIds) || [];
+          const isSelected = selectedRowIds.find(el => el === currentRowId) ? true : false;
+          const isPanelOpen = detailedRowIds.find(el => el === currentRowId) ? true : false;
 
           return (
             <React.Fragment key={currentRowId}>
               <TableRow hover className={classes["data-grid-row"]}>
-                {isDetailed && (
-                  <TableCell padding="checkbox">
-                    <IconButton onClick={event => onOpenPanels(event, [currentRowId], !isPanelOpen)}>
+                {detailed && (
+                  <TableCell className={classes["data-grid-open-panel"]} padding="checkbox">
+                    <IconButton onClick={event => detailed.onOpenRowsChange(event, [currentRowId], !isPanelOpen)}>
                       {isPanelOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
                     </IconButton>
                   </TableCell>
                 )}
-                {isSelectable && (
-                  <TableCell padding="checkbox">
+                {selecting && (
+                  <TableCell className={classes["data-grid-checkbox"]} padding="checkbox">
                     <Checkbox
                       checked={isSelected}
-                      onChange={(event, checked) => onSelectRows(event, [currentRowId], checked)}
+                      onChange={(event, checked) => selecting.onSelectRowsChange(event, [currentRowId], checked)}
                     />
                   </TableCell>
                 )}
                 {columns.map(column => {
-                  const value = isRenderCell ? renderCell(column) : row[column.id];
+                  const format = column.formatter ? column.formatter : value => value;
+                  const value = format(column.getCellValue ? column.getCellValue(row) : row[column.name]);
                   return (
                     <TableCell
-                      key={column.id}
-                      className={classes["data-grid-cell"]}
+                      key={column.name}
+                      className={column.grow ? classes["data-grid-cell-max"] : classes["data-grid-cell"]}
                       numeric={column.numeric}
                       padding={column.disablePadding ? "none" : "default"}
-                      data-header={column.label}>
+                      data-header={column.title || column.name}>
                       <Tooltip
                         title={value || ""}
                         enterDelay={300}
@@ -229,15 +199,17 @@ const DataGrid = ({
                     </TableCell>
                   );
                 })}
-                {isRowActions && <TableCell className={classes["data-grid-cell"]} padding="checkbox">{rowActions(row)}</TableCell>}
+                {rowActions && <TableCell padding="checkbox" numeric className={classes["data-grid-actions"]}>{rowActions(row)}</TableCell>}
               </TableRow>
-              <Fade in={isPanelOpen} unmountOnExit>
-                <TableRow>
-                  <TableCell className={classes["data-grid-panel"]} colSpan={colSpan}>
-                    {renderPanel(row)}
-                  </TableCell>
-                </TableRow>
-              </Fade>
+              {detailed && (
+                <Fade in={isPanelOpen} unmountOnExit>
+                  <TableRow>
+                    <TableCell className={classes["data-grid-panel"]} colSpan={colSpan}>
+                      {detailed.children(row)}
+                    </TableCell>
+                  </TableRow>
+                </Fade>
+              )}
             </React.Fragment>
           );
         })}
@@ -249,47 +221,42 @@ const DataGrid = ({
         )}
       </TableBody>
 
-      {isPaginated && (
+      {pagination && (
         <TableFooter>
           <TableRow>
             <TablePagination
               colSpan={colSpan}
-              count={totalSize}
-              rowsPerPage={pageSize}
-              page={pageNumber}
+              count={pagination.totalSize}
+              rowsPerPage={pagination.size}
+              page={pagination.page}
               backIconButtonProps={{
                 "aria-label": "Previous Page",
               }}
               nextIconButtonProps={{
                 "aria-label": "Next Page",
               }}
-              onChangePage={onPageChange}
-              onChangeRowsPerPage={(event, size) => onPageSizeChange(event, event.target.value)}
-              rowsPerPageOptions={rowsPerPageOptions}
+              onChangePage={pagination.onPageChange}
+              onChangeRowsPerPage={(event, size) => pagination.onPageSizeChange(event, event.target.value)}
+              rowsPerPageOptions={pagination.rowsPerPageOptions || [5, 10, 25]}
             />
           </TableRow>
         </TableFooter>
       )}
     </Table>
   );
-  console.timeEnd("render");
   return result;
 };
 
 const ComposedDataGrid = enhance(DataGrid);
-ComposedDataGrid.Pagination = Pagination;
-ComposedDataGrid.Sortable = Sortable;
-ComposedDataGrid.Selectable = Selectable;
-ComposedDataGrid.RenderPanel = RenderPanel;
-ComposedDataGrid.RenderCell = RenderCell;
-ComposedDataGrid.RowActions = RowActions;
 ComposedDataGrid.propTypes = {
   rows: PropTypes.array.isRequired,
 
   columns: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
     title: PropTypes.string,
-    width: PropTypes.number,
+    numeric: PropTypes.bool,
+    grow: PropTypes.bool,
+    sortable: PropTypes.bool,
     getCellValue: PropTypes.func,
     formatter: PropTypes.func,
   })).isRequired,
@@ -308,7 +275,7 @@ ComposedDataGrid.propTypes = {
   sorting: PropTypes.shape({
     sort: PropTypes.shape({
       column: PropTypes.string.isRequired,
-      direction: PropTypes.oneOf([ "asc", "desc" ]).isRequired,
+      direction: PropTypes.oneOf(["asc", "desc"]).isRequired,
     }),
     onSortChange: PropTypes.func.isRequired,
   }),
@@ -318,17 +285,17 @@ ComposedDataGrid.propTypes = {
   }),
 
   selecting: PropTypes.shape({
-    rowIds: PropTypes.array,
+    rowIds: PropTypes.array.isRequired,
     onSelectRowsChange: PropTypes.func.isRequired,
   }),
 
   detailed: PropTypes.shape({
-    rowIds: PropTypes.array,
+    rowIds: PropTypes.array.isRequired,
     onOpenRowsChange: PropTypes.func.isRequired,
-    render: PropTypes.func.isRequired,
+    children: PropTypes.func.isRequired,
   }),
 
-  rowActions: PropTypes.arrayOf(PropTypes.func),
+  rowActions: PropTypes.func.isRequired,
 };
 
 export default ComposedDataGrid;
