@@ -10,15 +10,12 @@ export const style = theme => ({
 
 const TextField = ({ children, ...restProps}) => (
   <Field {...restProps}>
-    {({ input: {onChange, onFocus, onBlur, ...restInput}, meta, ...rest }) => (
+    {({ input, meta, ...rest }) => (
       <MUITextField 
-        id={restInput.name}
+        id={input.name}
         error={meta.touched && !!meta.error} 
         helperText={meta.touched && meta.error} 
-        onChange={event => console.log("onChange") || onChange(event)}
-        onFocus={event => console.log("onFocus") || onFocus(event)}
-        onBlur={event => console.log("onBlur") || onBlur(event)}
-        {...restInput}
+        {...input}
         {...rest}
         children={children}/>
     )}

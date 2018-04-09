@@ -1,17 +1,25 @@
 import React from "react";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
-import withWidth from "material-ui/utils/withWidth";
+import withWidth, { isWidthDown } from "material-ui/utils/withWidth";
 
+import Grid from "material-ui/Grid";
+import Toolbar from "material-ui/Toolbar";
 import Paper from "material-ui/Paper";
 import DataGrid from "../Data/ChildConfigDataGrid";
 import IconButton from "material-ui/IconButton";
 import DeleteIcon from "material-ui-icons/Delete";
+import Typography from "material-ui/Typography";
 
-
+import AceField from "../Form/AceField";
+import Wizard from "../Form/ChildConfigWizard";
+import TextField from "../Form/TextField";
+import CheckboxField from "../Form/CheckboxField";
 
 const contentStyle = theme => ({
-
+  grid: {
+    padding: 3 * theme.spacing.unit,
+  },
 });
 
 const enhance = compose(
@@ -19,65 +27,69 @@ const enhance = compose(
   withStyles(contentStyle)
 );
 
-const Content = ({ classes, width }) => (
-  <Paper>
-    <DataGrid
-      rows={[
-        { id: 1, displayName: "Rene1", type: "Bla" },
-        { id: 2, displayName: "Rene2", type: "Vla" },
-        { id: 3, displayName: "Rene3", type: "Sad" }
-      ]}
-
-      getRowId={row => row.id}
-    >
-      <DataGrid.Columns>
-        <DataGrid.Column name="id" title="Id" numeric />
-        <DataGrid.Column name="displayName" title="Display name" sortable />
-        <DataGrid.Column name="type" title="Type" sortable />
-        <DataGrid.Column grow name="test" title="test" getCellValue={row => `${row.displayName} ${row.type} ${row.id}`} />
-      </DataGrid.Columns>
-
-      <DataGrid.Pagination
-        page={1}
-        size={5}
-        totalSize={8}
-        onPageChange={console.log}
-        onPageSizeChange={console.log}
-      />
-
-      <DataGrid.Sorting
-        sort={{
-          column: "displayName",
-          direction: "asc",
-        }}
-        onSortChange={console.log}
-      />
-
-      <DataGrid.Selecting
-        rowIds={[3]}
-        onSelectRowsChange={console.log}
-      />
-
-      <DataGrid.Detailed
-        rowIds={[2]}
-        onOpenRowsChange={console.log}
-      >
-        {row => (
-          <pre>{JSON.stringify(row, null, 2)}</pre>
-        )}
-      </DataGrid.Detailed>
-
-      <DataGrid.RowActions>
-        {row => (
-          <React.Fragment>
-            <IconButton>
-              <DeleteIcon />
-            </IconButton>
-          </React.Fragment>
-        )}
-      </DataGrid.RowActions>
-    </DataGrid>
-  </Paper>
-);
+const Content = ({ classes, width }) => {
+  const editorHeaight = isWidthDown("md", width) ? "200px" : isWidthDown("lg", width) ? "400px" : "600px";
+  return (
+    <Wizard onSubmit={console.log}>
+      <Wizard.Step label="Basic data">
+        <Paper elevation={2}>
+          <Toolbar>
+            <Typography variant="title">Basic data</Typography>
+          </Toolbar>
+          <Grid className={classes.grid} container spacing={16}>
+            <Grid item xs={12}>
+              <TextField name="name" label="Execution name" fullWidth />
+            </Grid>
+            <Grid item xs={12}>
+              <CheckboxField name="auto_queue" label="Auto queue" />
+            </Grid>
+          </Grid>
+        </Paper>
+      </Wizard.Step>
+      <Wizard.Step label="Search script">
+        <Paper elevation={2}>
+          <Toolbar>
+            <Typography variant="title">Search script</Typography>
+          </Toolbar>
+          <Grid className={classes.grid} container spacing={16}>
+            <Grid item xs={12}>
+              <AceField
+                name="code"
+                height={editorHeaight} />
+            </Grid>
+          </Grid>
+        </Paper>
+      </Wizard.Step>
+      <Wizard.Step label="Filter script">
+        <Paper elevation={2}>
+          <Toolbar>
+            <Typography variant="title">Filter script</Typography>
+          </Toolbar>
+          <Grid className={classes.grid} container spacing={16}>
+            <Grid item xs={12}>
+              <AceField
+                name="code"
+                height={editorHeaight} />
+            </Grid>
+          </Grid>
+        </Paper>
+      </Wizard.Step>
+      <Wizard.Step label="Alteration script">
+        <Paper elevation={2}>
+          <Toolbar>
+            <Typography variant="title">Alteration script</Typography>
+          </Toolbar>
+          <Grid className={classes.grid} container spacing={16}>
+            <Grid item xs={12}>
+              <AceField
+                name="code"
+                height={editorHeaight} />
+            </Grid>
+          </Grid>
+        </Paper>
+      </Wizard.Step>
+    </Wizard>
+  );
+};
 
 export default enhance(Content);

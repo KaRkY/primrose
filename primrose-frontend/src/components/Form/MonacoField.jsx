@@ -1,4 +1,6 @@
 import React from "react";
+import compose from "recompose/compose";
+import lifecycle from "recompose/lifecycle";
 import { withStyles } from "material-ui/styles";
 import MonacoEditor from "react-monaco-editor";
 import { Field } from "react-final-form";
@@ -8,18 +10,29 @@ export const style = theme => ({
 
 });
 
-const MonacoField = props => (
-  <Field {...props}>
-    {({ input: { onBlur, onFocus, onChange, restInput}, meta, ...rest }) => (
-      <MonacoEditor
-        language="javascript"
-        theme="vs-dark"
-        onChange={value => onChange(value)}
-        {...restInput}
-        {...rest}
-      />
-    )}
-  </Field>
+const enhance = compose(
+  withStyles(style),
+  lifecycle({
+    componentDidMount() {
+      this.setState({ mounted: true });
+    }
+  }),
 );
 
-export default withStyles(style)(MonacoField);
+const MonacoField = ({ mounted, ...props }) => (
+  mounted ?
+    <Field {...props}>
+      {({ input, meta, ...rest }) => console.log(input, props) || (
+        <MonacoEditor
+          id={input.name}
+          language="javascript"
+          theme="vs-dark"
+          {...input}
+          {...rest}
+        />
+      )}
+    </Field> :
+    null
+);
+
+export default enhance(MonacoField);

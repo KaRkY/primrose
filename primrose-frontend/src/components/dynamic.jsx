@@ -45,14 +45,16 @@ const convertToProps = (component) => {
   return result;
 }
 
-const extractFromChildren = children => {
-  const result = {};
-  React.Children.forEach(children, child => {
-    const r = convertToProps(child);
-    result[r.component.type.propName] = r.props;
-  });
-
-  return result;
+const extractFromChildren = (children, ordered) => {
+  const propsChildren = React.Children.map(children, convertToProps) || [];
+  return propsChildren.reduce((acc, child) => {
+    if(ordered) {
+      acc.push(child.props);
+    } else {
+      acc[child.component.type.propName] = child.props;
+    }
+    return acc;
+  }, ordered ? [] : {});
 };
 
 const generateComponents = config => {
@@ -70,7 +72,16 @@ const generateComponents = config => {
 
 export default config => Component => {
 
-  const DynamicComponent = ({ children, ...rest }) => <Component {...extractFromChildren(children)} {...rest} />;
+  const DynamicComponent = ({ children, ...rest }) => {
+    const props = {};
+    if(config.propName) {
+      props[config.propName] = extractFromChildren(children, config.ordered);
+    } else {
+      Object.assign(props, extractFromChildren(children, config.ordered));
+    }
+
+    return <Component {...props} {...rest} />;
+  };
 
   if (config) {
     Object.assign(DynamicComponent, generateComponents(config));
