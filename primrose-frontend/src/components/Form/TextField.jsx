@@ -14,10 +14,11 @@ const TextField = ({ children, ...restProps}) => (
       <MUITextField 
         id={input.name}
         error={meta.touched && !!meta.error} 
-        helperText={meta.touched && meta.error} 
+        helperText={meta.touched && meta.error}
         {...input}
         {...rest}
-        children={children}/>
+        children={children}
+        />
     )}
   </Field>
 );

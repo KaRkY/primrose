@@ -7,11 +7,17 @@ import { CircularProgress } from "material-ui/Progress";
 const styles = theme => ({
   root: {
     background: theme.palette.action.disabledBackground,
+    position: "absolute",
+    height: "100%",
+    width: "100%",
   },
 
   icon: {
-    color: theme.palette.action.disabledBackground
-  }
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+  },
 });
 
 const enhance = compose(
@@ -20,7 +26,7 @@ const enhance = compose(
 
 const Loading = ({ classes }) => (
   <div className={classes.root}>
-    <CircularProgress className={classes.icon} />
+    <CircularProgress className={classes.icon} thiknes="7" size={120} />
   </div>
 );
 

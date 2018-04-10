@@ -7,8 +7,8 @@ export const goToPage = (type, category) => ({
   payload: category && { category }
 });
 
-export const goHome = () => ({
-  type: "HOME"
+export const goToDashboard = () => ({
+  type: "DASHBOARD"
 });
 
 export const goToCustomers = (query) => ({
@@ -28,6 +28,14 @@ export const goToCustomerNew = () => ({
 
 export const goToCustomerEdit = () => ({
   type: "CUSTOMER_EDIT"
+});
+
+export const goToContacts = () => ({
+  type: "CONTACTS"
+});
+
+export const goToNewContact = () => ({
+  type: "CONTACTS_NEW"
 });
 
 export const notFound = () => ({

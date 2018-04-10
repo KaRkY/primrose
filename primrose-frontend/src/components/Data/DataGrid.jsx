@@ -127,9 +127,10 @@ const DataGrid = ({
           {columns.map(column => (
             <TableCell
               key={column.name}
-              className={classes["data-grid-cell"]}
+              className={column.grow ? classes["data-grid-cell-max"] : classes["data-grid-cell"]}
               numeric={column.numeric}
               padding={column.disablePadding ? "none" : "default"}
+              style={column.width && { width: column.width}}
               sortDirection={(sorting && sorting.sort) ? (sorting.sort.column === column.name ? sorting.sort.direction : false) : undefined}>
               {sorting && column.sortable
                 ? (
@@ -189,6 +190,7 @@ const DataGrid = ({
                       className={column.grow ? classes["data-grid-cell-max"] : classes["data-grid-cell"]}
                       numeric={column.numeric}
                       padding={column.disablePadding ? "none" : "default"}
+                      style={column.width && { width: column.width}}
                       data-header={column.title || column.name}>
                       <Tooltip
                         title={value || ""}
@@ -259,6 +261,7 @@ ComposedDataGrid.propTypes = {
     sortable: PropTypes.bool,
     getCellValue: PropTypes.func,
     formatter: PropTypes.func,
+    width: PropTypes.string,
   })).isRequired,
 
   getRowId: PropTypes.func,

@@ -20,6 +20,9 @@ const TextField = ({ children, theme, ...restProps}) => (
         theme={theme.palette.type === "light" ? "github" : "monokai"}
         id={input.name}
         width="100%"
+        editorProps={{
+          $blockScrolling: Infinity
+        }}
         {...input}
         {...rest}/>
     )}

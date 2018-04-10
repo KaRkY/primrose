@@ -5,6 +5,8 @@ import { withStyles } from "material-ui/styles";
 //import { TransitionGroup, Transition } from "transition-group";
 import universal from "react-universal-component";
 import isLoading from "../selectors/isLoading";
+import PageNotFound from "./pages/PageNotFound";
+import PageLoading from "./pages/PageLoading";
 
 const style = theme => ({
   container: {
@@ -34,10 +36,10 @@ const Switcher = ({ page, direction, isLoading }) => (
 
 const UniversalComponent = universal(props => import(`./pages/${props.page}`), {
   minDelay: 500,
-  loadingTransition : false,
+  loadingTransition : true,
   chunkName: props => props.page,
-  loading: () => <span>Loading</span>,
-  error: () => <span>PAGE NOT FOUND - 404</span>
+  loading: () => <PageLoading />,
+  error: () => <PageNotFound />
 });
 
 export default enhance(Switcher);

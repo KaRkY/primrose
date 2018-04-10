@@ -3,14 +3,14 @@ import compose from "recompose/compose";
 import withHandlers from "recompose/withHandlers";
 import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
-import getCustomersPage from "../../selectors/customers/getCustomersPage";
-import getCustomersTotalSize from "../../selectors/customers/getCustomersTotalSize";
-import getQuery from "../../selectors/getQuery";
-import getSelected from "../../selectors/getSelected";
 import * as actions from "../../actions";
 import normalizeArray from "../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
+import getContactsPage from "../../selectors/contacts/getContactsPage";
+import getContactsTotalSize from "../../selectors/contacts/getContactsTotalSize";
+import getQuery from "../../selectors/getQuery";
+import getSelected from "../../selectors/getSelected";
 
 import DataGrid from "../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
@@ -72,29 +72,28 @@ const uppercase = (value) => {
 };
 
 const mapState = (state, props) => ({
-  customers: getCustomersPage(state, props),
+  contacts: getContactsPage(state, props),
   query: getQuery(state, props),
-  totalSize: getCustomersTotalSize(state, props),
+  totalSize: getContactsTotalSize(state, props),
   selectedRows: getSelected(state, props)
 });
 
 const mapDispatchTo = ({
-  goToCustomers: actions.goToCustomers,
-  goToCustomerNew: actions.goToCustomerNew,
+  goToContacts: actions.goToContacts,
+  goToNewContact: actions.goToNewContact,
 });
 
 const enhance = compose(
   connect(mapState, mapDispatchTo),
   withHandlers({
-    onPageChange: ({ query, goToCustomers }) => (event, page) => goToCustomers({ ...query, page }),
-    onPageSizeChange: ({ query, goToCustomers }) => (event, size) => goToCustomers({ ...query, size }),
-    onSortChange: ({ query, goToCustomers }) => (event, property, direction) => goToCustomers({ ...query, sortProperty: property, sortDirection: uppercase(direction)}),
-    onSelectedRowsChange: ({ query, goToCustomers }) => (event, value, checked) => goToCustomers({
+    onPageChange: ({ query, goToContacts }) => (event, page) => goToContacts({ ...query, page }),
+    onPageSizeChange: ({ query, goToContacts }) => (event, size) => goToContacts({ ...query, size }),
+    onSortChange: ({ query, goToContacts }) => (event, property, direction) => goToContacts({ ...query, sortProperty: property, sortDirection: uppercase(direction)}),
+    onSelectedRowsChange: ({ query, goToContacts }) => (event, value, checked) => goToContacts({
       ...query,
       selected: (checked ? union(normalizeArray(query.selected), value) : difference(normalizeArray(query.selected), value))
     }),
-    onNewCustomer: ({ goToCustomerNew }) => (event) => goToCustomerNew && goToCustomerNew(),
-    onEditCustomer: ({ router, onEditCustomer }) => (id) => onEditCustomer && onEditCustomer(router, id),
+    onNewContact: ({ goToNewContact }) => (event) => goToNewContact && goToNewContact(),
   }),
   withStyles(contentStyle)
 );
@@ -105,7 +104,7 @@ const getRowId = row => row.id;
 
 const Content = ({
   classes,
-  customers,
+  contacts,
   query,
   totalSize,
   selectedRows,
@@ -114,9 +113,8 @@ const Content = ({
   onPageChange,
   onPageSizeChange,
   onSortChange,
-  onNewCustomer,
-  onEditCustomer,
-  deleteCustomers,
+  onNewContact,
+  deleteContacts,
 }) => (
     <Paper className={classes.root}>
       <Toolbar>
@@ -125,16 +123,16 @@ const Content = ({
           title="New Customer"
           enterDelay={300}
         >
-          <IconButton onClick={onNewCustomer}>
+          <IconButton onClick={onNewContact}>
             <PersonAddIcon />
           </IconButton>
         </Tooltip>
         {selectedRows && selectedRows.length > 0 && (
           <Tooltip
-            title="Delete Customers"
+            title="Delete Contacts"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={() => deleteCustomers()}>
+            <IconButton disabled={isDeleting} onClick={() => deleteContacts()}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -142,14 +140,13 @@ const Content = ({
       </Toolbar>
       <DataGrid
         getRowId={getRowId}
-        rows={customers || []}
+        rows={contacts || []}
       >
 
         <DataGrid.Columns>
-          <DataGrid.Column name="relationType" title="Relation type" width="10%" />
-          <DataGrid.Column name="type" title="Type" width="10%" />
-          <DataGrid.Column name="fullName" title="Full name" width="40%" />
-          <DataGrid.Column grow name="displayName" title="Display name" width="40%" />
+          <DataGrid.Column name="name" title="Name" width="40%" />
+          <DataGrid.Column name="primaryEmail" title="Email" width="30%" />
+          <DataGrid.Column name="primaryPhone" title="Phone" width="28%" />
         </DataGrid.Columns>
 
         <DataGrid.Pagination
@@ -187,7 +184,7 @@ const Content = ({
               title="Edit Customer"
               enterDelay={300}
             >
-              <IconButton onClick={() => onEditCustomer(row.id)}>
+              <IconButton onClick={() => console.log(row)}>
                 <EditIcon />
               </IconButton>
             </Tooltip>

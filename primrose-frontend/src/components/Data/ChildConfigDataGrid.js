@@ -1,7 +1,7 @@
-import dynamic from "../dynamic";
+import withConfig from "../withConfig";
 import DataGrid from "./DataGrid";
 
-export default dynamic({
+export const config = {
   Columns: {
     key: "columns",
     ordered: true,
@@ -38,4 +38,6 @@ export default dynamic({
     ignoreProps: true,
     renderChildren: true,
   }
-})(DataGrid);
+};
+
+export default withConfig(config)(DataGrid);

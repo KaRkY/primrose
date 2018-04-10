@@ -1,8 +1,8 @@
-import dynamic from "./dynamic";
+import withConfig from "./withConfig";
 import PropTypes from "prop-types";
 import App from "./App";
 
-export default dynamic({
+export const config = {
   Toolbar: {
     key: "toolbar",
     propTypes: {
@@ -27,4 +27,6 @@ export default dynamic({
     key: "content",
     renderChildren: true,
   },
-})(App);
+};
+
+export default withConfig(config)(App);

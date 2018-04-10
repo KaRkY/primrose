@@ -1,10 +1,11 @@
 //import { redirect, NOT_FOUND } from "redux-first-router";
 import getQuery from "./selectors/getQuery";
-import isCustomersPage from "./selectors/isCustomersPage";
+import isCustomersPage from "./selectors/customers/isCustomersPage";
+import isContactsPage from "./selectors/contacts/isContactsPage";
 import getPageId from "./util/getPageId";
 
 export default {
-  HOME: {
+  DASHBOARD: {
     path: "/",
   },
   CUSTOMERS: {
@@ -35,5 +36,29 @@ export default {
   },
   CUSTOMER_EDIT: {
     path: "/customers/:id/edit",
+  },
+
+  CONTACTS: {
+    path: "/contacts"
+  },
+  CONTACTS_NEW: {
+    path: "/contacts/new",
+    thunk: async (dispatch, getState) => {
+      const query = getQuery(getState());
+
+      if (isContactsPage(getState())) return;
+
+      dispatch({
+        type: "CONTACTS_FETCHED",
+        payload: {
+          entities: {},
+          result: {
+            contacts: [],
+            contactsCount: 0
+          },
+          pageId: getPageId(query),
+        }
+      });
+    },
   },
 };

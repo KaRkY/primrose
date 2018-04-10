@@ -1,6 +1,6 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { Form } from "react-final-form";
+import setFieldData from "final-form-set-field-data";
 import compose from "recompose/compose";
 import withStateHandlers from "recompose/withStateHandlers";
 import withProps from "recompose/withProps";
@@ -10,6 +10,7 @@ import Stepper, { Step, StepLabel } from "material-ui/Stepper";
 import Typography from "material-ui/Typography";
 import Button from "material-ui/Button";
 import Grid from "material-ui/Grid";
+import AutoSave from "./AutoSave";
 
 export const style = theme => ({
   content: {
@@ -30,8 +31,16 @@ const enhance = compose(
     skipped: new Set(),
     formValues: [{}],
   }), {
-      next: (state, { steps = [], onSubmit = () => null }) => (values, ...rest) => {
-        console.log(rest);
+      autoSave: (state) => (values) => {
+        const newValues = [...state.formValues];
+        newValues[state.activeStep] = values;
+        return {
+          ...state,
+          formValues: newValues,
+        };
+      },
+
+      next: (state, { steps = [] }) => () => {
         const { activeStep } = state;
         let { skipped } = state;
         if (skipped.has(activeStep)) {
@@ -40,19 +49,12 @@ const enhance = compose(
         }
 
         const newValues = [...state.formValues];
-        newValues[activeStep] = values;
-
-        if (state.activeStep >= steps.length - 1) {
-          onSubmit(newValues);
-          return state;
-        } else {
-          newValues.push({});
-          return {
-            activeStep: activeStep + 1,
-            skipped,
-            formValues: newValues,
-          };
-        }
+        newValues.push({});
+        return {
+          activeStep: activeStep + 1,
+          skipped,
+          formValues: newValues,
+        };
       },
 
       back: (state, props) => () => {
@@ -95,10 +97,11 @@ const enhance = compose(
       },
     }
   ),
-  withProps(({ activeStep, steps, onSubmit, next }) => ({
+  withProps(({ activeStep, steps, onSubmit, formValues }) => ({
     isFirstPage: () => activeStep === 0,
     isLastPage: () => (activeStep + 1) >= steps.length,
     isOptional: () => steps[activeStep].optional,
+    save: () => onSubmit(formValues),
   })),
 );
 
@@ -111,6 +114,8 @@ const Wizard = ({
   next,
   back,
   skip,
+  save,
+  autoSave,
   validate,
   isFirstPage,
   isLastPage,
@@ -139,30 +144,50 @@ const Wizard = ({
         key={activeStep}
         initialValues={formValues[activeStep]}
         validate={steps[activeStep].validate}
-        onSubmit={next}>
-        {({ handleSubmit, submitting, values, reset }) => (
-          <form onSubmit={handleSubmit} onReset={reset}>
-            <div className={classes.content}>{steps[activeStep].children}</div>
-            <Grid className={classes.buttons} item container spacing={16}>
-              <Grid item>
-                <Button name="back" variant="raised" onClick={back} disabled={isFirstPage()}>Back</Button>
-              </Grid>
-              <Grid item>
-                {isLastPage() ?
-                  <Button name="save" variant="raised" color="primary" type="submit" disabled={submitting}>Save</Button> :
-                  <Button name="next" variant="raised" type="submit">Next</Button>}
-              </Grid>
-              {isOptional() &&
+        mutators={{ setFieldData }}
+        onSubmit={save}>
+        {({
+          handleSubmit,
+          submitting,
+          values,
+          reset,
+          pristine,
+          invalid,
+          mutators,
+        }) => (
+            <React.Fragment>
+              <AutoSave setFieldData={mutators.setFieldData} save={autoSave} />
+              <div className={classes.content}>{steps[activeStep].children}</div>
+              <Grid className={classes.buttons} item container spacing={16}>
                 <Grid item>
-                  <Button variant="raised" onClick={skip}>Skip</Button>
+                  <Button variant="raised" onClick={back} disabled={isFirstPage()}>Back</Button>
                 </Grid>
-              }
-              <Grid className={classes.resetButton} item>
-                <Button variant="raised" type="reset">Reset</Button>
+                <Grid item>
+                  {isLastPage() ?
+                    <Button
+                      variant="raised"
+                      color="primary"
+                      disabled={invalid || submitting}
+                      onClick={save}>
+                      Save
+                    </Button> :
+                    <Button
+                      variant="raised"
+                      type="submit"
+                      disabled={invalid || submitting}
+                      onClick={next}>
+                      Next
+                  </Button>
+                  }
+                </Grid>
+                {isOptional() &&
+                  <Grid item>
+                    <Button variant="raised" onClick={skip}>Skip</Button>
+                  </Grid>
+                }
               </Grid>
-            </Grid>
-          </form>
-        )}
+            </React.Fragment>
+          )}
       </Form>
     </React.Fragment>
   );

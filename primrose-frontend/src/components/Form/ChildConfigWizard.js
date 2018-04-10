@@ -1,11 +1,13 @@
-import dynamic from "../dynamic";
+import withConfig from "../withConfig";
 import Wizard from "./Wizard";
 
-export default dynamic({
+export const config = {
   propName: "steps",
   ordered: true,
 
   Step: {
     renderChildren: true,
   }
-})(Wizard);
+};
+
+export default withConfig(config)(Wizard);
