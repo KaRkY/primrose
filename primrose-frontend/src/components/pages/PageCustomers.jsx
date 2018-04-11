@@ -3,9 +3,13 @@ import compose from "recompose/compose";
 import withHandlers from "recompose/withHandlers";
 import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
-import getCustomersPage from "../../selectors/customers/getCustomersPage";
-import getCustomersTotalSize from "../../selectors/customers/getCustomersTotalSize";
-import getQuery from "../../selectors/getQuery";
+import getData from "../../selectors/customers/getData";
+import getCount from "../../selectors/customers/getCount";
+import getCurrentQuery from "../../selectors/getCurrentQuery";
+import getCurrentPage from "../../selectors/getCurrentPage";
+import getCurrentSize from "../../selectors/getCurrentSize";
+import getCurrentSortProperty from "../../selectors/getCurrentSortProperty";
+import getCurrentSortDirection from "../../selectors/getCurrentSortDirection";
 import getSelected from "../../selectors/getSelected";
 import * as actions from "../../actions";
 import normalizeArray from "../../util/normalizeArray";
@@ -72,29 +76,59 @@ const uppercase = (value) => {
 };
 
 const mapState = (state, props) => ({
-  customers: getCustomersPage(state, props),
-  query: getQuery(state, props),
-  totalSize: getCustomersTotalSize(state, props),
-  selectedRows: getSelected(state, props)
+  customers: getData(state, props),
+  page: getCurrentPage(state, props),
+  size: getCurrentSize(state, props),
+  sortProperty: getCurrentSortProperty(state, props),
+  sortDirection: getCurrentSortDirection(state, props),
+  selected: getSelected(state, props),
+  totalSize: getCount(state, props),
+  query: getCurrentQuery(state, props),
 });
 
 const mapDispatchTo = ({
   goToCustomers: actions.goToCustomers,
-  goToCustomerNew: actions.goToCustomerNew,
+  goToCustomer: actions.goToCustomer,
+  goToNewCustomer: actions.goToNewCustomer,
+  goToEditCustomer: actions.goToEditCustomer,
+  executeDeleteCustomers: actions.executeDeleteCustomers,
 });
 
 const enhance = compose(
   connect(mapState, mapDispatchTo),
   withHandlers({
-    onPageChange: ({ query, goToCustomers }) => (event, page) => goToCustomers({ ...query, page }),
-    onPageSizeChange: ({ query, goToCustomers }) => (event, size) => goToCustomers({ ...query, size }),
-    onSortChange: ({ query, goToCustomers }) => (event, property, direction) => goToCustomers({ ...query, sortProperty: property, sortDirection: uppercase(direction)}),
-    onSelectedRowsChange: ({ query, goToCustomers }) => (event, value, checked) => goToCustomers({
-      ...query,
-      selected: (checked ? union(normalizeArray(query.selected), value) : difference(normalizeArray(query.selected), value))
+    onPageChange: ({ query, goToCustomers }) => (event, page) => goToCustomers({
+      query: {
+        ...query,
+        page,
+      }
     }),
-    onNewCustomer: ({ goToCustomerNew }) => (event) => goToCustomerNew && goToCustomerNew(),
-    onEditCustomer: ({ router, onEditCustomer }) => (id) => onEditCustomer && onEditCustomer(router, id),
+    onPageSizeChange: ({ query, goToCustomers }) => (event, size) => goToCustomers({
+      query: {
+        ...query,
+        size,
+      }
+    }),
+    onSortChange: ({ query, goToCustomers }) => (event, sortProperty, direction) => goToCustomers({
+      query: {
+        ...query,
+        sortProperty,
+        sortDirection: uppercase(direction),
+      }
+    }),
+    onSelectedRowsChange: ({ query, selected, goToCustomers }) => (event, value, checked) => goToCustomers({
+      query: {
+        ...query,
+        selected: (checked ? union(normalizeArray(selected), value) : difference(normalizeArray(selected), value)),
+      }
+    }),
+    onNewCustomer: ({ goToNewCustomer }) => (event) => goToNewCustomer && goToNewCustomer(),
+    onOpenCustomer: ({ goToCustomer }) => (event, id) => goToCustomer && goToCustomer({ id }),
+    onEditCustomer: ({ goToEditCustomer }) => (event, id) => goToEditCustomer && goToEditCustomer({ id }),
+    onDeleteCustomers: ({ query, executeDeleteCustomers }) => (event, customers) => executeDeleteCustomers && executeDeleteCustomers({
+      customers,
+      query,
+    }),
   }),
   withStyles(contentStyle)
 );
@@ -106,17 +140,22 @@ const getRowId = row => row.id;
 const Content = ({
   classes,
   customers,
-  query,
+  page,
+  size,
+  sortProperty,
+  sortDirection,
   totalSize,
-  selectedRows,
+  selected,
   isDeleting,
   onSelectedRowsChange,
   onPageChange,
   onPageSizeChange,
   onSortChange,
   onNewCustomer,
+  onOpenCustomer,
   onEditCustomer,
-  deleteCustomers,
+  onDeleteCustomers,
+  style,
 }) => (
     <Paper className={classes.root}>
       <Toolbar>
@@ -129,12 +168,12 @@ const Content = ({
             <PersonAddIcon />
           </IconButton>
         </Tooltip>
-        {selectedRows && selectedRows.length > 0 && (
+        {selected && selected.length > 0 && (
           <Tooltip
             title="Delete Customers"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={() => deleteCustomers()}>
+            <IconButton disabled={isDeleting} onClick={event => onDeleteCustomers(event, selected)}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -146,30 +185,30 @@ const Content = ({
       >
 
         <DataGrid.Columns>
-          <DataGrid.Column name="relationType" title="Relation type" width="10%" />
-          <DataGrid.Column name="type" title="Type" width="10%" />
-          <DataGrid.Column name="fullName" title="Full name" width="40%" />
-          <DataGrid.Column grow name="displayName" title="Display name" width="40%" />
+          <DataGrid.Column name="relationType" title="Relation type" />
+          <DataGrid.Column name="type" title="Type" />
+          <DataGrid.Column name="fullName" title="Full name" />
+          <DataGrid.Column name="displayName" title="Display name" />
         </DataGrid.Columns>
 
         <DataGrid.Pagination
           totalSize={totalSize}
-          page={parseInt(query.page, 10)}
-          size={parseInt(query.size, 10)}
+          page={page}
+          size={size}
           onPageChange={onPageChange}
           onPageSizeChange={onPageSizeChange}
         />
 
         <DataGrid.Sorting
-          sort={query.sortProperty && {
-            column: query.sortProperty,
-            direction: lowercase(query.sortDirection),
+          sort={sortProperty && {
+            column: sortProperty,
+            direction: lowercase(sortDirection),
           }}
           onSortChange={onSortChange}
         />
 
         <DataGrid.Selecting
-          rowIds={selectedRows || []}
+          rowIds={selected || []}
           onSelectRowsChange={onSelectedRowsChange}
         />
 
@@ -179,7 +218,7 @@ const Content = ({
               title="Open Customer"
               enterDelay={300}
             >
-              <IconButton>
+              <IconButton onClick={event => onOpenCustomer(event, row.id)}>
                 <ZoomInIcon />
               </IconButton>
             </Tooltip>
@@ -187,7 +226,7 @@ const Content = ({
               title="Edit Customer"
               enterDelay={300}
             >
-              <IconButton onClick={() => onEditCustomer(row.id)}>
+              <IconButton onClick={event => onEditCustomer(event, row.id)}>
                 <EditIcon />
               </IconButton>
             </Tooltip>
@@ -195,7 +234,7 @@ const Content = ({
               title="Delete Customer"
               enterDelay={300}
             >
-              <IconButton>
+              <IconButton onClick={event => onDeleteCustomers(event, [row.id])}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>

@@ -7,9 +7,12 @@ import * as actions from "../../actions";
 import normalizeArray from "../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
-import getContactsPage from "../../selectors/contacts/getContactsPage";
-import getContactsTotalSize from "../../selectors/contacts/getContactsTotalSize";
-import getQuery from "../../selectors/getQuery";
+import getData from "../../selectors/contacts/getData";
+import getCount from "../../selectors/contacts/getCount";
+import getCurrentPage from "../../selectors/getCurrentPage";
+import getCurrentSize from "../../selectors/getCurrentSize";
+import getCurrentSortProperty from "../../selectors/getCurrentSortProperty";
+import getCurrentSortDirection from "../../selectors/getCurrentSortDirection";
 import getSelected from "../../selectors/getSelected";
 
 import DataGrid from "../Data/ChildConfigDataGrid";
@@ -72,28 +75,58 @@ const uppercase = (value) => {
 };
 
 const mapState = (state, props) => ({
-  contacts: getContactsPage(state, props),
-  query: getQuery(state, props),
-  totalSize: getContactsTotalSize(state, props),
-  selectedRows: getSelected(state, props)
+  contacts: getData(state, props),
+  page: getCurrentPage(state, props),
+  size: getCurrentSize(state, props),
+  sortProperty: getCurrentSortProperty(state, props),
+  sortDirection: getCurrentSortDirection(state, props),
+  selected: getSelected(state, props),
+  totalSize: getCount(state, props),
 });
 
 const mapDispatchTo = ({
   goToContacts: actions.goToContacts,
+  goToContact: actions.goToContact,
   goToNewContact: actions.goToNewContact,
+  goToEditContact: actions.goToEditContact,
+  executeDeleteContacts: actions.executeDeleteContacts,
 });
 
 const enhance = compose(
   connect(mapState, mapDispatchTo),
   withHandlers({
-    onPageChange: ({ query, goToContacts }) => (event, page) => goToContacts({ ...query, page }),
-    onPageSizeChange: ({ query, goToContacts }) => (event, size) => goToContacts({ ...query, size }),
-    onSortChange: ({ query, goToContacts }) => (event, property, direction) => goToContacts({ ...query, sortProperty: property, sortDirection: uppercase(direction)}),
-    onSelectedRowsChange: ({ query, goToContacts }) => (event, value, checked) => goToContacts({
-      ...query,
-      selected: (checked ? union(normalizeArray(query.selected), value) : difference(normalizeArray(query.selected), value))
+    onPageChange: ({ query, goToContacts }) => (event, page) => goToContacts({
+      query: {
+        ...query,
+        page,
+      }
     }),
-    onNewContact: ({ goToNewContact }) => (event) => goToNewContact && goToNewContact(),
+    onPageSizeChange: ({ query, goToContacts }) => (event, size) => goToContacts({
+      query: {
+        ...query,
+        size,
+      }
+    }),
+    onSortChange: ({ query, goToContacts }) => (event, sortProperty, direction) => goToContacts({
+      query: {
+        ...query,
+        sortProperty,
+        sortDirection: uppercase(direction),
+      }
+    }),
+    onSelectedRowsChange: ({ query, selected, goToContacts }) => (event, value, checked) => goToContacts({
+      query: {
+        ...query,
+        selected: (checked ? union(normalizeArray(selected), value) : difference(normalizeArray(selected), value)),
+      }
+    }),
+    onNewContact: ({ goToContactNew }) => (event) => goToContactNew && goToContactNew(),
+    onOpenContact: ({ goToContact }) => (event, id) => goToContact && goToContact({ id }),
+    onEditContact: ({ goToEditContact }) => (event, id) => goToEditContact && goToEditContact({ id }),
+    onDeleteContacts: ({ query, executeDeleteContacts }) => (event, contacts) => executeDeleteContacts && executeDeleteContacts({
+      contacts,
+      query,
+    }),
   }),
   withStyles(contentStyle)
 );
@@ -105,34 +138,39 @@ const getRowId = row => row.id;
 const Content = ({
   classes,
   contacts,
-  query,
+  page,
+  size,
+  sortProperty,
+  sortDirection,
   totalSize,
-  selectedRows,
+  selected,
   isDeleting,
   onSelectedRowsChange,
   onPageChange,
   onPageSizeChange,
   onSortChange,
   onNewContact,
-  deleteContacts,
+  onOpenContact,
+  onEditContact,
+  onDeleteContacts,
 }) => (
     <Paper className={classes.root}>
       <Toolbar>
         <div className={classes.grow} />
         <Tooltip
-          title="New Customer"
+          title="New Contact"
           enterDelay={300}
         >
           <IconButton onClick={onNewContact}>
             <PersonAddIcon />
           </IconButton>
         </Tooltip>
-        {selectedRows && selectedRows.length > 0 && (
+        {selected && selected.length > 0 && (
           <Tooltip
             title="Delete Contacts"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={() => deleteContacts()}>
+            <IconButton disabled={isDeleting} onClick={() => onDeleteContacts(selected)}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -151,48 +189,48 @@ const Content = ({
 
         <DataGrid.Pagination
           totalSize={totalSize}
-          page={parseInt(query.page, 10)}
-          size={parseInt(query.size, 10)}
+          page={page}
+          size={size}
           onPageChange={onPageChange}
           onPageSizeChange={onPageSizeChange}
         />
 
         <DataGrid.Sorting
-          sort={query.sortProperty && {
-            column: query.sortProperty,
-            direction: lowercase(query.sortDirection),
+          sort={sortProperty && {
+            column: sortProperty,
+            direction: lowercase(sortDirection),
           }}
           onSortChange={onSortChange}
         />
 
         <DataGrid.Selecting
-          rowIds={selectedRows || []}
+          rowIds={selected || []}
           onSelectRowsChange={onSelectedRowsChange}
         />
 
         <DataGrid.RowActions>{row => (
           <React.Fragment>
             <Tooltip
-              title="Open Customer"
+              title="Open Contact"
               enterDelay={300}
             >
-              <IconButton>
+              <IconButton onClick={event => onOpenContact(event, row.id)}>
                 <ZoomInIcon />
               </IconButton>
             </Tooltip>
             <Tooltip
-              title="Edit Customer"
+              title="Edit Contact"
               enterDelay={300}
             >
-              <IconButton onClick={() => console.log(row)}>
+              <IconButton onClick={event => onEditContact(event, row.id)}>
                 <EditIcon />
               </IconButton>
             </Tooltip>
             <Tooltip
-              title="Delete Customer"
+              title="Delete Contact"
               enterDelay={300}
             >
-              <IconButton>
+              <IconButton onClick={event => onDeleteContacts(event, [row.id])}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>

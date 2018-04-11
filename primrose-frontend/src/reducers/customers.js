@@ -1,45 +1,20 @@
-import {
-  combineReducers
-} from "redux";
-import merge from "lodash/merge";
-import getPageId from "../util/getPageId";
+import { combineReducers } from "redux";
 
-const byId = (state = {}, action) => {
+const data = (state = [], action) => {
   switch (action.type) {
-    case "CUSTOMERS_FETCHED":
-      return merge({}, state, action.payload.entities.customers);
-
+    case "CUSTOMERS_FETCHED": {
+      return action.payload.customers;
+    }
     default:
       return state;
   }
 };
 
-const pages = (state = {}, action) => {
+const count = (state = 0, action) => {
   switch (action.type) {
     case "CUSTOMERS_FETCHED": {
-      return merge({}, state, {
-        [action.payload.pageId]: {
-          result: action.payload.result.customers,
-          isLoading: false,
-          loaded: true,
-        }
-      });
-    }
-
-    case "CUSTOMERS": {
-      const page = state[getPageId(action.meta.query)];
-
-      if(page && page.loaded) {
-        return state;
-      }
-
-      return merge({}, state, {
-        [getPageId(action.meta.query)]: {
-          result: [],
-          isLoading: true,
-          loaded: false,
-        }
-      });
+      if(!action.payload) return state;
+      return action.payload.count;
     }
 
     default:
@@ -47,19 +22,27 @@ const pages = (state = {}, action) => {
   }
 };
 
-const totalCount = (state = 0, action) => {
+const loading = (state = false, action) => {
   switch (action.type) {
-    case "CUSTOMERS_FETCHED": {
-      return action.payload.result.customersCount;
-    }
+    case "CUSTOMERS_FETCH": return true;
+    case "CUSTOMERS_FETCHED": return false;
+    case "CUSTOMERS_ERROR": return false;
+    default: return state;
+  }
+};
 
-    default:
-      return state;
+const error = (state = false, action) => {
+  switch (action.type) {
+    case "CUSTOMERS_FETCHED": return false;
+    case "CUSTOMERS_ERROR": return true;
+    case "CUSTOMERS_FETCH": return false;
+    default: return state;
   }
 };
 
 export default combineReducers({
-  byId,
-  pages,
-  totalCount,
+  data,
+  count,
+  loading,
+  error,
 });

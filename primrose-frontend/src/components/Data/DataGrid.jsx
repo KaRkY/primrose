@@ -43,6 +43,7 @@ const styles = theme => ({
 
   "data-grid-actions": {
     width: 1,
+    whiteSpace: "nowrap",
   },
 
   "data-grid-cell": {
@@ -160,8 +161,8 @@ const DataGrid = ({
           const currentRowId = extractId(getRowId, row);
           const selectedRowIds = (selecting && selecting.rowIds) || [];
           const detailedRowIds = (detailed && detailed.rowIds) || [];
-          const isSelected = selectedRowIds.find(el => el === currentRowId) ? true : false;
-          const isPanelOpen = detailedRowIds.find(el => el === currentRowId) ? true : false;
+          const isSelected = selectedRowIds.find(el => el === currentRowId) !== undefined ? true : false;
+          const isPanelOpen = detailedRowIds.find(el => el === currentRowId)  !== undefined ? true : false;
 
           return (
             <React.Fragment key={currentRowId}>

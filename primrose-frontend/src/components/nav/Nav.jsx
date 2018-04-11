@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
-import List, { ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
+import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
 import { NavLink } from "redux-first-router-link";
 import { CircularProgress } from "material-ui/Progress";
 import Collapse from "material-ui/transitions/Collapse";
@@ -65,7 +65,7 @@ class NavItemPanel extends React.Component {
   };
 
   render() {
-    const { classes, name, items, ...rest } = this.props;
+    const { classes, name, items } = this.props;
     return (
       <React.Fragment>
         <ListItem button={true} onClick={this.toggleOpen}>
@@ -84,7 +84,7 @@ class NavItemPanel extends React.Component {
   }
 }
 
-const Nav = ({ classes, items = [], ...rest }) => (
+const Nav = ({ classes, items = [] }) => (
   <List component="nav">
     {items.map(({ children, ...item }) => children ?
       <NavItemPanel key={item.name} items={children} classes={classes} {...item} /> :

@@ -3,8 +3,6 @@ import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
 import Loading from "../Loading";
 
-import Typography from "material-ui/Typography";
-
 const contentStyle = theme => ({
   
 });

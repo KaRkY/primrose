@@ -1,32 +1,23 @@
 //import { redirect, NOT_FOUND } from "redux-first-router";
-import getQuery from "./selectors/getQuery";
-import isCustomersPage from "./selectors/customers/isCustomersPage";
-import isContactsPage from "./selectors/contacts/isContactsPage";
-import getPageId from "./util/getPageId";
+import customersThunk from "./thunks/customers";
+import customersDeleteThunk from "./thunks/customersDelete";
+import contactsThunk from "./thunks/contacts";
+import contactsDeleteThunk from "./thunks/contactsDelete";
 
 export default {
   DASHBOARD: {
     path: "/",
   },
+  ERROR: {
+    path: "/er",
+  },
   CUSTOMERS: {
     path: "/customers",
-    thunk: async (dispatch, getState) => {
-      const query = getQuery(getState());
-
-      if (isCustomersPage(getState())) return;
-
-      dispatch({
-        type: "CUSTOMERS_FETCHED",
-        payload: {
-          entities: {},
-          result: {
-            customers: [],
-            customersCount: 0
-          },
-          pageId: getPageId(query),
-        }
-      });
-    },
+    thunk: customersThunk,
+  },
+  CUSTOMERS_DELETE: {
+    path: "/customers",
+    thunk: customersDeleteThunk,
   },
   CUSTOMER_NEW: {
     path: "/customers/new",
@@ -39,26 +30,20 @@ export default {
   },
 
   CONTACTS: {
-    path: "/contacts"
+    path: "/contacts",
+    thunk: contactsThunk,
   },
-  CONTACTS_NEW: {
+  CONTACTS_DELETE: {
+    path: "/customers",
+    thunk: contactsDeleteThunk,
+  },
+  CONTACT_NEW: {
     path: "/contacts/new",
-    thunk: async (dispatch, getState) => {
-      const query = getQuery(getState());
-
-      if (isContactsPage(getState())) return;
-
-      dispatch({
-        type: "CONTACTS_FETCHED",
-        payload: {
-          entities: {},
-          result: {
-            contacts: [],
-            contactsCount: 0
-          },
-          pageId: getPageId(query),
-        }
-      });
-    },
+  },
+  CONTACT: {
+    path: "/contacts/:id",
+  },
+  CONTACT_EDIT: {
+    path: "/contacts/:id/edit",
   },
 };

@@ -24,7 +24,7 @@ const enhance = compose(
   withStyles(contentStyle)
 );
 
-const Content = ({ classes, width }) => {
+const Content = ({ classes, width, style }) => {
   const editorHeaight = isWidthDown("md", width) ? "200px" : isWidthDown("lg", width) ? "400px" : "600px";
   return (
     <Wizard onSubmit={console.log}>
@@ -35,11 +35,11 @@ const Content = ({ classes, width }) => {
           </Toolbar>
           <Grid className={classes.grid} container spacing={16}>
             <Grid item xs={12}>
-              <TextField 
-                name="name" 
-                label="Execution name" 
+              <TextField
+                name="name"
+                label="Execution name"
                 fullWidth
-                />
+              />
             </Grid>
             <Grid item xs={12}>
               <CheckboxField name="auto_queue" label="Auto queue" />

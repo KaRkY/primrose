@@ -12,6 +12,6 @@ const enhance = compose(
   withStyles(contentStyle)
 );
 
-const Content = ({ classes }) => <Typography variant="body2">Not Found</Typography>;
+const Content = props => <Typography component="pre" variant="body2">{JSON.stringify(props, null, 2)}</Typography>;
 
 export default enhance(Content);

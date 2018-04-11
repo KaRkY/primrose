@@ -1,8 +1,14 @@
 import { createSelector } from "reselect";
-import getQuery from "./getQuery";
+import getCurrentQuery from "./getCurrentQuery";
 import normalizeArray from "../util/normalizeArray";
 
 export default createSelector(
-  getQuery,
-  query => normalizeArray(query.selected)
+  getCurrentQuery,
+  query => {
+    const selected = query && normalizeArray(query.selected);
+    return selected && selected.map(val => {
+      const num = Number(val);
+      return Number.isNaN(num) ? val : num;
+    });
+  }
 );

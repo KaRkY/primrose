@@ -4,11 +4,14 @@ export default (state = "PageHome", action = {}) => components[action.type] || s
 
 const components = {
   DASHBOARD: "PageDashboard",
+  ERROR: "ER",
   CUSTOMERS: "PageCustomers",
   CUSTOMER: "PageCustomer",
   CUSTOMER_NEW: "PageNewCustomer",
   CUSTOMER_EDIT: "PageEditCustomer",
   CONTACTS: "PageContacts",
-  CONTACTS_NEW: "PageNewContacts",
+  CONTACT: "PageContact",
+  CONTACT_NEW: "PageNewContact",
+  CONTACT_EDIT: "PageEditContact",
   [NOT_FOUND]: "PageNotFound"
 }
