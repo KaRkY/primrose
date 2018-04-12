@@ -6,33 +6,23 @@ import {
   create as createCustomer,
   del as deleteCustomer,
 } from "../api/customers";
-import getCurrentQuery from "../selectors/getCurrentQuery";
-import getCurrentPage from "../selectors/getCurrentPage";
-import getCurrentSize from "../selectors/getCurrentSize";
-import getCurrentSortProperty from "../selectors/getCurrentSortProperty";
-import getCurrentSortDirection from "../selectors/getCurrentSortDirection";
+import * as location from "../store/location";
+import * as customers from "../store/customers";
 
 
-export const load = async (dispatch, getState, {
-  action
-}) => {
-  if (shouldReloadPageData(getState, action)) {
-    const state = getState();
+export const load = async (dispatch, getState, { action }) => {
+  const state = getState();
+  const pagination = location.getCurrentPagination(state);
+
+  if (shouldReloadPageData(getState, action, customers.isLoading)) {
     dispatch(actions.customersLoading());
-    loadCustomers({
-        page: getCurrentPage(state),
-        size: getCurrentSize(state),
-        sortProperty: getCurrentSortProperty(state),
-        sortDirection: getCurrentSortDirection(state),
-      })
+    loadCustomers(pagination)
       .then(result => dispatch(actions.customersFetched(result.data)))
       .catch(error => dispatch(actions.customersError(convertError(error))));
   }
 };
 
-export const create = async (dispatch, getState, {
-  action
-}) => {
+export const create = async (dispatch, getState, { action }) => {
   createCustomer(action.payload)
     .then(result => dispatch(actions.customer(result.data)))
     .catch(console.log);
@@ -44,7 +34,7 @@ export const del = async (dispatch, getState, {
   deleteCustomer(action.payload.customer)
     .then(result => {
       dispatch(actions.customers({
-        query: getCurrentQuery(getState()),
+        query: location.getCurrentQuery(getState()),
         selected: undefined,
       }));
     })

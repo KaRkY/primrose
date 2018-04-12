@@ -4,12 +4,16 @@ import {
 import {
   handleActions
 } from "redux-actions";
+import {
+  createSelector
+} from "reselect";
 
 export default ({
   baseAction,
   loadingAction,
   fetchedAction,
   errorAction,
+  rootSelector,
 }) => {
   const data = handleActions({
     [fetchedAction]: (state, action) => action.payload.data,
@@ -33,10 +37,19 @@ export default ({
     [errorAction]: (state, action) => action.payload,
   }, null);
 
-  return combineReducers({
-    data,
-    count,
-    loading,
-    error,
-  });
+  return {
+    reducer: combineReducers({
+      data,
+      count,
+      loading,
+      error,
+    }),
+
+    selectors: {
+      getCount: createSelector(rootSelector, root => root.count),
+      getData: createSelector(rootSelector, root => root.data),
+      getError: createSelector(rootSelector, root => root.error),
+      isLoading: createSelector(rootSelector, root => root.loading),
+    }
+  };
 };

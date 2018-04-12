@@ -132,7 +132,7 @@ const DataGrid = ({
               numeric={column.numeric}
               padding={column.disablePadding ? "none" : "default"}
               style={column.width && { width: column.width}}
-              sortDirection={(sorting && sorting.sort) ? (sorting.sort.column === column.name ? sorting.sort.direction : false) : undefined}>
+              sortDirection={(sorting && sorting.sort) ? (sorting.sort.property === column.name ? sorting.sort.direction : false) : undefined}>
               {sorting && column.sortable
                 ? (
                   <Tooltip
@@ -141,7 +141,7 @@ const DataGrid = ({
                     enterDelay={300}
                   >
                     <TableSortLabel
-                      active={(sorting.sort && sorting.sort.column) === column.name}
+                      active={(sorting.sort && sorting.sort.property) === column.name}
                       direction={sorting.sort && sorting.sort.direction}
                       onClick={event => sorting.onSortChange(event, column.name, nextDirection(sorting.sort, column.name))}
                     >
@@ -278,7 +278,7 @@ ComposedDataGrid.propTypes = {
 
   sorting: PropTypes.shape({
     sort: PropTypes.shape({
-      column: PropTypes.string.isRequired,
+      property: PropTypes.string.isRequired,
       direction: PropTypes.oneOf(["asc", "desc"]).isRequired,
     }),
     onSortChange: PropTypes.func.isRequired,

@@ -4,7 +4,7 @@ import { connectRoutes } from "redux-first-router";
 
 import routesMap from "./routesMap";
 import options from "./options";
-import * as reducers from "./reducers";
+import * as reducers from "./store";
 import * as actionCreators from "./actions";
 
 export default history => {

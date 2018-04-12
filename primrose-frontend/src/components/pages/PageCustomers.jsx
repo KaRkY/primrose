@@ -3,18 +3,12 @@ import compose from "recompose/compose";
 import withHandlers from "recompose/withHandlers";
 import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
-import getData from "../../selectors/customers/getData";
-import getCount from "../../selectors/customers/getCount";
-import getCurrentQuery from "../../selectors/getCurrentQuery";
-import getCurrentPage from "../../selectors/getCurrentPage";
-import getCurrentSize from "../../selectors/getCurrentSize";
-import getCurrentSortProperty from "../../selectors/getCurrentSortProperty";
-import getCurrentSortDirection from "../../selectors/getCurrentSortDirection";
-import getSelected from "../../selectors/getSelected";
-import * as actions from "../../actions";
 import normalizeArray from "../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
+import * as actions from "../../actions";
+import * as location from "../../store/location";
+import * as customers from "../../store/customers";
 
 import DataGrid from "../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
@@ -59,31 +53,11 @@ const contentStyle = theme => ({
   }
 });
 
-const lowercase = (value) => {
-  if (typeof value === "string") {
-    return value.toLowerCase();
-  } else {
-    return value;
-  }
-};
-
-const uppercase = (value) => {
-  if (typeof value === "string") {
-    return value.toUpperCase();
-  } else {
-    return value;
-  }
-};
-
 const mapState = (state, props) => ({
-  customers: getData(state, props),
-  page: getCurrentPage(state, props),
-  size: getCurrentSize(state, props),
-  sortProperty: getCurrentSortProperty(state, props),
-  sortDirection: getCurrentSortDirection(state, props),
-  selected: getSelected(state, props),
-  totalSize: getCount(state, props),
-  query: getCurrentQuery(state, props),
+  customers: customers.getData(state),
+  pagination: location.getCurrentPagination(state),
+  totalSize: customers.getCount(state),
+  query: location.getCurrentQuery(state),
 });
 
 const mapDispatchTo = dispatch => ({
@@ -113,13 +87,13 @@ const enhance = compose(
       query: {
         ...query,
         sortProperty,
-        sortDirection: uppercase(direction),
+        sortDirection: direction,
       }
     }),
-    onSelectedRowsChange: ({ query, selected, goToCustomers }) => (event, value, checked) => goToCustomers({
+    onSelectedRowsChange: ({ query, pagination, goToCustomers }) => (event, value, checked) => goToCustomers({
       query: {
         ...query,
-        selected: (checked ? union(normalizeArray(selected), value) : difference(normalizeArray(selected), value)),
+        selected: (checked ? union(normalizeArray(pagination.selected), value) : difference(normalizeArray(pagination.selected), value)),
       }
     }),
     onNewCustomer: ({ goToNewCustomer }) => (event) => goToNewCustomer && goToNewCustomer(),
@@ -140,12 +114,8 @@ const getRowId = row => row.id;
 const Content = ({
   classes,
   customers,
-  page,
-  size,
-  sortProperty,
-  sortDirection,
+  pagination,
   totalSize,
-  selected,
   isDeleting,
   onSelectedRowsChange,
   onPageChange,
@@ -155,7 +125,6 @@ const Content = ({
   onOpenCustomer,
   onEditCustomer,
   onDeleteCustomer,
-  style,
 }) => (
     <Paper className={classes.root}>
       <Toolbar>
@@ -168,12 +137,12 @@ const Content = ({
             <PersonAddIcon />
           </IconButton>
         </Tooltip>
-        {selected && selected.length > 0 && (
+        {pagination.selected && pagination.selected.length > 0 && (
           <Tooltip
             title="Delete Customers"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={() => onPageChange(page)}>
+            <IconButton disabled={isDeleting} onClick={() => onPageChange(pagination.page)}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -193,22 +162,19 @@ const Content = ({
 
         <DataGrid.Pagination
           totalSize={totalSize}
-          page={page}
-          size={size}
+          page={pagination.page}
+          size={pagination.size}
           onPageChange={onPageChange}
           onPageSizeChange={onPageSizeChange}
         />
 
         <DataGrid.Sorting
-          sort={sortProperty && {
-            column: sortProperty,
-            direction: lowercase(sortDirection),
-          }}
+          sort={pagination.sort}
           onSortChange={onSortChange}
         />
 
         <DataGrid.Selecting
-          rowIds={selected || []}
+          rowIds={pagination.selected || []}
           onSelectRowsChange={onSelectedRowsChange}
         />
 

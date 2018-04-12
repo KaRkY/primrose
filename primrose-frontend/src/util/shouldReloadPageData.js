@@ -1,23 +1,33 @@
-import getCurrentPage from "../selectors/getCurrentPage";
-import getPreviousPage from "../selectors/getPreviousPage";
-import getCurrentSize from "../selectors/getCurrentSize";
-import getPreviousSize from "../selectors/getPreviousSize";
-import getCurrentPathname from "../selectors/getCurrentPathname";
-import getPreviousPathname from "../selectors/getPreviousPathname";
-import isCustomersLoading from "../selectors/customers/isLoading";
+import * as location from "../store/location";
 
-export default (getState, action) => {
+export default (getState, action, isLoading) => {
   const state = getState();
-  const currentPage = getCurrentPage(state);
-  const previousPage = getPreviousPage(state);
-  const currentSize = getCurrentSize(state);
-  const previousSize = getPreviousSize(state);
-  const currentPathname = getCurrentPathname(state);
-  const previousPathname = getPreviousPathname(state);
+  const cur = location.getCurrentPagination(state);
+  const prev = location.getPreviousPagination(state);
+  const currentPathname = location.getCurrentPathname(state);
+  const previousPathname = location.getPreviousPathname(state);
 
   if (!(action.payload && action.payload.force)) {
-    if (currentPage === previousPage && currentSize === previousSize && currentPathname === previousPathname) return false;
-    if (isCustomersLoading(state)) return false;
+    if (
+      prev.page === cur.page && 
+      prev.size === cur.size &&
+      currentPathname === previousPathname) {
+        if(prev.sort === undefined && cur.sort === undefined) {
+          return false;
+        } else {
+          if(
+            prev.sort && 
+            cur.sort &&
+            prev.sort.property === cur.sort.property &&
+            prev.sort.direction === cur.sort.direction 
+          ) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+      };
+    if (isLoading(state)) return false;
   }
 
   return true;

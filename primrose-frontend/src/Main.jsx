@@ -3,10 +3,11 @@ import { connect } from "react-redux";
 import compose from "recompose/compose";
 import * as actions from "./actions";
 
-import isLoading from "./selectors/isLoading";
-import getError from "./selectors/getError";
-import getPage from "./selectors/getPage";
-import getPageType from "./selectors/getPageType";
+import isLoading from "./store/isLoading";
+import getError from "./store/getError";
+import * as location from "./store/location";
+import * as page from "./store/page";
+import * as title from "./store/title";
 
 import App from "./components/ChildConfigApp";
 import IconButton from "material-ui/IconButton";
@@ -16,12 +17,12 @@ import Nav from "./components/nav/ChildConfigNav"
 import Switcher from "./components/Switcher";
 
 const mapState = state => ({
-  title: state.title,
-  page: getPage(state),
-  pageType: getPageType(state),
+  title: title.getTitle(state),
+  page: page.getPage(state),
+  pageType: location.getPageType(state),
   isLoading: isLoading(state),
   error: getError(state),
-  pathname: state.location.pathname,
+  pathname: location.getCurrentPathname(state),
 });
 
 const enhance = compose(
