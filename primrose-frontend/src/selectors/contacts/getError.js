@@ -1,0 +1,1 @@
+export default state => state.contacts.error;

@@ -1,5 +1,8 @@
+import * as actions from "../actions";
+import convertError from "../util/convertError";
 import isContactsLoading from "../selectors/contacts/isLoading";
-import loadContacts from "../api/loadContacts";
+import { load as loadContacts } from "../api/contacts";
+import getCurrentQuery from "../selectors/getCurrentQuery";
 import getCurrentPage from "../selectors/getCurrentPage";
 import getPreviousPage from "../selectors/getPreviousPage";
 import getCurrentSize from "../selectors/getCurrentSize";
@@ -10,7 +13,7 @@ import getCurrentPathname from "../selectors/getCurrentPathname";
 import getPreviousPathname from "../selectors/getPreviousPathname";
 
 
-export default async (dispatch, getState) => {
+export const load = async (dispatch, getState) => {
   const currentPage = getCurrentPage(getState());
   const previousPage = getPreviousPage(getState());
   const currentSize = getCurrentSize(getState());
@@ -29,6 +32,15 @@ export default async (dispatch, getState) => {
     sortProperty: currentSortProperty,
     sortDirection: currentSortDirection,
   })
-    .then(result => dispatch({ type: "CONTACTS_FETCHED", payload: result }))
-    .catch(error => dispatch({ type: "CONTACTS_ERROR" }));
+  .then(result => dispatch(actions.contactsFetched(result.data)))
+  .catch(error => dispatch(actions.contactsError(convertError(error))));
+};
+
+export const del = async (dispatch, getState, { action }) => {
+  console.log(action);
+
+  dispatch(actions.contacts({
+    query: getCurrentQuery(getState()),
+    selected: undefined,
+  }));
 };

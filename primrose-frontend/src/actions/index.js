@@ -1,66 +1,28 @@
 import { NOT_FOUND } from "redux-first-router";
+import {createAction } from "redux-actions";
 
-// try dispatching these from the redux devTools
+export const dashboard = createAction("DASHBOARD");
 
-export const goToPage = (type, category) => ({
-  type,
-  payload: category && { category }
-});
+export const customers = createAction("CUSTOMERS");
+export const customer = createAction("CUSTOMER");
+export const customersLoading = createAction("CUSTOMERS_LOADING");
+export const customersFetched = createAction("CUSTOMERS_FETCHED");
+export const customersError = createAction("CUSTOMERS_ERROR");
+export const customerNew = createAction("CUSTOMER_NEW");
+export const customerEdit = createAction("CUSTOMER_EDIT");
+export const customerDelete = createAction("CUSTOMER_DELETE");
+export const customerCreate = createAction("CUSTOMER_CREATE");
 
-export const goToDashboard = () => ({
-  type: "DASHBOARD"
-});
+export const contacts = createAction("CONTACTS");
+export const contact = createAction("CONTACT");
+export const contactsLoading = createAction("CONTACTS_LOADING");
+export const contactsFetched = createAction("CONTACTS_FETCHED");
+export const contactsError = createAction("CONTACTS_ERROR");
+export const contactNew = createAction("CONTACT_NEW");
+export const contactEdit = createAction("CONTACT_EDIT");
+export const contactDelete = createAction("CONTACT_DELETE");
+export const contactCreate = createAction("CONTACT_CREATE");
 
-export const goToError = () => ({
-  type: "ERROR"
-});
+export const error = createAction("ERROR");
 
-export const goToCustomers = payload => ({
-  type: "CUSTOMERS",
-  payload
-});
-
-export const executeDeleteCustomers = payload => ({
-  type: "CUSTOMERS_DELETE",
-  payload,
-});
-
-export const goToCustomer = payload => ({
-  type: "CUSTOMER",
-  payload,
-});
-
-export const goToNewCustomer = () => ({
-  type: "CUSTOMER_NEW"
-});
-
-export const goToEditCustomer = payload => ({
-  type: "CUSTOMER_EDIT",
-  payload,
-});
-
-export const goToContacts = payload => ({
-  type: "CONTACTS",
-  payload,
-});
-
-export const goToContact = payload => ({
-  type: "CONTACT",
-  payload,
-});
-
-export const goToNewContact = () => ({
-  type: "CONTACT_NEW"
-});
-
-export const goToEditContact = () => ({
-  type: "CONTACT_EDIT"
-});
-
-export const executeDeleteContacts = () => ({
-  type: "CONTACTS_DELETE"
-});
-
-export const notFound = () => ({
-  type: NOT_FOUND
-});
+export const notFound = createAction(NOT_FOUND);

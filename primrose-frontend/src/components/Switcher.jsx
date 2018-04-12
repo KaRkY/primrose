@@ -1,7 +1,7 @@
 import React from "react";
 //import { TransitionGroup, Transition } from "transition-group";
 import universal from "react-universal-component";
-import PageNotFound from "./pages/PageNotFound";
+import PageError from "./pages/PageError";
 import PageLoading from "./pages/PageLoading";
 
 
@@ -14,7 +14,7 @@ const UniversalComponent = universal(props => import(`./pages/${props.page}`), {
   loadingTransition: true,
   chunkName: props => props.page,
   loading: PageLoading,
-  error: PageNotFound,
+  error: PageError,
 });
 
 export default Switcher;

@@ -84,12 +84,12 @@ const mapState = (state, props) => ({
   totalSize: getCount(state, props),
 });
 
-const mapDispatchTo = ({
-  goToContacts: actions.goToContacts,
-  goToContact: actions.goToContact,
-  goToNewContact: actions.goToNewContact,
-  goToEditContact: actions.goToEditContact,
-  executeDeleteContacts: actions.executeDeleteContacts,
+const mapDispatchTo = dispatch => ({
+  goToContacts: payload => dispatch(actions.contacts(payload)),
+  goToContact: payload => dispatch(actions.contact(payload)),
+  goToNewContact: payload => dispatch(actions.contactNew(payload)),
+  goToEditContact: payload => dispatch(actions.contactEdit(payload)),
+  executeDeleteContact: payload => dispatch(actions.contactDelete(payload)),
 });
 
 const enhance = compose(

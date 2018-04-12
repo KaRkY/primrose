@@ -1,49 +1,57 @@
 //import { redirect, NOT_FOUND } from "redux-first-router";
-import customersThunk from "./thunks/customers";
-import customersDeleteThunk from "./thunks/customersDelete";
-import contactsThunk from "./thunks/contacts";
-import contactsDeleteThunk from "./thunks/contactsDelete";
+import * as actions from "./actions";
+import {
+  load as customersLoadThunk,
+  create as customerCreateThunk,
+  del as customerDeleteThunk
+} from "./thunks/customers";
+import {
+  load as contactsLoadThunk,
+  del as contactsDeleteThunk
+} from "./thunks/contacts";
 
 export default {
-  DASHBOARD: {
+  [actions.dashboard]: {
     path: "/",
   },
-  ERROR: {
+  [actions.error]: {
     path: "/er",
   },
-  CUSTOMERS: {
+  [actions.customers]: {
     path: "/customers",
-    thunk: customersThunk,
+    thunk: customersLoadThunk,
   },
-  CUSTOMERS_DELETE: {
-    path: "/customers",
-    thunk: customersDeleteThunk,
+  [actions.customerDelete]: {
+    thunk: customerDeleteThunk,
   },
-  CUSTOMER_NEW: {
+  [actions.customerNew]: {
     path: "/customers/new",
   },
-  CUSTOMER: {
+  [actions.customerCreate]: {
+    thunk: customerCreateThunk,
+  },
+  [actions.customer]: {
     path: "/customers/:id",
   },
-  CUSTOMER_EDIT: {
+  [actions.customerEdit]: {
     path: "/customers/:id/edit",
   },
 
-  CONTACTS: {
+  [actions.contacts]: {
     path: "/contacts",
-    thunk: contactsThunk,
+    thunk: contactsLoadThunk,
   },
-  CONTACTS_DELETE: {
+  [actions.contactDelete]: {
     path: "/customers",
     thunk: contactsDeleteThunk,
   },
-  CONTACT_NEW: {
+  [actions.contactNew]: {
     path: "/contacts/new",
   },
-  CONTACT: {
+  [actions.contact]: {
     path: "/contacts/:id",
   },
-  CONTACT_EDIT: {
+  [actions.contactEdit]: {
     path: "/contacts/:id/edit",
   },
 };

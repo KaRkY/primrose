@@ -4,7 +4,9 @@ import compose from "recompose/compose";
 import * as actions from "./actions";
 
 import isLoading from "./selectors/isLoading";
+import getError from "./selectors/getError";
 import getPage from "./selectors/getPage";
+import getPageType from "./selectors/getPageType";
 
 import App from "./components/ChildConfigApp";
 import IconButton from "material-ui/IconButton";
@@ -16,7 +18,9 @@ import Switcher from "./components/Switcher";
 const mapState = state => ({
   title: state.title,
   page: getPage(state),
+  pageType: getPageType(state),
   isLoading: isLoading(state),
+  error: getError(state),
   pathname: state.location.pathname,
 });
 
@@ -38,10 +42,10 @@ const Main = props => (
 
       <App.Navigation>
         <Nav>
-          <Nav.Item exact to={actions.goToDashboard()} name="Dashboard" />
-          <Nav.Item to={actions.goToCustomers()} name="Customers" />
-          <Nav.Item to={actions.goToContacts()} name="Contacts" />
-          <Nav.Item exact to={actions.goToError()} name="Error" />
+          <Nav.Item exact to={actions.dashboard()} name="Dashboard" />
+          <Nav.Item to={actions.customers({ force: true })} name="Customers" />
+          <Nav.Item to={actions.contacts()} name="Contacts" />
+          <Nav.Item exact to={actions.error()} name="Error" />
         </Nav>
       </App.Navigation>
 

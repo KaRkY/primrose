@@ -86,12 +86,12 @@ const mapState = (state, props) => ({
   query: getCurrentQuery(state, props),
 });
 
-const mapDispatchTo = ({
-  goToCustomers: actions.goToCustomers,
-  goToCustomer: actions.goToCustomer,
-  goToNewCustomer: actions.goToNewCustomer,
-  goToEditCustomer: actions.goToEditCustomer,
-  executeDeleteCustomers: actions.executeDeleteCustomers,
+const mapDispatchTo = dispatch => ({
+  goToCustomers: payload => dispatch(actions.customers(payload)),
+  goToCustomer: payload => dispatch(actions.customer(payload)),
+  goToNewCustomer: payload => dispatch(actions.customerNew(payload)),
+  goToEditCustomer: payload => dispatch(actions.customerEdit(payload)),
+  executeDeleteCustomer: payload => dispatch(actions.customerDelete(payload)),
 });
 
 const enhance = compose(
@@ -125,8 +125,8 @@ const enhance = compose(
     onNewCustomer: ({ goToNewCustomer }) => (event) => goToNewCustomer && goToNewCustomer(),
     onOpenCustomer: ({ goToCustomer }) => (event, id) => goToCustomer && goToCustomer({ id }),
     onEditCustomer: ({ goToEditCustomer }) => (event, id) => goToEditCustomer && goToEditCustomer({ id }),
-    onDeleteCustomers: ({ query, executeDeleteCustomers }) => (event, customers) => executeDeleteCustomers && executeDeleteCustomers({
-      customers,
+    onDeleteCustomer: ({ query, executeDeleteCustomer }) => (event, customer) => executeDeleteCustomer && executeDeleteCustomer({
+      customer,
       query,
     }),
   }),
@@ -154,7 +154,7 @@ const Content = ({
   onNewCustomer,
   onOpenCustomer,
   onEditCustomer,
-  onDeleteCustomers,
+  onDeleteCustomer,
   style,
 }) => (
     <Paper className={classes.root}>
@@ -173,7 +173,7 @@ const Content = ({
             title="Delete Customers"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={event => onDeleteCustomers(event, selected)}>
+            <IconButton disabled={isDeleting} onClick={() => onPageChange(page)}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -234,7 +234,7 @@ const Content = ({
               title="Delete Customer"
               enterDelay={300}
             >
-              <IconButton onClick={event => onDeleteCustomers(event, [row.id])}>
+              <IconButton onClick={event => onDeleteCustomer(event, row.id)}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>

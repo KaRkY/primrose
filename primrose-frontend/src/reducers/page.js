@@ -13,5 +13,5 @@ const components = {
   CONTACT: "PageContact",
   CONTACT_NEW: "PageNewContact",
   CONTACT_EDIT: "PageEditContact",
-  [NOT_FOUND]: "PageNotFound"
+  [NOT_FOUND]: "PageError"
 }

@@ -1,6 +1,8 @@
 import React from "react";
 import compose from "recompose/compose";
+import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
+import * as actions from "../../actions";
 
 import Paper from "material-ui/Paper";
 import Button from "material-ui/Button";
@@ -10,7 +12,7 @@ import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
 import { InputAdornment } from "material-ui/Input";
 import Grid from "material-ui/Grid";
-import { Form, FormSpy } from "react-final-form";
+import { Form } from "react-final-form";
 import TextField from "../Form/TextField";
 import MenuItem from "material-ui/Menu/MenuItem";
 import arrayMutators from "final-form-arrays";
@@ -33,18 +35,25 @@ const contentStyle = theme => ({
   },
 });
 
+const mapState = (state, props) => ({
+  
+});
+
+const mapDispatchTo = dispatch => ({
+  executeCreateCustomer: () => actions.customerNew
+});
 
 const enhance = compose(
-  withStyles(contentStyle)
+  connect(mapState, mapDispatchTo),
+  withStyles(contentStyle),
 );
 
 const Content = ({
   classes,
+  executeCreateCustomer,
 }) => (
     <Form
-      onSubmit={values => {
-        console.log(JSON.stringify(values));
-      }}
+      onSubmit={executeCreateCustomer}
       validate={values => true}
       mutators={{
         ...arrayMutators
@@ -59,7 +68,6 @@ const Content = ({
         values
       }) => (
           <form onSubmit={handleSubmit} onReset={reset}>
-            <FormSpy subscription={{ values: true }} onChange={console.log} />
             <Grid container spacing={16}>
 
               <Grid item xs={12} md={6}>
