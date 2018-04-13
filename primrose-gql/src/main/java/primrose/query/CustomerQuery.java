@@ -46,12 +46,6 @@ public class CustomerQuery {
           case "displayName":
             return Tables.CUSTOMERS.DISPLAY_NAME;
 
-          case "email":
-            return Tables.CUSTOMERS.EMAIL;
-
-          case "phone":
-            return Tables.CUSTOMERS.PHONE;
-
           case "id":
             return Tables.CUSTOMERS.ID;
 
@@ -82,8 +76,6 @@ public class CustomerQuery {
           .relationType(customerRelationTypesRecord.getName())
           .fullName(customersRecord.getFullName())
           .displayName(Optional.ofNullable(customersRecord.getDisplayName()))
-          .email(customersRecord.getEmail())
-          .phone(Optional.ofNullable(customersRecord.getPhone()))
           .description(Optional.ofNullable(customersRecord.getDescription()))
           .build();
       });
@@ -111,8 +103,6 @@ public class CustomerQuery {
           .relationType(customerRelationTypesRecord.getName())
           .fullName(customersRecord.getFullName())
           .displayName(Optional.ofNullable(customersRecord.getDisplayName()))
-          .email(customersRecord.getEmail())
-          .phone(Optional.ofNullable(customersRecord.getPhone()))
           .description(Optional.ofNullable(customersRecord.getDescription()))
           .build();
       });

@@ -30,8 +30,6 @@ public class CustomerMutation {
         Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE,
         Tables.CUSTOMERS.FULL_NAME,
         Tables.CUSTOMERS.DISPLAY_NAME,
-        Tables.CUSTOMERS.EMAIL,
-        Tables.CUSTOMERS.PHONE,
         Tables.CUSTOMERS.DESCRIPTION)
       .values(
         create
@@ -46,8 +44,6 @@ public class CustomerMutation {
           .asField(),
         DSL.value(customer.fullName()),
         DSL.value(customer.displayName().orElse(null)),
-        DSL.value(customer.email()),
-        DSL.value(customer.phone().orElse(null)),
         DSL.value(customer.description().orElse(null)))
       .returning(Tables.CUSTOMERS.ID)
       .fetchOne()

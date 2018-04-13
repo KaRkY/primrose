@@ -1,13 +1,34 @@
-import * as actions from "../actions";
+import axios from "../axiosInstance";
+import shouldReloadPageData from "../util/shouldReloadPageData";
+import convertError from "../util/convertError";
 import createEntity from "./createEntity";
+import * as actions from "../actions";
+import * as location from "./location";
 
 const entity = createEntity({
   baseAction: actions.contacts,
-  loadingAction: actions.contactsLoading,
-  fetchedAction: actions.contactsFetched,
-  errorAction: actions.contactsError,
+  loadingAction: actions.contactsLoad,
+  fetchedAction: actions.contactsLoadFinished,
+  errorAction: actions.contactsLoadError,
   rootSelector: state => state.contacts,
 });
+
+export const apiLoad = ({
+  dispatch,
+  state,
+  action
+}) => {
+  const pagination = location.getCurrentPagination(state);
+
+  if (shouldReloadPageData(state, action, isLoading)) {
+    dispatch(actions.contactsLoad());
+    return axios.get("/contacts", { params: pagination })
+      .then(result => dispatch(actions.contactsLoadFinished(result.data)))
+      .catch(error => dispatch(actions.contactsLoadError(convertError(error))));
+  } else {
+    return Promise.resolve();
+  }
+};
 
 export const getCount = entity.selectors.getCount;
 export const getData = entity.selectors.getData;

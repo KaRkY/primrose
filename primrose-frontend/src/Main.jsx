@@ -11,7 +11,7 @@ import * as title from "./store/title";
 
 import App from "./components/ChildConfigApp";
 import IconButton from "material-ui/IconButton";
-import MoreVert from "material-ui-icons/MoreVert";
+import MoreVert from "@material-ui/icons/MoreVert";
 import Tooltip from "material-ui/Tooltip";
 import Nav from "./components/nav/ChildConfigNav"
 import Switcher from "./components/Switcher";

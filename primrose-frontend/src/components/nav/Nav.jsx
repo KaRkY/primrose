@@ -6,8 +6,8 @@ import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-
 import { NavLink } from "redux-first-router-link";
 import { CircularProgress } from "material-ui/Progress";
 import Collapse from "material-ui/transitions/Collapse";
-import ExpandLessIcon from 'material-ui-icons/ExpandLess';
-import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 export const style = theme => ({
   activeMenuItem: {

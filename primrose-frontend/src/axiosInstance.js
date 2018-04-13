@@ -3,8 +3,16 @@ import ax from "axios";
 import queryString from "query-string";
 import MockAdapter from "axios-mock-adapter";
 
-const relationTypes = ["Customer", "Partner", "Investor", "Reseller"];
-const types = ["Person", "Company"];
+const relationTypes = {
+  customer: "Customer",
+  partner: "Partner",
+  investor: "Investor",
+  reseller: "Reseller",
+};;
+const types = {
+  person: "Person",
+  company: "Company"
+};
 
 const generateArray = (count, single) => {
   return range(count)
@@ -23,8 +31,8 @@ const generateContact = index => {
 const generateCustomer = index => {
   return {
     id: index,
-    relationType: relationTypes[index % 4],
-    type: types[index % 2],
+    relationType: relationTypes[Object.keys(relationTypes)[index % 4]],
+    type: types[Object.keys(types)[index % 2]],
     fullName: `Customer ${index}`,
     dindexsplayName: `Customer ${index}`,
   };
@@ -48,94 +56,127 @@ export default axios;
 const mock = new MockAdapter(axios);
 
 const respond = ({
-  config,  
-  result, 
-  errorProbability, 
+  config,
+  result,
+  errorProbability,
   timeoutProbability,
   serverErrorProbability,
   delay,
   onSuccess,
 }) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (isError(errorProbability)) {
-          if(isTimeout(timeoutProbability)) {
-            const error = new Error("timeout of " + config.timeout + "ms exceeded");
-            error.config = config;
-            error.code = "ECONNABORTED";
-            return reject(error);
-          } else {
-            if(isServerError(serverErrorProbability)) {
-              resolve([500, { error: true }]);
-            } else {
-              reject(new Error("Some network error"));
-            }
-          }
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (isError(errorProbability)) {
+        if (isTimeout(timeoutProbability)) {
+          const error = new Error("timeout of " + config.timeout + "ms exceeded");
+          error.config = config;
+          error.code = "ECONNABORTED";
+          return reject(error);
         } else {
-          resolve([200, onSuccess ? onSuccess(config.data && JSON.parse(config.data)) : result]);
+          if (isServerError(serverErrorProbability)) {
+            resolve([500, {
+              error: true
+            }]);
+          } else {
+            reject(new Error("Some network error"));
+          }
         }
-      }, delay);
-    });
+      } else {
+        resolve([200, onSuccess ? onSuccess(config.data && JSON.parse(config.data)) : result]);
+      }
+    }, delay);
+  });
 }
 
-mock.onGet("/customers").reply(config => {
-  const startIndex = hasPagination(config.params) ? config.params.size * config.params.page : 0;
-  const endIndex = hasPagination(config.params) ? startIndex + config.params.size : customers.length;
-  return respond({
-    config,
-    result: { data: customers.slice(startIndex, endIndex), count: customers.length},
-    errorProbability: 0,
-    timeoutProbability: 50,
-    serverErrorProbability: 90,
-    delay: 1000,
+const configureEntity = (mocker, entity, values) => {
+  mocker.onGet(`/${entity}`).reply(config => {
+    const startIndex = hasPagination(config.params) ? config.params.size * config.params.page : 0;
+    const endIndex = hasPagination(config.params) ? startIndex + config.params.size : customers.length;
+    return respond({
+      config,
+      result: {
+        data: values.slice(startIndex, endIndex),
+        count: values.length
+      },
+      errorProbability: 0,
+      timeoutProbability: 50,
+      serverErrorProbability: 90,
+      delay: 1000,
+    });
   });
-});
+  
+  mocker.onPost(`/${entity}`).reply(config => {
+    return respond({
+      config,
+      errorProbability: 0,
+      timeoutProbability: 50,
+      serverErrorProbability: 90,
+      delay: 1000,
+      onSuccess: value => {
+        const length = values.push(value);
+        value.id = length - 1;
+        return {
+          id: value.id,
+        };
+      }
+    });
+  });
 
-mock.onPost("/customers").reply(config => {
-  return respond({
-    config,
-    errorProbability: 0,
-    timeoutProbability: 50,
-    serverErrorProbability: 90,
-    delay: 1000,
-    onSuccess: value => {
-      const length = customers.push(value);
-      value.id = length - 1;
-      return {
-        id: value.id,
-      };
-    }
+  const putUrl = new RegExp(`/${entity}/(\\d+)`);
+  mocker.onPut(putUrl).reply(config => {
+    return respond({
+      config,
+      errorProbability: 0,
+      timeoutProbability: 50,
+      serverErrorProbability: 90,
+      delay: 1000,
+      onSuccess: value => {
+        const id = parseInt(config.url.match(putUrl)[1], 10);
+        const index = values.map(row => row.id).indexOf(id);
+        values.splice(index, 1, value);
+        return value;
+      }
+    });
   });
-});
+  
+  mocker.onDelete(`/${entity}`).reply(config => {
+    return respond({
+      config,
+      errorProbability: 0,
+      timeoutProbability: 50,
+      serverErrorProbability: 90,
+      delay: 1000,
+      onSuccess: value => {
+        config.params.id.forEach(id => {
+          const index = values.map(row => row.id).indexOf(id);
+          values.splice(index, 1);
+        });
+        return {
+          id: config.params.id,
+        };
+      }
+    });
+  });
+  
+  const deleteUrl = new RegExp(`/${entity}/(\\d+)`);
+  mocker.onDelete(deleteUrl).reply(config => {
+    return respond({
+      config,
+      errorProbability: 0,
+      timeoutProbability: 50,
+      serverErrorProbability: 90,
+      delay: 1000,
+      onSuccess: () => {
+        const id = parseInt(config.url.match(deleteUrl)[1], 10);
+        const index = values.map(row => row.id).indexOf(id);
+        values.splice(index, 1);
+        return {
+          id: [id],
+        };
+      }
+    });
+  });
+};
 
-const deleteUrl = /\/customers\/(\d+)/;
-mock.onDelete(deleteUrl).reply(config => {
-  return respond({
-    config,
-    errorProbability: 0,
-    timeoutProbability: 50,
-    serverErrorProbability: 90,
-    delay: 1000,
-    onSuccess: () => {
-      const id = parseInt(config.url.match(deleteUrl)[1], 10);
-      const customerIndex = customers.map(row => row.id).indexOf(id);
-      customers.splice(customerIndex, 1);
-      return {
-        id
-      };
-    }
-  });
-});
-
-mock.onGet("/contacts").reply(config => {
-  const startIndex = hasPagination(config.params) ? config.params.size * config.params.page : 0;
-  const endIndex = hasPagination(config.params) ? startIndex + config.params.size : contacts.length;
-  return respond({
-    config,
-    result: { data: contacts.slice(startIndex, endIndex), count: contacts.length},
-    errorProbability: 0,
-    timeoutProbability: 50,
-    serverErrorProbability: 90,
-    delay: 1000,
-  });
-});
+configureEntity(mock, "customers", customers);
+configureEntity(mock, "contacts", contacts);

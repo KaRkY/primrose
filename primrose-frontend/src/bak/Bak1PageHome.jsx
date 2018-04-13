@@ -8,7 +8,7 @@ import validate from "../../validate";
 import Paper from "material-ui/Paper";
 import Button from "material-ui/Button";
 import IconButton from "material-ui/IconButton";
-import ClearIcon from "material-ui-icons/Clear";
+import ClearIcon from "@material-ui/icons/Clear";
 import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
 import { InputAdornment } from "material-ui/Input";

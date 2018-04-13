@@ -3,13 +3,14 @@ import PropTypes from "prop-types";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
 import difference from "lodash/difference";
+import nextDirection from "../../util/nextDirection";
 
 import Tooltip from "material-ui/Tooltip";
 import Fade from "material-ui/transitions/Fade";
 import Checkbox from "material-ui/Checkbox";
 import IconButton from "material-ui/IconButton";
-import KeyboardArrowRight from "material-ui-icons/KeyboardArrowRight";
-import KeyboardArrowDown from "material-ui-icons/KeyboardArrowDown";
+import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import KeyboardArrowDown from "@material-ui/icons/KeyboardArrowDown";
 import Table, {
   TableBody,
   TableCell,
@@ -79,19 +80,6 @@ const extractId = (getId, obj) => {
     }
   }
 }
-
-const nextDirection = (sort, column) => {
-  if (sort && sort.column === column) {
-    switch (sort.direction) {
-      case "asc": return "desc";
-      case "desc": return undefined;
-      case undefined: return "asc";
-      default: return "asc";
-    }
-  } else {
-    return "asc";
-  }
-};
 
 const DataGrid = ({
   classes,

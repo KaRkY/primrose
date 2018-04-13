@@ -12,11 +12,11 @@ import Typography from "material-ui/Typography";
 import Drawer from "material-ui/Drawer";
 import Divider from "material-ui/Divider";
 import IconButton from "material-ui/IconButton";
-import ChevronLeftIcon from "material-ui-icons/ChevronLeft";
-import ChevronRightIcon from "material-ui-icons/ChevronRight";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import AppBar from "material-ui/AppBar";
 import AppToolbar from "material-ui/Toolbar";
-import MenuIcon from "material-ui-icons/Menu";
+import MenuIcon from "@material-ui/icons/Menu";
 
 const styles = theme => ({
   root: {

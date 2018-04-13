@@ -1,6 +1,6 @@
 import React from "react";
 import { withStyles } from "material-ui/styles";
-import AddIcon from "material-ui-icons/Add";
+import AddIcon from "@material-ui/icons/Add";
 import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
 import IconButton from "material-ui/IconButton";

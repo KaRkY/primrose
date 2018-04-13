@@ -8,4 +8,7 @@ const components = {
   [actions.contacts]: state => contacts.isLoading(state),
 }
 
-export default state => components[location.getPageType(state)](state) || false;
+export default state => {
+  const fun = components[location.getPageType(state)];
+  return fun ? fun(state) : false;
+};

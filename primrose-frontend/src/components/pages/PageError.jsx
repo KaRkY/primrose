@@ -30,6 +30,7 @@ const Content = props => {
   }
 
   if (isError(props.error)) {
+    console.log(props);
     return (
       <div className={props.classes.root}>
         <Typography variant="display2">Oh no <span role="img" aria-label="Surprised Face">😯</span></Typography>

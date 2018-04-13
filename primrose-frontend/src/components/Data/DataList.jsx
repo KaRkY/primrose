@@ -14,7 +14,7 @@ import ExpansionPanel, {
 import TablePagination from "material-ui/Table/TablePagination";
 import Typography from "material-ui/Typography";
 import Grid from "material-ui/Grid";
-import ExpandMoreIcon from "material-ui-icons/ExpandMore";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 const styles = theme => ({
   root: {

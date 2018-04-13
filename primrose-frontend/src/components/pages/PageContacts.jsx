@@ -13,10 +13,10 @@ import * as contacts from "../../store/contacts";
 import DataGrid from "../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
 import Toolbar from "material-ui/Toolbar";
-import PersonAddIcon from "material-ui-icons/PersonAdd";
-import DeleteIcon from "material-ui-icons/Delete";
-import EditIcon from "material-ui-icons/Edit";
-import ZoomInIcon from "material-ui-icons/ZoomIn";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@material-ui/icons/Edit";
+import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
 
@@ -65,7 +65,7 @@ const mapDispatchTo = dispatch => ({
   goToContact: payload => dispatch(actions.contact(payload)),
   goToNewContact: payload => dispatch(actions.contactNew(payload)),
   goToEditContact: payload => dispatch(actions.contactEdit(payload)),
-  executeDeleteContact: payload => dispatch(actions.contactDelete(payload)),
+  executeDeleteContact: payload => dispatch(actions.contactsDelete(payload)),
 });
 
 const enhance = compose(

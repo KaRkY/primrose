@@ -7,16 +7,24 @@ import * as actions from "../../actions";
 import Paper from "material-ui/Paper";
 import Button from "material-ui/Button";
 import IconButton from "material-ui/IconButton";
-import ClearIcon from "material-ui-icons/Clear";
+import ClearIcon from "@material-ui/icons/Clear";
 import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
 import { InputAdornment } from "material-ui/Input";
 import Grid from "material-ui/Grid";
 import { Form } from "react-final-form";
+import { FORM_ERROR } from "final-form";
 import TextField from "../Form/TextField";
 import MenuItem from "material-ui/Menu/MenuItem";
 import arrayMutators from "final-form-arrays";
 import FieldArray from "../Form/FieldArray";
+import promiseListener from "../../store/promiseListener";
+
+const createCustomer = promiseListener.createAsyncFunction({
+  start: actions.customerCreate.toString(),
+  resolve: actions.customerCreateFinished.toString(),
+  reject: actions.customerCreateError.toString(),
+});
 
 const contentStyle = theme => ({
   root: theme.mixins.gutters({
@@ -35,12 +43,14 @@ const contentStyle = theme => ({
   },
 });
 
+
+
 const mapState = (state, props) => ({
-  
+
 });
 
 const mapDispatchTo = dispatch => ({
-  executeCreateCustomer: () => actions.customerNew
+  goToCustomer: payload => dispatch(actions.customer(payload)),
 });
 
 const enhance = compose(
@@ -50,16 +60,25 @@ const enhance = compose(
 
 const Content = ({
   classes,
-  executeCreateCustomer,
+  goToCustomer,
 }) => (
     <Form
-      onSubmit={executeCreateCustomer}
+      onSubmit={values => {
+        return createCustomer
+          .asyncFunction(values)
+          .then(result => {
+            goToCustomer(result);
+            return {};
+          })
+          .catch(error => ({ [FORM_ERROR]: error }));
+      }}
       validate={values => true}
       mutators={{
         ...arrayMutators
       }}
       render={({
         handleSubmit,
+        submitError,
         reset,
         mutators,
         submitting,
@@ -69,6 +88,13 @@ const Content = ({
       }) => (
           <form onSubmit={handleSubmit} onReset={reset}>
             <Grid container spacing={16}>
+              {submitError &&
+                <Grid item xs={12}>
+                  <Paper>
+                    <Typography component="pre">{JSON.stringify(submitError, null, 2)}</Typography>
+                  </Paper>
+                </Grid>
+              }
 
               <Grid item xs={12} md={6}>
                 <Paper elevation={2}>
@@ -177,7 +203,7 @@ const Content = ({
 
               <Grid item container spacing={16}>
                 <Grid item>
-                  <Button variant="raised" color="secondary" type="submit" disabled={submitting || pristine || invalid}>Submit</Button>
+                  <Button variant="raised" color="secondary" type="submit" disabled={submitting || pristine}>Submit</Button>
                 </Grid>
                 <Grid item>
                   <Button variant="raised" type="reset" disabled={submitting}>Reset</Button>

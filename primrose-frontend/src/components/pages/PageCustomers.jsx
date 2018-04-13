@@ -13,12 +13,20 @@ import * as customers from "../../store/customers";
 import DataGrid from "../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
 import Toolbar from "material-ui/Toolbar";
-import PersonAddIcon from "material-ui-icons/PersonAdd";
-import DeleteIcon from "material-ui-icons/Delete";
-import EditIcon from "material-ui-icons/Edit";
-import ZoomInIcon from "material-ui-icons/ZoomIn";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@material-ui/icons/Edit";
+import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
+
+import promiseListener from "../../store/promiseListener";
+
+const deleteCustomers = promiseListener.createAsyncFunction({
+  start: actions.customersDelete.toString(),
+  resolve: actions.customersDeleteFinished.toString(),
+  reject: actions.customersDeleteError.toString(),
+});
 
 
 const contentStyle = theme => ({
@@ -65,7 +73,6 @@ const mapDispatchTo = dispatch => ({
   goToCustomer: payload => dispatch(actions.customer(payload)),
   goToNewCustomer: payload => dispatch(actions.customerNew(payload)),
   goToEditCustomer: payload => dispatch(actions.customerEdit(payload)),
-  executeDeleteCustomer: payload => dispatch(actions.customerDelete(payload)),
 });
 
 const enhance = compose(
@@ -99,10 +106,6 @@ const enhance = compose(
     onNewCustomer: ({ goToNewCustomer }) => (event) => goToNewCustomer && goToNewCustomer(),
     onOpenCustomer: ({ goToCustomer }) => (event, id) => goToCustomer && goToCustomer({ id }),
     onEditCustomer: ({ goToEditCustomer }) => (event, id) => goToEditCustomer && goToEditCustomer({ id }),
-    onDeleteCustomer: ({ query, executeDeleteCustomer }) => (event, customer) => executeDeleteCustomer && executeDeleteCustomer({
-      customer,
-      query,
-    }),
   }),
   withStyles(contentStyle)
 );
@@ -117,6 +120,8 @@ const Content = ({
   pagination,
   totalSize,
   isDeleting,
+  query,
+  goToCustomers,
   onSelectedRowsChange,
   onPageChange,
   onPageSizeChange,
@@ -124,7 +129,6 @@ const Content = ({
   onNewCustomer,
   onOpenCustomer,
   onEditCustomer,
-  onDeleteCustomer,
 }) => (
     <Paper className={classes.root}>
       <Toolbar>
@@ -142,7 +146,11 @@ const Content = ({
             title="Delete Customers"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={() => onPageChange(pagination.page)}>
+            <IconButton disabled={isDeleting} onClick={() => {
+              deleteCustomers.asyncFunction({ customers: pagination.selected })
+                .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
+                .catch(console.log);
+            }}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -200,7 +208,11 @@ const Content = ({
               title="Delete Customer"
               enterDelay={300}
             >
-              <IconButton onClick={event => onDeleteCustomer(event, row.id)}>
+              <IconButton onClick={event => () => {
+                deleteCustomers.asyncFunction({ customers: row.id })
+                  .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
+                  .catch(console.log);
+              }}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
