@@ -1,7 +1,6 @@
 import * as location from "../store/location";
 
-export default (getState, action, isLoading) => {
-  const state = getState();
+export default (state, action, isLoading) => {
   const cur = location.getCurrentPagination(state);
   const prev = location.getPreviousPagination(state);
   const currentPathname = location.getCurrentPathname(state);

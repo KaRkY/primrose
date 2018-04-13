@@ -14,7 +14,7 @@ export const load = async (dispatch, getState, { action }) => {
   const state = getState();
   const pagination = location.getCurrentPagination(state);
 
-  if (shouldReloadPageData(getState, action, customers.isLoading)) {
+  if (shouldReloadPageData(state, action, customers.isLoading)) {
     dispatch(actions.customersLoading());
     loadCustomers(pagination)
       .then(result => dispatch(actions.customersFetched(result.data)))

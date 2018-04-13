@@ -10,7 +10,7 @@ export const load = async (dispatch, getState, { action }) => {
   const state = getState();
   const pagination = location.getCurrentPagination(state);
 
-  if (shouldReloadPageData(getState, action, contacts.isLoading)) {
+  if (shouldReloadPageData(state, action, contacts.isLoading)) {
     dispatch(actions.contactsLoading());
     loadContacts(pagination)
       .then(result => dispatch(actions.contactsFetched(result.data)))

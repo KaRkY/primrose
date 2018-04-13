@@ -1,5 +1,6 @@
 //import { redirect, NOT_FOUND } from "redux-first-router";
 import * as actions from "./actions";
+import * as customers from "./store/customers";
 import {
   load as customersLoadThunk,
   create as customerCreateThunk,
@@ -19,7 +20,7 @@ export default {
   },
   [actions.customers]: {
     path: "/customers",
-    thunk: customersLoadThunk,
+    thunk: (dispatch, getState, { action }) => customers.apiLoad({ dispatch, state: getState(), action }),
   },
   [actions.customerDelete]: {
     thunk: customerDeleteThunk,
