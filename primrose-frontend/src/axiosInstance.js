@@ -52,8 +52,13 @@ const axios = ax.create({
   paramsSerializer: queryString.stringify,
   timeout: 2000,
 });
+
+const axiosMock = ax.create({
+  paramsSerializer: queryString.stringify,
+  timeout: 2000,
+});
 export default axios;
-const mock = new MockAdapter(axios);
+const mock = new MockAdapter(axiosMock);
 
 const respond = ({
   config,

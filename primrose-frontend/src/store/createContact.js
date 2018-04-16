@@ -15,8 +15,15 @@ export const apiCreate = ({
   state,
   action
 }) => {
-  axios.post("/contacts", action.payload)
-    .then(result => dispatch(actions.contactCreateFinished(result.data)))
+  axios.post("/contacts", {
+    jsonrpc: "2.0",
+    method: "create",
+    params: {
+      contact: action.payload
+    },
+    id: Date.now(),
+  })
+    .then(result => dispatch(actions.contactCreateFinished(result.data.result)))
     .catch(error => dispatch(actions.contactCreateError(convertError(error))));
 };
 

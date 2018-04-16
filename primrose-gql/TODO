@@ -1,0 +1,5 @@
+Create resource handling: slugs, usernames etc...
+RS (Resource service) should support reserving and releasing of resources
+Create slug generator
+Resource types: ONETIME, RELEASE-AFTER, RELEASE-IMIDIATE
+Resource owner: type + id (customer:12, account:255)

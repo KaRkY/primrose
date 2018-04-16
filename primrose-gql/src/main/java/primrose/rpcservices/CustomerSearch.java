@@ -1,4 +1,4 @@
-package primrose.services;
+package primrose.rpcservices;
 
 import java.util.Optional;
 
@@ -6,9 +6,12 @@ import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import primrose.services.ImmutableCustomerSearch;
+
 @Value.Immutable
-@JsonDeserialize(as = ImmutableCustomersSearchResult.class)
-public interface CustomersSearchResult {
+@Value.Style(deepImmutablesDetection = true, depluralize = true, throwForInvalidImmutableState = IllegalArgumentException.class)
+@JsonDeserialize(as = ImmutableCustomerSearch.class)
+public interface CustomerSearch {
 
   String type();
 

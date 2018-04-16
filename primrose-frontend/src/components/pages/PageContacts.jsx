@@ -125,7 +125,7 @@ const Content = ({
   onOpenContact,
   onEditContact,
   onDeleteContacts,
-}) => console.log(pagination) || (
+}) => (
     <Paper className={classes.root}>
       <Toolbar>
         <div className={classes.grow} />

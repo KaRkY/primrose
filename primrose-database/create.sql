@@ -163,6 +163,7 @@ create table customer_addresses(
 create table customer_phone_numbers(
   phone             bigint  not null,
   customer          bigint  not null,
+  prim              bool    not null default false,
   phone_number_type bigint,
   
   valid_from        timestamp with time zone not null default now(),
@@ -177,6 +178,7 @@ create table customer_phone_numbers(
 create table customer_emails(
   email       bigint  not null,
   customer    bigint  not null,
+  prim        bool    not null default false,
   email_type  bigint,
   
   valid_from  timestamp with time zone not null default now(),

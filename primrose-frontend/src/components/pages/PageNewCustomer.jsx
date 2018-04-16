@@ -50,7 +50,7 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToCustomer: payload => dispatch(actions.customer(payload)),
+  goToCustomer: payload => console.log(payload) || dispatch(actions.customer({ id: payload })),
 });
 
 const enhance = compose(
@@ -111,14 +111,14 @@ const Content = ({
                     </Grid>
 
                     <Grid item xs={12} md={6}>
-                      <TextField select name="customerType" label="Customer type" fullWidth>
+                      <TextField select name="type" label="Customer type" fullWidth>
                         <MenuItem value="person">Person</MenuItem>
                         <MenuItem value="company">Company</MenuItem>
                       </TextField>
                     </Grid>
 
                     <Grid item xs={12} md={6}>
-                      <TextField select name="customerRelationType" label="Customer relation type" fullWidth>
+                      <TextField select name="relationType" label="Customer relation type" fullWidth>
                         <MenuItem value="customer">Customer</MenuItem>
                         <MenuItem value="partner">Partner</MenuItem>
                         <MenuItem value="investor">Investor</MenuItem>

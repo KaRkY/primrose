@@ -17,12 +17,26 @@ export const apiDelete = ({
 }) => {
   const customers = action.payload.customers;
   if (Array.isArray(customers)) {
-    axios.delete(`/customers`, { params: { customers }})
-      .then(result => dispatch(actions.customersDeleteFinished(result.data)))
+    axios.delete("/customers", {
+        jsonrpc: "2.0",
+        method: "delete",
+        params: {
+          customer: customers
+        },
+        id: Date.now(),
+      })
+      .then(result => dispatch(actions.customersDeleteFinished(result.data.result)))
       .catch(error => dispatch(actions.customersDeleteError(convertError(error))));
   } else {
-    axios.delete(`/customers/${customers}`)
-      .then(result => dispatch(actions.customersDeleteFinished(result.data)))
+    axios.delete("/customers", {
+        jsonrpc: "2.0",
+        method: "delete",
+        params: {
+          customers
+        },
+        id: Date.now(),
+      })
+      .then(result => dispatch(actions.customersDeleteFinished(result.data.result)))
       .catch(error => dispatch(actions.customersDeleteError(convertError(error))));
   }
 };

@@ -22,8 +22,15 @@ export const apiLoad = ({
 
   if (shouldReloadPageData(state, action, isLoading)) {
     dispatch(actions.customersLoad());
-    return axios.get("/customers", { params: pagination })
-      .then(result => dispatch(actions.customersLoadFinished(result.data)))
+    return axios.post("/customers", {
+      jsonrpc: "2.0",
+      method: "search",
+      params: {
+        search: pagination
+      },
+      id: Date.now(),
+    })
+      .then(result => dispatch(actions.customersLoadFinished(result.data.result)))
       .catch(error => dispatch(actions.customersLoadError(convertError(error))));
   } else {
     return Promise.resolve();
