@@ -1,19 +1,39 @@
 package primrose.rpcservices;
 
-import org.immutables.value.Value;
+import javax.validation.constraints.NotBlank;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+public class Phone {
 
-import primrose.services.ImmutablePhone;
+  @NotBlank
+  private String type;
 
-@Value.Immutable
-@Value.Style(deepImmutablesDetection = true, depluralize = true, throwForInvalidImmutableState = IllegalArgumentException.class)
-@JsonDeserialize(as = ImmutablePhone.class)
-public interface Phone {
+  @NotBlank
+  private String value;
 
-  String type();
+  private Boolean primary;
 
-  String value();
+  public String getType() {
+    return type;
+  }
 
-  boolean primary();
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  public Boolean getPrimary() {
+    return primary;
+  }
+
+  public void setPrimary(Boolean primary) {
+    this.primary = primary;
+  }
+
 }

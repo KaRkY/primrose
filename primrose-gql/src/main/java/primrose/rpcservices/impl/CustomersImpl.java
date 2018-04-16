@@ -3,39 +3,51 @@ package primrose.rpcservices.impl;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
+import org.springframework.validation.DirectFieldBindingResult;
+import org.springframework.validation.MessageCodesResolver;
+import org.springframework.validation.Validator;
 
 import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
 
-import primrose.data.CustomerRepository;
 import primrose.error.ArgumentValidationException;
-import primrose.rpcservices.CustomerCreate;
-import primrose.rpcservices.Customers;
-import primrose.rpcservices.CustomersSearchResult;
-import primrose.rpcservices.Search;
-import primrose.services.ImmutableCustomersSearchResult;
+import primrose.rpcservices.customer.Customers;
+import primrose.service.Search;
+import primrose.service.SearchResult;
+import primrose.service.customer.CustomerCreate;
+import primrose.service.customer.CustomerSearch;
+import primrose.service.customer.CustomerService;
 
 @AutoJsonRpcServiceImpl
 @Component
 public class CustomersImpl implements Customers {
 
-  private CustomerRepository customerRepository;
+  private CustomerService      customerService;
+  private Validator            validator;
+  private MessageCodesResolver messageCodesResolver;
 
-//  public CustomersImpl(CustomerRepository customerRepository) {
-//    this.customerRepository = customerRepository;
-//  }
+  public CustomersImpl(CustomerService customerService, Validator validator, MessageCodesResolver messageCodesResolver) {
+    this.customerService = customerService;
+    this.validator = validator;
+    this.messageCodesResolver = messageCodesResolver;
+  }
 
   @Override
-  public CustomersSearchResult search(Search search) {
-    System.out.println(search);
-    return ImmutableCustomersSearchResult.builder()
-        .count(0)
-        .build();
+  public SearchResult<CustomerSearch> search(Search search) {
+    DirectFieldBindingResult bindingResult = new DirectFieldBindingResult(search, "search");
+    bindingResult.setMessageCodesResolver(messageCodesResolver);
+    validator.validate(search, bindingResult);
+    if (bindingResult.hasErrors()) { throw new ArgumentValidationException(bindingResult); }
+
+    return customerService.search(search);
   }
 
   @Override
   public long create(CustomerCreate customer) {
-    System.out.println(customer);
-    throw new ArgumentValidationException("fullName", "emails[0].type");
+    DirectFieldBindingResult bindingResult = new DirectFieldBindingResult(customer, "customer");
+    bindingResult.setMessageCodesResolver(messageCodesResolver);
+    validator.validate(customer, bindingResult);
+    if (bindingResult.hasErrors()) { throw new ArgumentValidationException(bindingResult); }
+    return customerService.create(customer);
   }
 
   @Override

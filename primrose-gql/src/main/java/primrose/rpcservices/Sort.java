@@ -1,21 +1,29 @@
 package primrose.rpcservices;
 
-import java.util.Optional;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
-import org.immutables.value.Value;
+public class Sort {
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+  @NotNull
+  private String property;
+  @Pattern(regexp = "asc|desc|ASC|DESC")
+  private String direction;
 
-import primrose.services.ImmutableSort;
+  public String getProperty() {
+    return property;
+  }
 
-@Value.Immutable
-@Value.Style(deepImmutablesDetection = true, depluralize = true, throwForInvalidImmutableState = IllegalArgumentException.class)
-@JsonDeserialize(as = ImmutableSort.class)
-public interface Sort {
+  public void setProperty(String property) {
+    this.property = property;
+  }
 
-  @Value.Parameter
-  String property();
+  public String getDirection() {
+    return direction;
+  }
 
-  @Value.Parameter
-  Optional<String> direction();
+  public void setDirection(String direction) {
+    this.direction = direction;
+  }
+
 }

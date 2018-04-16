@@ -1,31 +1,26 @@
 package primrose.rpcservices.impl;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
 import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
 
-import primrose.rpcservices.ContactCreate;
-import primrose.rpcservices.Contacts;
-import primrose.rpcservices.ContactsSearchResult;
-import primrose.rpcservices.CustomerCreate;
-import primrose.rpcservices.Customers;
-import primrose.rpcservices.CustomersSearchResult;
-import primrose.rpcservices.Search;
-import primrose.services.ImmutableContactsSearchResult;
-import primrose.services.ImmutableCustomersSearchResult;
+import primrose.rpcservices.contact.Contacts;
+import primrose.service.Search;
+import primrose.service.SearchResult;
+import primrose.service.contact.ContactCreate;
+import primrose.service.contact.ContactSearch;
 
 @AutoJsonRpcServiceImpl
 @Component
 public class ContactsImpl implements Contacts {
 
   @Override
-  public ContactsSearchResult search(Search search) {
+  public SearchResult<ContactSearch> search(Search search) {
     System.out.println(search);
-    return ImmutableContactsSearchResult.builder()
-        .count(0)
-        .build();
+    return new SearchResult<>(new ArrayList<>(), 0);
   }
 
   @Override

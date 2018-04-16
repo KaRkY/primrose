@@ -1,4 +1,4 @@
-import axios from "../axiosInstance";
+import axios from "../axios";
 import shouldReloadPageData from "../util/shouldReloadPageData";
 import convertError from "../util/convertError";
 import createEntity from "./createEntity";

@@ -1,4 +1,4 @@
-import axios from "../axiosInstance";
+import axios from "../axios";
 import convertError from "../util/convertError";
 import createExecuteLifecycle from "./createExecuteLifecycle";
 import * as actions from "../actions";

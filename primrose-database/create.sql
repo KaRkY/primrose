@@ -19,7 +19,6 @@ insert into customer_types(slug, name) values
 ('person', 'Person'),
 ('company', 'Company');
 
-
 create table address_types(
   id    bigserial  not null,
   slug  text    not null  unique,
@@ -134,10 +133,9 @@ create table emails(
 
 create table customers(
   id                      bigserial,
-  slug                    text      not null  unique,
   customer_type           bigint    not null,
   customer_relation_type  bigint    not null,
-  full_name               text      not null,
+  full_name               text      not null unique,
   display_name            text,
   description             text,
   
@@ -193,13 +191,13 @@ create table customer_emails(
 create table accounts(
   id          bigserial,
   customer    bigint    not null,
-  slug        text      not null  unique,
   name        text      not null,
   description text,
   
   valid_from  timestamp with time zone not null default now(),
   valid_to    timestamp with time zone,
   
+  unique (customer, name),
   primary key (id),
   foreign key (customer)  references customers(id)
 );
@@ -248,8 +246,7 @@ create table account_emails(
 
 create table contacts(
   id          bigserial,
-  slug        text      not null unique,
-  full_name   text      not null,
+  full_name   text      not null unique,
   description text,
   
   primary key (id)

@@ -1,15 +1,17 @@
 package primrose.error;
 
+import org.springframework.validation.Errors;
+
 public class ArgumentValidationException extends PrimroseException {
   private static final long serialVersionUID = 559823774984656287L;
-  private String[] fields;
+  private final Errors      errors;
 
-  public ArgumentValidationException(String...fields) {
-    super(String.format("Missing fields: %s", String.join(" ", fields)));
-    this.fields = fields;
+  public ArgumentValidationException(Errors errors) {
+    super(errors.toString());
+    this.errors = errors;
   }
 
-  public String[] getFields() {
-    return fields;
+  public Errors getErrors() {
+    return errors;
   }
 }

@@ -1,20 +1,20 @@
-package primrose.rpcservices;
+package primrose.rpcservices.customer;
 
 import java.util.Set;
 
-import com.googlecode.jsonrpc4j.JsonRpcError;
-import com.googlecode.jsonrpc4j.JsonRpcErrors;
 import com.googlecode.jsonrpc4j.JsonRpcParam;
 import com.googlecode.jsonrpc4j.JsonRpcService;
+
+import primrose.service.Search;
+import primrose.service.SearchResult;
+import primrose.service.customer.CustomerCreate;
+import primrose.service.customer.CustomerSearch;
 
 @JsonRpcService("/customers")
 public interface Customers {
 
-  CustomersSearchResult search(@JsonRpcParam("search") Search search);
+  SearchResult<CustomerSearch> search(@JsonRpcParam("search") Search search);
 
-  @JsonRpcErrors({
-      @JsonRpcError(exception = IllegalArgumentException.class, code = -32600)
-  })
   long create(@JsonRpcParam("customer") CustomerCreate customer);
 
   long delete(@JsonRpcParam("customer") long id);

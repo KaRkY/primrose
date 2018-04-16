@@ -1,51 +1,35 @@
 package primrose.jooq;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.jooq.Field;
 import org.jooq.SortField;
 import org.jooq.SortOrder;
 
-import primrose.pagination.SortDirection;
+import primrose.rpcservices.Sort;
 
 public class JooqUtil {
 
-  public static SortOrder map(final SortDirection direction) {
-    switch (direction) {
-    case ASC:
+  public static SortOrder map(final String direction) {
+    String normalizedDirection = direction != null ? direction.toUpperCase() : null;
+    switch (normalizedDirection) {
+    case "ASC":
       return SortOrder.ASC;
 
-    case DESC:
+    case "DESC":
       return SortOrder.DESC;
-
-    case DEFAULT:
-      return SortOrder.DEFAULT;
 
     default:
       return SortOrder.DEFAULT;
     }
   }
 
-  public static List<? extends SortField<?>> map(final Optional<Map<String, SortDirection>> sortProperties, final Function<String, Field<?>> mapping) {
-    return sortProperties
-      .map(sp -> sp
-        .entrySet()
-        .stream()
-        .map(entry -> {
-          final Field<?> mappedField = mapping.apply(entry.getKey());
-          if (mappedField != null) {
-            return mappedField.sort(map(entry.getValue()));
-          } else {
-            return null;
-          }
-        })
-        .filter(elem -> elem != null)
-        .collect(Collectors.toList()))
-      .orElseGet(() -> Collections.emptyList());
+  public static SortField<?> map(final Sort sort, final Function<String, Field<?>> mapping) {
+    final Field<?> mappedField = mapping.apply(sort.getProperty());
+    if (mappedField != null) {
+      return mappedField.sort(map(sort.getDirection()));
+    } else {
+      return null;
+    }
   }
 }

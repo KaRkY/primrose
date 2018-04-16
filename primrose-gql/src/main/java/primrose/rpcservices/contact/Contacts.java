@@ -1,14 +1,19 @@
-package primrose.rpcservices;
+package primrose.rpcservices.contact;
 
 import java.util.Set;
 
 import com.googlecode.jsonrpc4j.JsonRpcParam;
 import com.googlecode.jsonrpc4j.JsonRpcService;
 
+import primrose.service.Search;
+import primrose.service.SearchResult;
+import primrose.service.contact.ContactCreate;
+import primrose.service.contact.ContactSearch;
+
 @JsonRpcService("/contacts")
 public interface Contacts {
 
-  ContactsSearchResult search(@JsonRpcParam("search") Search search);
+  SearchResult<ContactSearch> search(@JsonRpcParam("search") Search search);
 
   long create(@JsonRpcParam("contact") ContactCreate contact);
 

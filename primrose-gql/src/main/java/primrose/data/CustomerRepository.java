@@ -1,6 +1,6 @@
 package primrose.data;
 
-import primrose.rpcservices.CustomerCreate;
+import primrose.service.customer.CustomerCreate;
 
 public interface CustomerRepository {
 
