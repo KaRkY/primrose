@@ -3,6 +3,9 @@ package primrose.service;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Sort {
 
   @NotNull
@@ -10,12 +13,10 @@ public class Sort {
   @Pattern(regexp = "asc|desc|ASC|DESC")
   private final String direction;
 
-  @SuppressWarnings("unused")
-  private Sort() {
-    this(null, null);
-  }
-
-  public Sort(String property, String direction) {
+  @JsonCreator
+  public Sort(
+    @JsonProperty("property") String property,
+    @JsonProperty("direction") String direction) {
     super();
     this.property = property;
     this.direction = direction;

@@ -38,7 +38,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     exporter.setErrorResolver(resolver);
     exporter.setShouldLogInvocationErrors(false);
     exporter.setRethrowExceptions(false);
-    exporter.setRegisterTraceInterceptor(false);
+    exporter.setRegisterTraceInterceptor(true);
     return exporter;
   }
 }

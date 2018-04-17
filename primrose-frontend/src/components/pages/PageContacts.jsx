@@ -63,7 +63,7 @@ const mapState = (state, props) => ({
 const mapDispatchTo = dispatch => ({
   goToContacts: payload => dispatch(actions.contacts(payload)),
   goToContact: payload => dispatch(actions.contact(payload)),
-  goToNewContact: payload => dispatch(actions.contactNew(payload)),
+  goToNewContact: payload => console.log("dela") || dispatch(actions.contactNew(payload)),
   goToEditContact: payload => dispatch(actions.contactEdit(payload)),
   executeDeleteContact: payload => dispatch(actions.contactsDelete(payload)),
 });
@@ -96,7 +96,7 @@ const enhance = compose(
         selected: (checked ? union(normalizeArray(pagination.selected), value) : difference(normalizeArray(pagination.selected), value)),
       }
     }),
-    onNewContact: ({ goToContactNew }) => (event) => goToContactNew && goToContactNew(),
+    onNewContact: ({ goToNewContact }) => (event) => goToNewContact && goToNewContact(),
     onOpenContact: ({ goToContact }) => (event, id) => goToContact && goToContact({ id }),
     onEditContact: ({ goToEditContact }) => (event, id) => goToEditContact && goToEditContact({ id }),
     onDeleteContacts: ({ query, executeDeleteContacts }) => (event, contacts) => executeDeleteContacts && executeDeleteContacts({
@@ -154,9 +154,9 @@ const Content = ({
       >
 
         <DataGrid.Columns>
-          <DataGrid.Column name="name" title="Name" width="40%" />
-          <DataGrid.Column name="primaryEmail" title="Email" width="30%" />
-          <DataGrid.Column name="primaryPhone" title="Phone" width="28%" />
+          <DataGrid.Column name="fullName" title="Name" />
+          <DataGrid.Column name="primaryEmail" title="Email" />
+          <DataGrid.Column name="primaryPhone" title="Phone" />
         </DataGrid.Columns>
 
         <DataGrid.Pagination

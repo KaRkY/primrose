@@ -50,7 +50,7 @@ const isServerError = percent => (Math.floor(Math.random() * 100) + 1) < percent
 
 const axios = ax.create({
   paramsSerializer: queryString.stringify,
-  timeout: 2000,
+  timeout: 20000,
 });
 
 const axiosMock = ax.create({

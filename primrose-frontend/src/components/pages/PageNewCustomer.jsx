@@ -20,6 +20,11 @@ import arrayMutators from "final-form-arrays";
 import FieldArray from "../Form/FieldArray";
 import promiseListener from "../../store/promiseListener";
 
+import * as customerTypes from "../../store/customerTypes";
+import * as customerRelationTypes from "../../store/customerRelationTypes";
+import * as emailTypes from "../../store/emailTypes";
+import * as phoneNumberTypes from "../../store/phoneNumberTypes";
+
 const createCustomer = promiseListener.createAsyncFunction({
   start: actions.customerCreate.toString(),
   resolve: actions.customerCreateFinished.toString(),
@@ -46,7 +51,10 @@ const contentStyle = theme => ({
 
 
 const mapState = (state, props) => ({
-
+  customerTypes: customerTypes.getData(state),
+  customerRelationTypes: customerRelationTypes.getData(state),
+  emailTypes: emailTypes.getData(state),
+  phoneNumberTypes: phoneNumberTypes.getData(state),
 });
 
 const mapDispatchTo = dispatch => ({
@@ -61,6 +69,10 @@ const enhance = compose(
 const Content = ({
   classes,
   goToCustomer,
+  customerTypes,
+  customerRelationTypes,
+  emailTypes,
+  phoneNumberTypes,
 }) => (
     <Form
       onSubmit={values => {
@@ -80,138 +92,138 @@ const Content = ({
         handleSubmit,
         submitError,
         reset,
-        mutators,
+        form: { mutators },
         submitting,
         pristine,
         invalid,
-        values
-      }) => (
-          <form onSubmit={handleSubmit} onReset={reset}>
-            <Grid container spacing={16}>
-              {submitError &&
-                <Grid item xs={12}>
-                  <Paper>
-                    <Typography component="pre">{JSON.stringify(submitError, null, 2)}</Typography>
-                  </Paper>
-                </Grid>
-              }
-
-              <Grid item xs={12} md={6}>
-                <Paper elevation={2}>
-                  <Toolbar>
-                    <Typography variant="title">Customer basic data</Typography>
-                  </Toolbar>
-                  <Grid className={classes.grid} container spacing={16}>
-                    <Grid item xs={12}>
-                      <TextField name="fullName" label="Full name" fullWidth />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      <TextField name="displayName" label="Display name" fullWidth />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                      <TextField select name="type" label="Customer type" fullWidth>
-                        <MenuItem value="person">Person</MenuItem>
-                        <MenuItem value="company">Company</MenuItem>
-                      </TextField>
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                      <TextField select name="relationType" label="Customer relation type" fullWidth>
-                        <MenuItem value="customer">Customer</MenuItem>
-                        <MenuItem value="partner">Partner</MenuItem>
-                        <MenuItem value="investor">Investor</MenuItem>
-                        <MenuItem value="reseller">Reseller</MenuItem>
-                      </TextField>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      <TextField
-                        multiline
-                        rows={5}
-                        rowsMax={5}
-                        name="description"
-                        label="Description"
-                        fullWidth />
-                    </Grid>
-                  </Grid>
+        values,
+      }) => console.log(values) || (
+        <form onSubmit={handleSubmit} onReset={reset}>
+          <Grid container spacing={16}>
+            {submitError &&
+              <Grid item xs={12}>
+                <Paper>
+                  <Typography component="pre">{JSON.stringify(submitError, null, 2)}</Typography>
                 </Paper>
               </Grid>
+            }
 
-              <Grid item xs={12} md={6}>
-                <Grid container spacing={16} direction="column" alignItems="stretch">
-                  <Grid item>
-                    <FieldArray name="emails" label="Emails" push={mutators.push}>
-                      {({ fields }) =>
-                        fields.map((name, index) => (
-                          <Grid container spacing={16} key={name}>
-                            <Grid item xs={3}>
-                              <TextField select name={`${name}.type`} label="Type" fullWidth>
-                                <MenuItem value="work">Work</MenuItem>
-                                <MenuItem value="home">Home</MenuItem>
-                                <MenuItem value="other">Other</MenuItem>
-                              </TextField>
-                            </Grid>
-                            <Grid item xs={9}>
-                              <TextField name={`${name}.value`} label="Email" fullWidth
-                                InputProps={{
-                                  endAdornment: (
-                                    <InputAdornment position="end">
-                                      <IconButton onClick={() => mutators.remove("emails", index)}>
-                                        <ClearIcon />
-                                      </IconButton>
-                                    </InputAdornment>
-                                  )
-                                }} />
-                            </Grid>
-                          </Grid>
-                        ))}
-                    </FieldArray>
+            <Grid item xs={12} md={6}>
+              <Paper elevation={2}>
+                <Toolbar>
+                  <Typography variant="title">Customer basic data</Typography>
+                </Toolbar>
+                <Grid className={classes.grid} container spacing={16}>
+                  <Grid item xs={12}>
+                    <TextField name="fullName" label="Full name" fullWidth />
                   </Grid>
 
-                  <Grid item>
-                    <FieldArray name="phoneNumbers" label="Phone numbers" push={mutators.push}>
-                      {({ fields }) =>
-                        fields.map((name, index) => (
-                          <Grid container spacing={16} key={name}>
-                            <Grid item xs={3} md={2}>
-                              <TextField select name={`${name}.type`} label="Type" fullWidth>
-                                <MenuItem value="work">Work</MenuItem>
-                                <MenuItem value="home">Home</MenuItem>
-                                <MenuItem value="other">Other</MenuItem>
-                              </TextField>
-                            </Grid>
-                            <Grid item xs={9} md={10}>
-                              <TextField name={`${name}.value`} label="Phone" fullWidth
-                                InputProps={{
-                                  endAdornment: (
-                                    <InputAdornment position="end">
-                                      <IconButton onClick={() => mutators.remove("phoneNumbers", index)}>
-                                        <ClearIcon />
-                                      </IconButton>
-                                    </InputAdornment>
-                                  )
-                                }} />
-                            </Grid>
-                          </Grid>
-                        ))}
-                    </FieldArray>
+                  <Grid item xs={12}>
+                    <TextField name="displayName" label="Display name" fullWidth />
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <TextField select name="type" label="Customer type" fullWidth>
+                      {Object.keys(customerTypes).map(key => (
+                        <MenuItem key={key} value={key}>{customerTypes[key]}</MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <TextField select name="relationType" label="Customer relation type" fullWidth>
+                      {Object.keys(customerRelationTypes).map(key => (
+                        <MenuItem key={key} value={key}>{customerRelationTypes[key]}</MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      multiline
+                      rows={5}
+                      rowsMax={5}
+                      name="description"
+                      label="Description"
+                      fullWidth />
                   </Grid>
                 </Grid>
-              </Grid>
+              </Paper>
+            </Grid>
 
-              <Grid item container spacing={16}>
+            <Grid item xs={12} md={6}>
+              <Grid container spacing={16} direction="column" alignItems="stretch">
                 <Grid item>
-                  <Button variant="raised" color="secondary" type="submit" disabled={submitting || pristine}>Submit</Button>
+                  <FieldArray name="emails" label="Emails" push={mutators.push}>
+                    {({ fields }) =>
+                      fields.map((name, index) => console.log(name) || (
+                        <Grid container spacing={16} key={name}>
+                          <Grid item xs={3}>
+                            <TextField select name={`${name}.type`} label="Type" fullWidth>
+                              {Object.keys(emailTypes).map(key => (
+                                <MenuItem key={key} value={key}>{emailTypes[key]}</MenuItem>
+                              ))}
+                            </TextField>
+                          </Grid>
+                          <Grid item xs={9}>
+                            <TextField name={`${name}.value`} label="Email" fullWidth
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton onClick={() => mutators.remove("emails", index)}>
+                                      <ClearIcon />
+                                    </IconButton>
+                                  </InputAdornment>
+                                )
+                              }} />
+                          </Grid>
+                        </Grid>
+                      ))}
+                  </FieldArray>
                 </Grid>
+
                 <Grid item>
-                  <Button variant="raised" type="reset" disabled={submitting}>Reset</Button>
+                  <FieldArray name="phones" label="Phone numbers" push={mutators.push}>
+                    {({ fields }) =>
+                      fields.map((name, index) => (
+                        <Grid container spacing={16} key={name}>
+                          <Grid item xs={3} md={2}>
+                            <TextField select name={`${name}.type`} label="Type" fullWidth>
+                              {Object.keys(phoneNumberTypes).map(key => (
+                                <MenuItem key={key} value={key}>{phoneNumberTypes[key]}</MenuItem>
+                              ))}
+                            </TextField>
+                          </Grid>
+                          <Grid item xs={9} md={10}>
+                            <TextField name={`${name}.value`} label="Phone" fullWidth
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton onClick={() => mutators.remove("phoneNumbers", index)}>
+                                      <ClearIcon />
+                                    </IconButton>
+                                  </InputAdornment>
+                                )
+                              }} />
+                          </Grid>
+                        </Grid>
+                      ))}
+                  </FieldArray>
                 </Grid>
               </Grid>
             </Grid>
-          </form>
-        )} />
+
+            <Grid item container spacing={16}>
+              <Grid item>
+                <Button variant="raised" color="secondary" type="submit" disabled={submitting || pristine}>Submit</Button>
+              </Grid>
+              <Grid item>
+                <Button variant="raised" type="reset" disabled={submitting}>Reset</Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </form>
+      )} />
   );
 
 export default enhance(Content);

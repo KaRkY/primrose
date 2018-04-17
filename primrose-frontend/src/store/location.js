@@ -31,6 +31,7 @@ const getPaginationFromQuery = (query = {}) => {
 };
 
 export const getLocation = state => state.location;
+export const getCurrentData = createSelector(getLocation, location => location.payload);
 export const getCurrentQuery = createSelector(getLocation, location => location.query);
 export const getPreviousQuery = createSelector(getLocation, location => location.prev.query);
 export const getCurrentPagination = createSelector(getCurrentQuery, getPaginationFromQuery);

@@ -1,18 +1,34 @@
 package primrose.service.customer;
 
+import javax.validation.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CustomerSearch {
 
-  private final String slug;
+  private final long   id;
+  @NotBlank
   private final String type;
+  @NotBlank
   private final String relationType;
   private final String displayName;
+  @NotBlank
   private final String fullName;
   private final String primaryEmail;
   private final String primaryPhone;
 
-  public CustomerSearch(String slug, String type, String relationType, String displayName, String fullName, String primaryEmail, String primaryPhone) {
+  @JsonCreator
+  public CustomerSearch(
+    @JsonProperty("id") long id,
+    @JsonProperty("type") String type,
+    @JsonProperty("relationType") String relationType,
+    @JsonProperty("displayName") String displayName,
+    @JsonProperty("fullName") String fullName,
+    @JsonProperty("primaryEmail") String primaryEmail,
+    @JsonProperty("primaryPhone") String primaryPhone) {
     super();
-    this.slug = slug;
+    this.id = id;
     this.type = type;
     this.relationType = relationType;
     this.displayName = displayName;
@@ -21,8 +37,8 @@ public class CustomerSearch {
     this.primaryPhone = primaryPhone;
   }
 
-  public String getSlug() {
-    return slug;
+  public long getId() {
+    return id;
   }
 
   public String getType() {

@@ -28,6 +28,9 @@ export const customerEdit = createAction("CUSTOMER_EDIT");
 export const [customersLoad, customersLoadFinished, customersLoadError] = createLoadActions("CUSTOMERS");
 export const [customersDelete, customersDeleteFinished, customersDeleteError] = createDeleteActions("CUSTOMERS");
 export const [customerCreate, customerCreateFinished, customerCreateError] = createCreateActions("CUSTOMER");
+export const [customerTypesLoad, customerTypesLoadFinished, customerTypesLoadError] = createLoadActions("CUSTOMER_TYPES");
+export const [customerRelationTypesLoad, customerRelationTypesLoadFinished, customerRelationTypesLoadError] = createLoadActions("CUSTOMER_RELATION_TYPES");
+export const [customerLoad, customerLoadFinished, customerLoadError] = createLoadActions("CUSTOMER");
 
 export const contacts = createAction("CONTACTS");
 export const contact = createAction("CONTACT");
@@ -36,6 +39,10 @@ export const contactEdit = createAction("CONTACT_EDIT");
 export const [contactsLoad, contactsLoadFinished, contactsLoadError] = createLoadActions("CONTACTS");
 export const [contactsDelete, contactsDeleteFinished, contactsDeleteError] = createDeleteActions("CONTACT");
 export const [contactCreate, contactCreateFinished, contactCreateError] = createCreateActions("CONTACT");
+export const [contactLoad, contactLoadFinished, contactLoadError] = createLoadActions("CONTACT");
+
+export const [emailTypesLoad, emailTypesLoadFinished, emailTypesLoadError] = createLoadActions("EMAIL_TYPES");
+export const [phoneNumberTypesLoad, phoneNumberTypesLoadFinished, phoneNumberTypesLoadError] = createLoadActions("PHONE_NUMBER_TYPES");
 
 export const error = createAction("ERROR");
 

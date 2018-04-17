@@ -1,6 +1,6 @@
 import axios from "../axios";
 import convertError from "../util/convertError";
-import createExecuteLifecycle from "./createExecuteLifecycle";
+import createExecuteLifecycle from "./creators/createExecuteLifecycle";
 import * as actions from "../actions";
 
 const entity = createExecuteLifecycle({

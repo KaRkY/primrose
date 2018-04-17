@@ -6,7 +6,7 @@ import org.jooq.Field;
 import org.jooq.SortField;
 import org.jooq.SortOrder;
 
-import primrose.rpcservices.Sort;
+import primrose.service.Sort;
 
 public class JooqUtil {
 

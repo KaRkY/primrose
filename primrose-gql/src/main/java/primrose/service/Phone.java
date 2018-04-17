@@ -2,6 +2,9 @@ package primrose.service;
 
 import javax.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Phone {
 
   @NotBlank
@@ -11,12 +14,11 @@ public class Phone {
   private final String  value;
   private final Boolean primary;
 
-  @SuppressWarnings("unused")
-  private Phone() {
-    this(null, null, null);
-  }
-
-  public Phone(String type, String value, Boolean primary) {
+  @JsonCreator
+  public Phone(
+    @JsonProperty("type") String type,
+    @JsonProperty("value") String value,
+    @JsonProperty("primary") Boolean primary) {
     super();
     this.type = type;
     this.value = value;

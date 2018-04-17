@@ -10,27 +10,41 @@ export const style = theme => ({
 });
 
 const RadioField = props => (
-  <Field {...props} type="radio">
-    {({
+  <Field {...props} type="radio">{
+    ({
       input: { checked, name, onChange, ...restInput },
       meta,
       label,
       ...rest
-    }) => (
-        <FormControlLabel
-          control={
-            <Radio
-              name={name}
-              inputProps={restInput}
-              onChange={onChange}
-              checked={!!checked}
-              {...rest}
-            />
-          }
-          label={label}
-        />
-      )}
-  </Field>
+    }) => {
+      if (label) {
+        return (
+          <FormControlLabel
+            control={
+              <Radio
+                name={name}
+                inputProps={restInput}
+                onChange={onChange}
+                checked={!!checked}
+                {...rest}
+              />
+            }
+            label={label}
+          />
+        );
+      } else {
+        return (
+          <Radio
+            name={name}
+            inputProps={restInput}
+            onChange={onChange}
+            checked={!!checked}
+            {...rest}
+          />
+        );
+      }
+    }
+  }</Field>
 );
 
 export default withStyles(style)(RadioField);

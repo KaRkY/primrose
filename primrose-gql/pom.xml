@@ -125,7 +125,7 @@
             </generate>
 
             <target>
-              <packageName>pimrose.jooq</packageName>
+              <packageName>primrose.jooq</packageName>
             </target>
 
           </generator>
@@ -170,6 +170,13 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>24.1-jre</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.16.20</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

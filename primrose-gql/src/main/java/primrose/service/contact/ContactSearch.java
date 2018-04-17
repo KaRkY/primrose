@@ -1,13 +1,24 @@
 package primrose.service.contact;
 
+import javax.validation.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ContactSearch {
 
   private final long   id;
+  @NotBlank
   private final String fullName;
   private final String primaryEmail;
   private final String primaryPhone;
 
-  public ContactSearch(long id, String fullName, String primaryEmail, String primaryPhone) {
+  @JsonCreator
+  public ContactSearch(
+    @JsonProperty("id") long id,
+    @JsonProperty("fullName") String fullName,
+    @JsonProperty("primaryEmail") String primaryEmail,
+    @JsonProperty("primaryPhone") String primaryPhone) {
     super();
     this.id = id;
     this.fullName = fullName;

@@ -7,6 +7,8 @@ public interface CustomerService {
 
   SearchResult<CustomerSearch> search(Search search);
 
+  Customer get(long customerId);
+
   long create(CustomerCreate customer);
 
 }

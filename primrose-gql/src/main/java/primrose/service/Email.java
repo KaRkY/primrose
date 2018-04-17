@@ -2,21 +2,24 @@ package primrose.service;
 
 import javax.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Email {
 
   @NotBlank
   private final String type;
 
   @NotBlank
+  @javax.validation.constraints.Email
   private final String  value;
   private final Boolean primary;
 
-  @SuppressWarnings("unused")
-  private Email() {
-    this(null, null, null);
-  }
-
-  public Email(@NotBlank String type, @NotBlank String value, Boolean primary) {
+  @JsonCreator
+  public Email(
+    @JsonProperty("type") String type,
+    @JsonProperty("value") String value,
+    @JsonProperty("primary") Boolean primary) {
     super();
     this.type = type;
     this.value = value;

@@ -8,8 +8,9 @@ import {
   createSelector
 } from "reselect";
 
+//TODO rename to createPagedEntity
+
 export default ({
-  baseAction,
   loadingAction,
   fetchedAction,
   errorAction,
@@ -32,7 +33,7 @@ export default ({
   }, false);
 
   const error = handleActions({
-    [baseAction]: () => null,
+    [loadingAction]: () => null,
     [fetchedAction]: () => null,
     [errorAction]: (state, action) => action.payload,
   }, null);

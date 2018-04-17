@@ -1,26 +1,32 @@
 import React from "react";
+import { connect } from "react-redux";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
+import * as customer from "../../store/customer";
 
-import Paper from "material-ui/Paper";
+import Typography from "material-ui/Typography";
 
 const contentStyle = theme => ({
-  root: theme.mixins.gutters({
-  }),
+
 });
 
+const mapState = (state, props) => ({
+  customer: customer.getData(state),
+});
+
+const mapDispatchTo = dispatch => ({
+
+});
 
 const enhance = compose(
-  withStyles(contentStyle)
+  connect(mapState, mapDispatchTo),
+  withStyles(contentStyle),
 );
 
-/*
-  Display loading indicator
- */
 const Content = ({
-  classes,
+  customer,
 }) => (
-    <Paper>Edit</Paper>
-  );
+  <Typography component="pre" variant="body2">{JSON.stringify(customer, null, 2)}</Typography>
+);
 
 export default enhance(Content);

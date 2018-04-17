@@ -7,6 +7,9 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import primrose.service.Email;
 import primrose.service.Phone;
 
@@ -20,17 +23,17 @@ public class ContactCreate {
   @Valid
   private final List<Phone> phones;
 
-  @SuppressWarnings("unused")
-  private ContactCreate() {
-    this(null, null, Collections.emptyList(), Collections.emptyList());
-  }
-
-  public ContactCreate(String fullName, String description, List<Email> emails, List<Phone> phones) {
+  @JsonCreator
+  public ContactCreate(
+    @JsonProperty("fullName") String fullName,
+    @JsonProperty("description") String description,
+    @JsonProperty("emails") List<Email> emails,
+    @JsonProperty("phones") List<Phone> phones) {
     super();
     this.fullName = fullName;
     this.description = description;
-    this.emails = new ArrayList<>(emails);
-    this.phones = new ArrayList<>(phones);
+    this.emails = emails != null ? new ArrayList<>(emails) : Collections.emptyList();
+    this.phones = phones != null ? new ArrayList<>(phones) : Collections.emptyList();
   }
 
   public String getFullName() {

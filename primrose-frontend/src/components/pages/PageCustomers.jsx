@@ -9,6 +9,8 @@ import union from "lodash/union";
 import * as actions from "../../actions";
 import * as location from "../../store/location";
 import * as customers from "../../store/customers";
+import * as customerTypes from "../../store/customerTypes";
+import * as customerRelationTypes from "../../store/customerRelationTypes";
 
 import DataGrid from "../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
@@ -63,6 +65,8 @@ const contentStyle = theme => ({
 
 const mapState = (state, props) => ({
   customers: customers.getData(state),
+  customerTypes: customerTypes.getData(state),
+  customerRelationTypes: customerRelationTypes.getData(state),
   pagination: location.getCurrentPagination(state),
   totalSize: customers.getCount(state),
   query: location.getCurrentQuery(state),
@@ -117,6 +121,8 @@ const getRowId = row => row.id;
 const Content = ({
   classes,
   customers,
+  customerTypes,
+  customerRelationTypes,
   pagination,
   totalSize,
   isDeleting,
@@ -162,10 +168,11 @@ const Content = ({
       >
 
         <DataGrid.Columns>
-          <DataGrid.Column name="relationType" title="Relation type" />
-          <DataGrid.Column name="type" title="Type" />
-          <DataGrid.Column name="fullName" title="Full name" />
-          <DataGrid.Column name="displayName" title="Display name" />
+          <DataGrid.Column name="relationType" title="Relation type" getCellValue={row => customerRelationTypes[row.relationType]} />
+          <DataGrid.Column name="type" title="Type" getCellValue={row => customerTypes[row.type]} />
+          <DataGrid.Column name="name" title="Name" getCellValue={row => row.displayName || row.fullName} />
+          <DataGrid.Column name="primaryEmail" title="Primary email" />
+          <DataGrid.Column name="primaryPhone" title="Primary phone" />
         </DataGrid.Columns>
 
         <DataGrid.Pagination
@@ -208,7 +215,7 @@ const Content = ({
               title="Delete Customer"
               enterDelay={300}
             >
-              <IconButton onClick={event => () => {
+              <IconButton onClick={event => {
                 deleteCustomers.asyncFunction({ customers: row.id })
                   .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
                   .catch(console.log);

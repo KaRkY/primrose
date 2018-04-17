@@ -1,12 +1,11 @@
 import axios from "../axios";
 import shouldReloadPageData from "../util/shouldReloadPageData";
 import convertError from "../util/convertError";
-import createEntity from "./createEntity";
+import createPagedEntity from "./creators/createPagedEntity";
 import * as actions from "../actions";
 import * as location from "./location";
 
-const entity = createEntity({
-  baseAction: actions.customers,
+const entity = createPagedEntity({
   loadingAction: actions.customersLoad,
   fetchedAction: actions.customersLoadFinished,
   errorAction: actions.customersLoadError,

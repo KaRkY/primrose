@@ -1,6 +1,6 @@
 import axios from "../axios";
 import convertError from "../util/convertError";
-import createExecuteLifecycle from "./createExecuteLifecycle";
+import createExecuteLifecycle from "./creators/createExecuteLifecycle";
 import * as actions from "../actions";
 
 const entity = createExecuteLifecycle({
@@ -17,22 +17,22 @@ export const apiDelete = ({
 }) => {
   const customers = action.payload.customers;
   if (Array.isArray(customers)) {
-    axios.delete("/customers", {
+    axios.post("/customers", {
         jsonrpc: "2.0",
         method: "delete",
         params: {
-          customer: customers
+          customers,
         },
         id: Date.now(),
       })
       .then(result => dispatch(actions.customersDeleteFinished(result.data.result)))
       .catch(error => dispatch(actions.customersDeleteError(convertError(error))));
   } else {
-    axios.delete("/customers", {
+    axios.post("/customers", {
         jsonrpc: "2.0",
         method: "delete",
         params: {
-          customers
+          customer: customers
         },
         id: Date.now(),
       })

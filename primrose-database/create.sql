@@ -42,7 +42,7 @@ create table customer_relation_types(
 insert into customer_relation_types(slug, name) values 
 ('customer', 'Customer'),
 ('partner', 'Partner'),
-('ivestor', 'Investor'),
+('investor', 'Investor'),
 ('reseller', 'Reseller');
 
 create table phone_number_types(
@@ -162,7 +162,7 @@ create table customer_phone_numbers(
   phone             bigint  not null,
   customer          bigint  not null,
   prim              bool    not null default false,
-  phone_number_type bigint,
+  phone_number_type bigint  not null,
   
   valid_from        timestamp with time zone not null default now(),
   valid_to          timestamp with time zone,
@@ -177,7 +177,7 @@ create table customer_emails(
   email       bigint  not null,
   customer    bigint  not null,
   prim        bool    not null default false,
-  email_type  bigint,
+  email_type  bigint  not null,
   
   valid_from  timestamp with time zone not null default now(),
   valid_to    timestamp with time zone,
@@ -219,7 +219,7 @@ create table account_addresses(
 create table account_phone_numbers(
   phone             bigint  not null,
   account           bigint  not null,
-  phone_number_type bigint,
+  phone_number_type bigint  not null,
   
   valid_from        timestamp with time zone not null default now(),
   valid_to          timestamp with time zone,
@@ -233,7 +233,7 @@ create table account_phone_numbers(
 create table account_emails(
   email       bigint  not null,
   account     bigint  not null,
-  email_type  bigint,
+  email_type  bigint  not null,
   
   valid_from  timestamp with time zone not null default now(),
   valid_to    timestamp with time zone,
@@ -269,7 +269,8 @@ create table contact_addresses(
 create table contact_phone_numbers(
   phone             bigint  not null,
   contact           bigint  not null,
-  phone_number_type bigint,
+  phone_number_type bigint  not null,
+  prim              boolean not null,
   
   valid_from        timestamp with time zone not null default now(),
   valid_to          timestamp with time zone,
@@ -283,7 +284,8 @@ create table contact_phone_numbers(
 create table contact_emails(
   email       bigint  not null,
   contact     bigint  not null,
-  email_type  bigint,
+  email_type  bigint  not null,
+  prim        boolean not null,
   
   valid_from  timestamp with time zone not null default now(),
   valid_to    timestamp with time zone,
@@ -367,7 +369,7 @@ create table app_users(
 create table app_user_phone_numbers(
   phone             bigint  not null,
   app_user          bigint  not null,
-  phone_number_type bigint,
+  phone_number_type bigint  not null,
   primary_phone     boolean,
   
   valid_from        timestamp with time zone not null default now(),
@@ -382,7 +384,7 @@ create table app_user_phone_numbers(
 create table user_emails(
   email         bigint  not null,
   app_user      bigint  not null,
-  email_type    bigint,
+  email_type    bigint  not null,
   primary_email boolean,
   
   valid_from  timestamp with time zone not null default now(),
