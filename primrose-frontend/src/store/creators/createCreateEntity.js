@@ -11,42 +11,32 @@ import {
 } from "reselect";
 
 export default ({
-  loadingAction,
-  fetchedAction,
+  baseAction,
+  createdAction,
   errorAction,
   rootSelector,
   apiUrl,
-  apiEntity,
+  apiParameters,
   ...rest
 }) => {
-  const data = handleActions({
-    [fetchedAction]: (state, action) => action.payload.reduce((acc, element) => {
-      acc[element.slug] = element.name;
-      return acc;
-    }, {}),
-    [errorAction]: () => null,
-  }, null);
-
   const loading = handleActions({
-    [loadingAction]: () => true,
-    [fetchedAction]: () => false,
+    [baseAction]: () => true,
+    [createdAction]: () => false,
     [errorAction]: () => false,
   }, false);
 
   const error = handleActions({
-    [loadingAction]: () => null,
-    [fetchedAction]: () => null,
+    [baseAction]: () => null,
+    [createdAction]: () => null,
     [errorAction]: (state, action) => action.payload,
   }, null);
 
   const reducer = combineReducers({
-    data,
     loading,
     error,
   });
 
   const selectors = {
-    getData: createSelector(rootSelector, root => root.data),
     getError: createSelector(rootSelector, root => root.error),
     isLoading: createSelector(rootSelector, root => root.loading),
   };
@@ -60,18 +50,18 @@ export default ({
       state,
       action
     }) => {
-      if (!selectors.getData(state) || selectors.getError(state)) {
-        dispatch(loadingAction());
-        return axios.post(apiUrl, {
+      axios.post(apiUrl, {
           jsonrpc: "2.0",
-          method: apiEntity,
+          method: "create",
+          params: apiParameters({
+            dispatch,
+            state,
+            action
+          }),
           id: Date.now(),
         })
-          .then(result => dispatch(fetchedAction(result.data.result)))
-          .catch(error => dispatch(errorAction(convertError(error))));
-      } else {
-        return Promise.resolve();
-      }
+        .then(result => dispatch(createdAction(result.data.result)))
+        .catch(error => dispatch(errorAction(convertError(error))));
     },
 
     ...rest

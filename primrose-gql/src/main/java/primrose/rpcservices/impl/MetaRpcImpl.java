@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
 
 import primrose.data.MetaRepository;
+import primrose.data.impl.MetaRepositoryImpl.MetaTypes;
 import primrose.rpcservices.MetaRpc;
 import primrose.service.MetaType;
 
@@ -22,37 +23,37 @@ public class MetaRpcImpl implements MetaRpc {
 
   @Override
   public List<MetaType> customer() {
-    return metaRepository.customer();
+    return metaRepository.list(MetaTypes.CUSTOMER);
   }
 
   @Override
   public List<MetaType> customerRelation() {
-    return metaRepository.customerRelation();
+    return metaRepository.list(MetaTypes.CUSTOMER_RELATION);
   }
 
   @Override
   public List<MetaType> address() {
-    return metaRepository.address();
+    return metaRepository.list(MetaTypes.ADDRESS);
   }
 
   @Override
   public List<MetaType> phoneNumber() {
-    return metaRepository.phoneNumber();
+    return metaRepository.list(MetaTypes.PHONE_NUMBER);
   }
 
   @Override
   public List<MetaType> email() {
-    return metaRepository.email();
+    return metaRepository.list(MetaTypes.EMAIL);
   }
 
   @Override
   public List<MetaType> contact() {
-    return metaRepository.contact();
+    return metaRepository.list(MetaTypes.CONTACT);
   }
 
   @Override
   public List<MetaType> meeting() {
-    return metaRepository.meeting();
+    return metaRepository.list(MetaTypes.MEETING);
   }
 
 }

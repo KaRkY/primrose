@@ -3,14 +3,15 @@ import compose from "recompose/compose";
 import withHandlers from "recompose/withHandlers";
 import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
-import normalizeArray from "../../util/normalizeArray";
+import normalizeArray from "../../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
-import * as actions from "../../actions";
-import * as location from "../../store/location";
-import * as contacts from "../../store/contacts";
+import * as actions from "../../../actions";
+import * as location from "../../../store/location";
+import customers from "../../../store/customers";
+import meta from "../../../store/meta";
 
-import DataGrid from "../Data/ChildConfigDataGrid";
+import DataGrid from "../../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
 import Toolbar from "material-ui/Toolbar";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
@@ -19,6 +20,14 @@ import EditIcon from "@material-ui/icons/Edit";
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
+
+import promiseListener from "../../../store/promiseListener";
+
+const deleteCustomers = promiseListener.createAsyncFunction({
+  start: actions.customersDelete.toString(),
+  resolve: actions.customersDeleteFinished.toString(),
+  reject: actions.customersDeleteError.toString(),
+});
 
 
 const contentStyle = theme => ({
@@ -54,55 +63,52 @@ const contentStyle = theme => ({
 });
 
 const mapState = (state, props) => ({
-  contacts: contacts.getData(state),
+  customers: customers.paged.getData(state),
+  customerTypes: meta.customerTypes.getData(state),
+  customerRelationTypes: meta.customerRelationTypes.getData(state),
   pagination: location.getCurrentPagination(state),
-  totalSize: contacts.getCount(state),
+  totalSize: customers.paged.getCount(state),
   query: location.getCurrentQuery(state),
 });
 
 const mapDispatchTo = dispatch => ({
-  goToContacts: payload => dispatch(actions.contacts(payload)),
-  goToContact: payload => dispatch(actions.contact(payload)),
-  goToNewContact: payload => console.log("dela") || dispatch(actions.contactNew(payload)),
-  goToEditContact: payload => dispatch(actions.contactEdit(payload)),
-  executeDeleteContact: payload => dispatch(actions.contactsDelete(payload)),
+  goToCustomers: payload => dispatch(actions.customers(payload)),
+  goToCustomer: payload => dispatch(actions.customer(payload)),
+  goToNewCustomer: payload => dispatch(actions.customerNew(payload)),
+  goToEditCustomer: payload => dispatch(actions.customerEdit(payload)),
 });
 
 const enhance = compose(
   connect(mapState, mapDispatchTo),
   withHandlers({
-    onPageChange: ({ query, goToContacts }) => (event, page) => goToContacts({
+    onPageChange: ({ query, goToCustomers }) => (event, page) => goToCustomers({
       query: {
         ...query,
         page,
       }
     }),
-    onPageSizeChange: ({ query, goToContacts }) => (event, size) => goToContacts({
+    onPageSizeChange: ({ query, goToCustomers }) => (event, size) => goToCustomers({
       query: {
         ...query,
         size,
       }
     }),
-    onSortChange: ({ query, goToContacts }) => (event, sortProperty, direction) => goToContacts({
+    onSortChange: ({ query, goToCustomers }) => (event, sortProperty, direction) => goToCustomers({
       query: {
         ...query,
         sortProperty,
         sortDirection: direction,
       }
     }),
-    onSelectedRowsChange: ({ query, pagination, goToContacts }) => (event, value, checked) => goToContacts({
+    onSelectedRowsChange: ({ query, pagination, goToCustomers }) => (event, value, checked) => goToCustomers({
       query: {
         ...query,
         selected: (checked ? union(normalizeArray(pagination.selected), value) : difference(normalizeArray(pagination.selected), value)),
       }
     }),
-    onNewContact: ({ goToNewContact }) => (event) => goToNewContact && goToNewContact(),
-    onOpenContact: ({ goToContact }) => (event, id) => goToContact && goToContact({ id }),
-    onEditContact: ({ goToEditContact }) => (event, id) => goToEditContact && goToEditContact({ id }),
-    onDeleteContacts: ({ query, executeDeleteContacts }) => (event, contacts) => executeDeleteContacts && executeDeleteContacts({
-      contacts,
-      query,
-    }),
+    onNewCustomer: ({ goToNewCustomer }) => (event) => goToNewCustomer && goToNewCustomer(),
+    onOpenCustomer: ({ goToCustomer }) => (event, customer) => goToCustomer && goToCustomer({ customer }),
+    onEditCustomer: ({ goToEditCustomer }) => (event, customer) => goToEditCustomer && goToEditCustomer({ customer }),
   }),
   withStyles(contentStyle)
 );
@@ -113,36 +119,43 @@ const getRowId = row => row.id;
 
 const Content = ({
   classes,
-  contacts,
+  customers,
+  customerTypes,
+  customerRelationTypes,
   pagination,
   totalSize,
   isDeleting,
+  query,
+  goToCustomers,
   onSelectedRowsChange,
   onPageChange,
   onPageSizeChange,
   onSortChange,
-  onNewContact,
-  onOpenContact,
-  onEditContact,
-  onDeleteContacts,
+  onNewCustomer,
+  onOpenCustomer,
+  onEditCustomer,
 }) => (
     <Paper className={classes.root}>
       <Toolbar>
         <div className={classes.grow} />
         <Tooltip
-          title="New Contact"
+          title="New Customer"
           enterDelay={300}
         >
-          <IconButton onClick={onNewContact}>
+          <IconButton onClick={onNewCustomer}>
             <PersonAddIcon />
           </IconButton>
         </Tooltip>
         {pagination.selected && pagination.selected.length > 0 && (
           <Tooltip
-            title="Delete Contacts"
+            title="Delete Customers"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={() => onDeleteContacts(pagination.selected)}>
+            <IconButton disabled={isDeleting} onClick={() => {
+              deleteCustomers.asyncFunction({ customers: pagination.selected })
+                .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
+                .catch(console.log);
+            }}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -150,13 +163,15 @@ const Content = ({
       </Toolbar>
       <DataGrid
         getRowId={getRowId}
-        rows={contacts || []}
+        rows={customers || []}
       >
 
         <DataGrid.Columns>
-          <DataGrid.Column name="fullName" title="Name" />
-          <DataGrid.Column name="primaryEmail" title="Email" />
-          <DataGrid.Column name="primaryPhone" title="Phone" />
+          <DataGrid.Column name="relationType" title="Relation type" getCellValue={row => customerRelationTypes[row.relationType]} />
+          <DataGrid.Column name="type" title="Type" getCellValue={row => customerTypes[row.type]} />
+          <DataGrid.Column name="name" title="Name" getCellValue={row => row.displayName || row.fullName} />
+          <DataGrid.Column name="primaryEmail" title="Primary email" />
+          <DataGrid.Column name="primaryPhone" title="Primary phone" />
         </DataGrid.Columns>
 
         <DataGrid.Pagination
@@ -180,26 +195,30 @@ const Content = ({
         <DataGrid.RowActions>{row => (
           <React.Fragment>
             <Tooltip
-              title="Open Contact"
+              title="Open Customer"
               enterDelay={300}
             >
-              <IconButton onClick={event => onOpenContact(event, row.id)}>
+              <IconButton onClick={event => onOpenCustomer(event, row.id)}>
                 <ZoomInIcon />
               </IconButton>
             </Tooltip>
             <Tooltip
-              title="Edit Contact"
+              title="Edit Customer"
               enterDelay={300}
             >
-              <IconButton onClick={event => onEditContact(event, row.id)}>
+              <IconButton onClick={event => onEditCustomer(event, row.id)}>
                 <EditIcon />
               </IconButton>
             </Tooltip>
             <Tooltip
-              title="Delete Contact"
+              title="Delete Customer"
               enterDelay={300}
             >
-              <IconButton onClick={event => onDeleteContacts(event, [row.id])}>
+              <IconButton onClick={event => {
+                deleteCustomers.asyncFunction({ customers: row.id })
+                  .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
+                  .catch(console.log);
+              }}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>

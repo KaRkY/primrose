@@ -23,12 +23,12 @@ export const style = theme => ({
   },
 });
 
-const FieldArray = ({ classes, children, label, name, push }) => (
+const FieldArray = ({ classes, children, label, name, push, initialValue }) => (
   <Paper className={classes.root} elevation={2}>
     <Toolbar>
       <Typography variant="title">{label}</Typography>
       <div className={classes.grow} />
-      <IconButton variant="raised" onClick={() => push(name, {})}>
+      <IconButton variant="raised" onClick={() => push(name, initialValue || {})}>
         <AddIcon />
       </IconButton>
     </Toolbar>

@@ -1,8 +1,6 @@
 import React from "react";
 import compose from "recompose/compose";
-import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
-import * as actions from "../../actions";
 
 import Paper from "material-ui/Paper";
 import Button from "material-ui/Button";
@@ -13,23 +11,13 @@ import Typography from "material-ui/Typography";
 import { InputAdornment } from "material-ui/Input";
 import Grid from "material-ui/Grid";
 import { Form } from "react-final-form";
-import { FORM_ERROR } from "final-form";
 import TextField from "../Form/TextField";
 import MenuItem from "material-ui/Menu/MenuItem";
 import arrayMutators from "final-form-arrays";
 import FieldArray from "../Form/FieldArray";
-import promiseListener from "../../store/promiseListener";
 
-import * as emailTypes from "../../store/emailTypes";
-import * as phoneNumberTypes from "../../store/phoneNumberTypes";
 
-const createContact = promiseListener.createAsyncFunction({
-  start: actions.contactCreate.toString(),
-  resolve: actions.contactCreateFinished.toString(),
-  reject: actions.contactCreateError.toString(),
-});
-
-const contentStyle = theme => ({
+export const style = theme => ({
   root: theme.mixins.gutters({
   }),
 
@@ -46,38 +34,20 @@ const contentStyle = theme => ({
   },
 });
 
-
-
-const mapState = (state, props) => ({
-  emailTypes: emailTypes.getData(state),
-  phoneNumberTypes: phoneNumberTypes.getData(state),
-});
-
-const mapDispatchTo = dispatch => ({
-  goToContact: payload => console.log(payload) || dispatch(actions.contact({ id: payload })),
-});
-
 const enhance = compose(
-  connect(mapState, mapDispatchTo),
-  withStyles(contentStyle),
+  withStyles(style),
 );
 
-const Content = ({
+const CustomerForm = ({
   classes,
-  goToContact,
+  initialValues,
+  onSubmit,
   emailTypes,
   phoneNumberTypes,
 }) => (
     <Form
-      onSubmit={values => {
-        return createContact
-          .asyncFunction(values)
-          .then(result => {
-            goToContact(result);
-            return {};
-          })
-          .catch(error => ({ [FORM_ERROR]: error }));
-      }}
+      initialValues={initialValues || {}}
+      onSubmit={onSubmit}
       validate={values => true}
       mutators={{
         ...arrayMutators
@@ -97,7 +67,7 @@ const Content = ({
               {submitError &&
                 <Grid item xs={12}>
                   <Paper>
-                    <Typography component="pre">{JSON.stringify(submitError, null, 2)}</Typography>
+                    <Typography component="pre">Could not save Contact</Typography>
                   </Paper>
                 </Grid>
               }
@@ -200,4 +170,4 @@ const Content = ({
         )} />
   );
 
-export default enhance(Content);
+export default enhance(CustomerForm);

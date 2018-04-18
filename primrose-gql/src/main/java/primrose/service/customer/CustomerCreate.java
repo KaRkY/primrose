@@ -16,13 +16,13 @@ import primrose.service.CreatePhone;
 public class CustomerCreate {
 
   @NotBlank
-  private final String      type;
+  private final String            type;
   @NotBlank
-  private final String      relationType;
-  private final String      displayName;
+  private final String            relationType;
+  private final String            displayName;
   @NotBlank
-  private final String      fullName;
-  private final String      description;
+  private final String            fullName;
+  private final String            description;
   @Valid
   private final List<CreateEmail> emails;
   @Valid

@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
-import * as contact from "../../store/contact";
+import contacts from "../../../store/contacts";
 
 import Typography from "material-ui/Typography";
 
@@ -11,7 +11,7 @@ const contentStyle = theme => ({
 });
 
 const mapState = (state, props) => ({
-  contact: contact.getData(state),
+  contact: contacts.single.getData(state),
 });
 
 const mapDispatchTo = dispatch => ({

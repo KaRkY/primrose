@@ -18,10 +18,10 @@ public class Phone {
 
   @JsonCreator
   public Phone(
-      @JsonProperty("id") long id,
-      @JsonProperty("type") String type,
-      @JsonProperty("value") String value,
-      @JsonProperty("primary") Boolean primary) {
+    @JsonProperty("id") long id,
+    @JsonProperty("type") String type,
+    @JsonProperty("value") String value,
+    @JsonProperty("primary") Boolean primary) {
     super();
     this.id = id;
     this.type = type;

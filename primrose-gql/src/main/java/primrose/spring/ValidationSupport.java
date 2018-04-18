@@ -10,7 +10,7 @@ import primrose.error.ArgumentValidationException;
 @Component
 public class ValidationSupport {
 
-  private Validator validator;
+  private Validator            validator;
   private MessageCodesResolver messageCodesResolver;
 
   public ValidationSupport(Validator validator, MessageCodesResolver messageCodesResolver) {

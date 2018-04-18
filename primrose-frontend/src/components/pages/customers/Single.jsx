@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
-import * as customer from "../../store/customer";
+import customers from "../../../store/customers";
 
 import Typography from "material-ui/Typography";
 
@@ -11,7 +11,7 @@ const contentStyle = theme => ({
 });
 
 const mapState = (state, props) => ({
-  customer: customer.getData(state),
+  customer: customers.single.getData(state),
 });
 
 const mapDispatchTo = dispatch => ({

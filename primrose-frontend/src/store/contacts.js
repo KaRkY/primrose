@@ -1,43 +1,54 @@
-import axios from "../axios";
-import shouldReloadPageData from "../util/shouldReloadPageData";
-import convertError from "../util/convertError";
-import createPagedEntity from "./creators/createPagedEntity";
 import * as actions from "../actions";
 import * as location from "./location";
+import createFullEntity from "./creators/createFullEntity";
 
-const entity = createPagedEntity({
-  loadingAction: actions.contactsLoad,
-  fetchedAction: actions.contactsLoadFinished,
-  errorAction: actions.contactsLoadError,
+export default createFullEntity({
+  entityName: "contacts",
+  apiUrl: "/contacts",
   rootSelector: state => state.contacts,
+
+  createAction: actions.contactCreate,
+  createFinishedAction: actions.contactCreateFinished,
+  createErrorAction: actions.contactCreateError,
+  createApiParameters: ({
+    action
+  }) => ({
+    contact: action.payload
+  }),
+
+  editAction: actions.contactEdit,
+  editFinishedAction: actions.contactsEditFinished,
+  editErrorAction: actions.contactsEditError,
+  editApiParameters: ({
+    action
+  }) => ({
+    contact: action.payload
+  }),
+
+  deleteAction: actions.contactsDelete,
+  deleteFinishedAction: actions.contactsDeleteFinished,
+  deleteErrorAction: actions.contactsDeleteError,
+  deleteApiParameters: ({
+    action
+  }) => Array.isArray(action.payload.contacts) ? {
+    contacts: action.payload.contacts
+  } : {
+    contact: action.payload.contacts
+  },
+
+  loadSingleAction: actions.contactLoad,
+  loadSingleFinishedAction: actions.contactLoadFinished,
+  loadSingleErrorAction: actions.contactLoadError,
+  loadSingleApiParameters: ({
+    state
+  }) => ({
+    contact: parseInt(location.getCurrentData(state).contact, 10)
+  }),
+
+  loadPagedAction: actions.contactsLoad,
+  loadPagedFinishedAction: actions.contactsLoadFinished,
+  loadPagedErrorAction: actions.contactsLoadError,
+  loadPagedApiParameters: ({ state }) => ({
+    search: location.getCurrentPagination(state),
+  }),
 });
-
-export const apiLoad = ({
-  dispatch,
-  state,
-  action
-}) => {
-  const pagination = location.getCurrentPagination(state);
-
-  if (shouldReloadPageData(state, action, isLoading)) {
-    dispatch(actions.contactsLoad());
-    return axios.post("/contacts", {
-      jsonrpc: "2.0",
-      method: "search",
-      params: {
-        search: pagination
-      },
-      id: Date.now(),
-    })
-      .then(result => dispatch(actions.contactsLoadFinished(result.data.result)))
-      .catch(error => dispatch(actions.contactsLoadError(convertError(error))));
-  } else {
-    return Promise.resolve();
-  }
-};
-
-export const getCount = entity.selectors.getCount;
-export const getData = entity.selectors.getData;
-export const getError = entity.selectors.getError;
-export const isLoading = entity.selectors.isLoading;
-export default entity.reducer;

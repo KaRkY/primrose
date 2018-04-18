@@ -1,11 +1,13 @@
 package primrose.service.customer;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,30 +17,35 @@ import primrose.service.Phone;
 
 public class Customer {
 
-  private final long id;
+  private final long           id;
   @NotBlank
-  private final String      type;
+  private final String         type;
   @NotBlank
-  private final String      relationType;
-  private final String      displayName;
+  private final String         relationType;
+  private final String         displayName;
   @NotBlank
-  private final String      fullName;
-  private final String      description;
+  private final String         fullName;
+  private final String         description;
   @Valid
-  private final List<Email> emails;
+  private final List<Email>    emails;
   @Valid
-  private final List<Phone> phones;
+  private final List<Phone>    phones;
+  @NotNull
+  private final OffsetDateTime validFrom;
+  private final OffsetDateTime validTo;
 
   @JsonCreator
   public Customer(
-      @JsonProperty("id") long id,
+    @JsonProperty("id") long id,
     @JsonProperty("type") String type,
     @JsonProperty("relationType") String relationType,
     @JsonProperty("displayName") String displayName,
     @JsonProperty("fullName") String fullName,
     @JsonProperty("description") String description,
     @JsonProperty("emails") List<Email> emails,
-    @JsonProperty("phones") List<Phone> phones) {
+    @JsonProperty("phones") List<Phone> phones,
+    @JsonProperty("validFrom") OffsetDateTime validFrom,
+    @JsonProperty("validTo") OffsetDateTime validTo) {
     super();
     this.id = id;
     this.type = type;
@@ -48,6 +55,8 @@ public class Customer {
     this.description = description;
     this.emails = emails != null ? new ArrayList<>(emails) : Collections.emptyList();
     this.phones = phones != null ? new ArrayList<>(phones) : Collections.emptyList();
+    this.validFrom = validFrom;
+    this.validTo = validTo;
   }
 
   public long getId() {
@@ -80,5 +89,13 @@ public class Customer {
 
   public List<Phone> getPhones() {
     return Collections.unmodifiableList(phones);
+  }
+
+  public OffsetDateTime getValidFrom() {
+    return validFrom;
+  }
+
+  public OffsetDateTime getValidTo() {
+    return validTo;
   }
 }

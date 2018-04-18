@@ -3,16 +3,15 @@ import compose from "recompose/compose";
 import withHandlers from "recompose/withHandlers";
 import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
-import normalizeArray from "../../util/normalizeArray";
+import normalizeArray from "../../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
-import * as actions from "../../actions";
-import * as location from "../../store/location";
-import * as customers from "../../store/customers";
-import * as customerTypes from "../../store/customerTypes";
-import * as customerRelationTypes from "../../store/customerRelationTypes";
+import * as actions from "../../../actions";
+import * as location from "../../../store/location";
+import customers from "../../../store/customers";
+import meta from "../../../store/meta";
 
-import DataGrid from "../Data/ChildConfigDataGrid";
+import DataGrid from "../../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
 import Toolbar from "material-ui/Toolbar";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
@@ -22,7 +21,7 @@ import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
 
-import promiseListener from "../../store/promiseListener";
+import promiseListener from "../../../store/promiseListener";
 
 const deleteCustomers = promiseListener.createAsyncFunction({
   start: actions.customersDelete.toString(),
@@ -64,11 +63,11 @@ const contentStyle = theme => ({
 });
 
 const mapState = (state, props) => ({
-  customers: customers.getData(state),
-  customerTypes: customerTypes.getData(state),
-  customerRelationTypes: customerRelationTypes.getData(state),
+  customers: customers.paged.getData(state),
+  customerTypes: meta.customerTypes.getData(state),
+  customerRelationTypes: meta.customerRelationTypes.getData(state),
   pagination: location.getCurrentPagination(state),
-  totalSize: customers.getCount(state),
+  totalSize: customers.paged.getCount(state),
   query: location.getCurrentQuery(state),
 });
 
@@ -108,8 +107,8 @@ const enhance = compose(
       }
     }),
     onNewCustomer: ({ goToNewCustomer }) => (event) => goToNewCustomer && goToNewCustomer(),
-    onOpenCustomer: ({ goToCustomer }) => (event, id) => goToCustomer && goToCustomer({ id }),
-    onEditCustomer: ({ goToEditCustomer }) => (event, id) => goToEditCustomer && goToEditCustomer({ id }),
+    onOpenCustomer: ({ goToCustomer }) => (event, customer) => goToCustomer && goToCustomer({ customer }),
+    onEditCustomer: ({ goToEditCustomer }) => (event, customer) => goToEditCustomer && goToEditCustomer({ customer }),
   }),
   withStyles(contentStyle)
 );

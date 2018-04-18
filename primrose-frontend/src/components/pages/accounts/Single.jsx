@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
-import * as contact from "../../store/contact";
+import accounts from "../../../store/accounts";
 
 import Typography from "material-ui/Typography";
 
@@ -11,7 +11,7 @@ const contentStyle = theme => ({
 });
 
 const mapState = (state, props) => ({
-  contact: contact.getData(state),
+  account: accounts.single.getData(state),
 });
 
 const mapDispatchTo = dispatch => ({
@@ -24,9 +24,9 @@ const enhance = compose(
 );
 
 const Content = ({
-  contact,
+  account,
 }) => (
-  <Typography component="pre" variant="body2">{JSON.stringify(contact, null, 2)}</Typography>
+  <Typography component="pre" variant="body2">{JSON.stringify(account, null, 2)}</Typography>
 );
 
 export default enhance(Content);

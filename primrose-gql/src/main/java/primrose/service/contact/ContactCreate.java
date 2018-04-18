@@ -16,8 +16,8 @@ import primrose.service.CreatePhone;
 public class ContactCreate {
 
   @NotBlank
-  private final String      fullName;
-  private final String      description;
+  private final String            fullName;
+  private final String            description;
   @Valid
   private final List<CreateEmail> emails;
   @Valid

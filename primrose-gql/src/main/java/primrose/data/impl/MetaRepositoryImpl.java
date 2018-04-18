@@ -3,7 +3,10 @@ package primrose.data.impl;
 import java.util.List;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.Name;
 import org.jooq.Record2;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 import primrose.data.MetaRepository;
@@ -20,129 +23,54 @@ public class MetaRepositoryImpl implements MetaRepository {
   }
 
   @Override
-  public List<MetaType> customer() {
+  public List<MetaType> list(MetaTypes type) {
+    Name tableName = mapTable(type);
+    Field<String> slug = DSL.field("slug", String.class);
+    Field<String> name = DSL.field("name", String.class);
+    Field<String> sort = DSL.field("sort", String.class);
     return create
-      .select(Tables.CUSTOMER_TYPES.SLUG, Tables.CUSTOMER_TYPES.NAME)
-      .from(Tables.CUSTOMER_TYPES)
+      .select(slug, name)
+      .from(tableName)
+      .orderBy(sort.asc())
       .fetch()
       .map(this::map);
   }
 
   @Override
-  public boolean customer(String customer) {
+  public boolean contains(MetaTypes type, String value) {
+    Name tableName = mapTable(type);
+    Field<String> slug = DSL.field("slug", String.class);
+
     return create
       .selectOne()
-      .from(Tables.CUSTOMER_TYPES)
-      .where(Tables.CUSTOMER_TYPES.SLUG.eq(customer))
+      .from(tableName)
+      .where(slug.eq(value))
       .fetchOne(0) != null;
   }
 
-  @Override
-  public List<MetaType> customerRelation() {
-    return create
-      .select(Tables.CUSTOMER_RELATION_TYPES.SLUG, Tables.CUSTOMER_RELATION_TYPES.NAME)
-      .from(Tables.CUSTOMER_RELATION_TYPES)
-      .fetch()
-      .map(this::map);
+  public enum MetaTypes {
+    CUSTOMER, CUSTOMER_RELATION, ADDRESS, PHONE_NUMBER, EMAIL, CONTACT, MEETING
   }
 
-  @Override
-  public boolean customerRelation(String customerRelation) {
-    return create
-      .selectOne()
-      .from(Tables.CUSTOMER_RELATION_TYPES)
-      .where(Tables.CUSTOMER_RELATION_TYPES.SLUG.eq(customerRelation))
-      .fetchOne(0) != null;
-  }
-
-  @Override
-  public List<MetaType> address() {
-    return create
-      .select(Tables.ADDRESS_TYPES.SLUG, Tables.ADDRESS_TYPES.NAME)
-      .from(Tables.ADDRESS_TYPES)
-      .fetch()
-      .map(this::map);
-  }
-
-  @Override
-  public boolean address(String address) {
-    return create
-      .selectOne()
-      .from(Tables.ADDRESS_TYPES)
-      .where(Tables.ADDRESS_TYPES.SLUG.eq(address))
-      .fetchOne(0) != null;
-  }
-
-  @Override
-  public List<MetaType> phoneNumber() {
-    return create
-      .select(Tables.PHONE_NUMBER_TYPES.SLUG, Tables.PHONE_NUMBER_TYPES.NAME)
-      .from(Tables.PHONE_NUMBER_TYPES)
-      .fetch()
-      .map(this::map);
-  }
-
-  @Override
-  public boolean phoneNumber(String phoneNumber) {
-    return create
-      .selectOne()
-      .from(Tables.PHONE_NUMBER_TYPES)
-      .where(Tables.PHONE_NUMBER_TYPES.SLUG.eq(phoneNumber))
-      .fetchOne(0) != null;
-  }
-
-  @Override
-  public List<MetaType> email() {
-    return create
-      .select(Tables.EMAIL_TYPES.SLUG, Tables.EMAIL_TYPES.NAME)
-      .from(Tables.EMAIL_TYPES)
-      .fetch()
-      .map(this::map);
-  }
-
-  @Override
-  public boolean email(String email) {
-    return create
-      .selectOne()
-      .from(Tables.EMAIL_TYPES)
-      .where(Tables.EMAIL_TYPES.SLUG.eq(email))
-      .fetchOne(0) != null;
-  }
-
-  @Override
-  public List<MetaType> contact() {
-    return create
-      .select(Tables.CONTACT_TYPES.SLUG, Tables.CONTACT_TYPES.NAME)
-      .from(Tables.CONTACT_TYPES)
-      .fetch()
-      .map(this::map);
-  }
-
-  @Override
-  public boolean contact(String contact) {
-    return create
-      .selectOne()
-      .from(Tables.CONTACT_TYPES)
-      .where(Tables.CONTACT_TYPES.SLUG.eq(contact))
-      .fetchOne(0) != null;
-  }
-
-  @Override
-  public List<MetaType> meeting() {
-    return create
-      .select(Tables.MEETING_TYPES.SLUG, Tables.MEETING_TYPES.NAME)
-      .from(Tables.MEETING_TYPES)
-      .fetch()
-      .map(this::map);
-  }
-
-  @Override
-  public boolean meeting(String meeting) {
-    return create
-      .selectOne()
-      .from(Tables.MEETING_TYPES)
-      .where(Tables.MEETING_TYPES.SLUG.eq(meeting))
-      .fetchOne(0) != null;
+  private Name mapTable(MetaTypes types) {
+    switch (types) {
+    case ADDRESS:
+      return Tables.ADDRESS_TYPES.getQualifiedName();
+    case CONTACT:
+      return Tables.CONTACT_TYPES.getQualifiedName();
+    case CUSTOMER:
+      return Tables.CUSTOMER_TYPES.getQualifiedName();
+    case CUSTOMER_RELATION:
+      return Tables.CUSTOMER_RELATION_TYPES.getQualifiedName();
+    case EMAIL:
+      return Tables.EMAIL_TYPES.getQualifiedName();
+    case MEETING:
+      return Tables.MEETING_TYPES.getQualifiedName();
+    case PHONE_NUMBER:
+      return Tables.PHONE_NUMBER_TYPES.getQualifiedName();
+    default:
+      return null;
+    }
   }
 
   private MetaType map(Record2<String, String> record) {

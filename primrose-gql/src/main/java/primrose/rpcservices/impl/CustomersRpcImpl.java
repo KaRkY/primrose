@@ -21,7 +21,7 @@ import primrose.spring.ValidationSupport;
 @Component
 public class CustomersRpcImpl implements CustomersRpc {
 
-  private CustomerService      customerService;
+  private CustomerService   customerService;
   private ValidationSupport validationSupport;
 
   public CustomersRpcImpl(CustomerService customerService, ValidationSupport validationSupport) {

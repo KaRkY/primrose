@@ -8,94 +8,101 @@ create schema primrose;
  */
 
 create table customer_types(
-  id    bigserial,
+  id    bigserial not null,
   slug  text      not null  unique,
   name  text      not null  unique,
+  sort  int       not null  unique,
   
   primary key (id)
 );
 
-insert into customer_types(slug, name) values 
-('person', 'Person'),
-('company', 'Company');
+insert into customer_types(slug, name, sort) values 
+('person', 'Person', 1),
+('company', 'Company', 2);
 
 create table address_types(
-  id    bigserial  not null,
-  slug  text    not null  unique,
-  name  text    not null  unique,
+  id    bigserial not null,
+  slug  text      not null  unique,
+  name  text      not null  unique,
+  sort  int       not null  unique,
   
   primary key (id)
 );
 
-insert into address_types(slug, name) values
-('billing', 'Billing'),
-('shipping', 'Shipping');
+insert into address_types(slug, name, sort) values
+('billing', 'Billing', 1),
+('shipping', 'Shipping', 2);
 
 create table customer_relation_types(
-  id    bigserial,
+  id    bigserial not null,
   slug  text      not null  unique,
   name  text      not null  unique,
+  sort  int       not null  unique,
   
   primary key (id)
 );
 
-insert into customer_relation_types(slug, name) values 
-('customer', 'Customer'),
-('partner', 'Partner'),
-('investor', 'Investor'),
-('reseller', 'Reseller');
+insert into customer_relation_types(slug, name, sort) values 
+('customer', 'Customer', 1),
+('partner', 'Partner', 2),
+('investor', 'Investor', 3),
+('reseller', 'Reseller', 4);
 
 create table phone_number_types(
-  id    bigserial,
+  id    bigserial not null,
   slug  text      not null  unique,
   name  text      not null  unique,
+  sort  int       not null  unique,
   
   primary key (id)
 );
 
-insert into phone_number_types(slug, name) values 
-('work', 'Work'),
-('home', 'Home'),
-('other', 'Other');
+insert into phone_number_types(slug, name, sort) values 
+('work', 'Work', 1),
+('home', 'Home', 2),
+('other', 'Other', 3);
 
 create table email_types(
-  id    bigserial,
+  id    bigserial not null,
   slug  text      not null  unique,
   name  text      not null  unique,
+  sort  int       not null  unique,
   
   primary key (id)
 );
 
-insert into email_types(slug, name) values 
-('work', 'Work'),
-('home', 'Home'),
-('other', 'Other');
+insert into email_types(slug, name, sort) values 
+('work', 'Work', 1),
+('home', 'Home', 2),
+('other', 'Other', 3);
 
 create table contact_types(
-  id    bigserial,
+  id    bigserial not null,
   slug  text      not null  unique,
   name  text      not null  unique,
+  sort  int       not null  unique,
   
   primary key (id)
 );
 
-insert into contact_types(slug, name) values 
-('sales', 'Sales'),
-('manager', 'Manager');
+insert into contact_types(slug, name, sort) values 
+('sales', 'Sales', 1),
+('manager', 'Manager', 2);
 
 create table meeting_types(
-  id    bigserial,
+  id    bigserial not null,
   slug  text      not null  unique,
   name  text      not null  unique,
+  sort  int       not null  unique,
   
   primary key (id)
 );
 
-insert into meeting_types(slug, name) values 
-('call', 'Call'),
-('on-site', 'On Site'),
-('email', 'Email'),
-('mail', 'mail');
+insert into meeting_types(slug, name, sort) values 
+('call', 'Call', 1),
+('on-site', 'On Site', 2),
+('email', 'Email', 3),
+('mail', 'mail', 4);
 /*
  * 
  * TABLES
@@ -138,6 +145,9 @@ create table customers(
   full_name               text      not null unique,
   display_name            text,
   description             text,
+  
+  valid_from              timestamp with time zone not null default now(),
+  valid_to                timestamp with time zone,
   
   primary key (id),
   foreign key (customer_type)           references customer_types(id),
@@ -249,6 +259,9 @@ create table contacts(
   full_name   text      not null unique,
   description text,
   
+  valid_from  timestamp with time zone not null default now(),
+  valid_to    timestamp with time zone,
+  
   primary key (id)
 );
 
@@ -334,14 +347,20 @@ create table meetings(
   meeting_type      bigint                    not null,
   description       text,
   
+  valid_from        timestamp with time zone not null default now(),
+  valid_to          timestamp with time zone,
+  
   primary key (id),
   foreign key (meeting_type)  references meeting_types(id)
 );
 
 create table meeting_notes(
-  id      bigserial,
-  meeting bigint    not null,
-  note    text      not null,
+  id          bigserial,
+  meeting     bigint    not null,
+  note        text      not null,
+  
+  valid_from  timestamp with time zone not null default now(),
+  valid_to    timestamp with time zone,
   
   primary key (id, meeting),
   foreign key (meeting) references meetings(id)

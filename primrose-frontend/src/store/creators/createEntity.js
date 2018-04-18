@@ -1,3 +1,5 @@
+import axios from "../../axios";
+import convertError from "../../util/convertError";
 import {
   combineReducers
 } from "redux";
@@ -8,13 +10,14 @@ import {
   createSelector
 } from "reselect";
 
-//TODO rename to createPagedEntity
-
 export default ({
   loadingAction,
   fetchedAction,
   errorAction,
   rootSelector,
+  apiUrl,
+  apiParameters,
+  ...rest
 }) => {
   const data = handleActions({
     [fetchedAction]: (state, action) => action.payload,
@@ -33,17 +36,42 @@ export default ({
     [errorAction]: (state, action) => action.payload,
   }, null);
 
-  return {
-    reducer: combineReducers({
-      data,
-      loading,
-      error,
-    }),
+  const reducer = combineReducers({
+    data,
+    loading,
+    error,
+  });
 
-    selectors: {
-      getData: createSelector(rootSelector, root => root.data),
-      getError: createSelector(rootSelector, root => root.error),
-      isLoading: createSelector(rootSelector, root => root.loading),
-    }
+  const selectors = {
+    getData: createSelector(rootSelector, root => root.data),
+    getError: createSelector(rootSelector, root => root.error),
+    isLoading: createSelector(rootSelector, root => root.loading),
+  };
+
+  return {
+    reducer,
+    ...selectors,
+
+    api: ({
+      dispatch,
+      state,
+      action
+    }) => {
+      dispatch(loadingAction());
+      axios.post(apiUrl, {
+          jsonrpc: "2.0",
+          method: "get",
+          params: apiParameters({
+            dispatch,
+            state,
+            action
+          }),
+          id: Date.now(),
+        })
+        .then(result => dispatch(fetchedAction(result.data.result)))
+        .catch(error => dispatch(errorAction(convertError(error))));
+    },
+
+    ...rest
   };
 };
