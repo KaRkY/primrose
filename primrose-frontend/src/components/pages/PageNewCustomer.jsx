@@ -97,7 +97,7 @@ const Content = ({
         pristine,
         invalid,
         values,
-      }) => console.log(values) || (
+      }) => (
         <form onSubmit={handleSubmit} onReset={reset}>
           <Grid container spacing={16}>
             {submitError &&
@@ -156,7 +156,7 @@ const Content = ({
                 <Grid item>
                   <FieldArray name="emails" label="Emails" push={mutators.push}>
                     {({ fields }) =>
-                      fields.map((name, index) => console.log(name) || (
+                      fields.map((name, index) => (
                         <Grid container spacing={16} key={name}>
                           <Grid item xs={3}>
                             <TextField select name={`${name}.type`} label="Type" fullWidth>

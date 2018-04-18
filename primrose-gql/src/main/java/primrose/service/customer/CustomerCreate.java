@@ -10,8 +10,8 @@ import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import primrose.service.Email;
-import primrose.service.Phone;
+import primrose.service.CreateEmail;
+import primrose.service.CreatePhone;
 
 public class CustomerCreate {
 
@@ -24,9 +24,9 @@ public class CustomerCreate {
   private final String      fullName;
   private final String      description;
   @Valid
-  private final List<Email> emails;
+  private final List<CreateEmail> emails;
   @Valid
-  private final List<Phone> phones;
+  private final List<CreatePhone> phones;
 
   @JsonCreator
   public CustomerCreate(
@@ -35,8 +35,8 @@ public class CustomerCreate {
     @JsonProperty("displayName") String displayName,
     @JsonProperty("fullName") String fullName,
     @JsonProperty("description") String description,
-    @JsonProperty("emails") List<Email> emails,
-    @JsonProperty("phones") List<Phone> phones) {
+    @JsonProperty("emails") List<CreateEmail> emails,
+    @JsonProperty("phones") List<CreatePhone> phones) {
     super();
     this.type = type;
     this.relationType = relationType;
@@ -67,11 +67,11 @@ public class CustomerCreate {
     return description;
   }
 
-  public List<Email> getEmails() {
+  public List<CreateEmail> getEmails() {
     return Collections.unmodifiableList(emails);
   }
 
-  public List<Phone> getPhones() {
+  public List<CreatePhone> getPhones() {
     return Collections.unmodifiableList(phones);
   }
 

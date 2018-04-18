@@ -5,9 +5,8 @@ import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Phone {
+public class CreateEmail {
 
-  private final long   id;
   @NotBlank
   private final String type;
 
@@ -17,20 +16,14 @@ public class Phone {
   private final Boolean primary;
 
   @JsonCreator
-  public Phone(
-      @JsonProperty("id") long id,
-      @JsonProperty("type") String type,
-      @JsonProperty("value") String value,
-      @JsonProperty("primary") Boolean primary) {
+  public CreateEmail(
+    @JsonProperty("type") String type,
+    @JsonProperty("value") String value,
+    @JsonProperty("primary") Boolean primary) {
     super();
-    this.id = id;
     this.type = type;
     this.value = value;
     this.primary = primary;
-  }
-
-  public long getId() {
-    return id;
   }
 
   public String getType() {

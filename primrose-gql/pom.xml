@@ -173,13 +173,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.16.20</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.github.briandilley.jsonrpc4j</groupId>
       <artifactId>jsonrpc4j</artifactId>
       <version>1.5.3</version>

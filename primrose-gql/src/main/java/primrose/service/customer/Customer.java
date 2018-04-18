@@ -14,6 +14,8 @@ import primrose.service.Email;
 import primrose.service.Phone;
 
 public class Customer {
+
+  private final long id;
   @NotBlank
   private final String      type;
   @NotBlank
@@ -29,6 +31,7 @@ public class Customer {
 
   @JsonCreator
   public Customer(
+      @JsonProperty("id") long id,
     @JsonProperty("type") String type,
     @JsonProperty("relationType") String relationType,
     @JsonProperty("displayName") String displayName,
@@ -37,6 +40,7 @@ public class Customer {
     @JsonProperty("emails") List<Email> emails,
     @JsonProperty("phones") List<Phone> phones) {
     super();
+    this.id = id;
     this.type = type;
     this.relationType = relationType;
     this.displayName = displayName;
@@ -44,6 +48,10 @@ public class Customer {
     this.description = description;
     this.emails = emails != null ? new ArrayList<>(emails) : Collections.emptyList();
     this.phones = phones != null ? new ArrayList<>(phones) : Collections.emptyList();
+  }
+
+  public long getId() {
+    return id;
   }
 
   public String getType() {

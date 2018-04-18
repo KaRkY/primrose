@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Email {
 
+  private final long   id;
   @NotBlank
   private final String type;
 
@@ -17,13 +18,19 @@ public class Email {
 
   @JsonCreator
   public Email(
-    @JsonProperty("type") String type,
-    @JsonProperty("value") String value,
-    @JsonProperty("primary") Boolean primary) {
+      @JsonProperty("id") long id,
+      @JsonProperty("type") String type,
+      @JsonProperty("value") String value,
+      @JsonProperty("primary") Boolean primary) {
     super();
+    this.id = id;
     this.type = type;
     this.value = value;
     this.primary = primary;
+  }
+
+  public long getId() {
+    return id;
   }
 
   public String getType() {

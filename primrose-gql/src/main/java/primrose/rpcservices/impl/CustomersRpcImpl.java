@@ -2,14 +2,12 @@ package primrose.rpcservices.impl;
 
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import org.springframework.stereotype.Component;
-import org.springframework.validation.DirectFieldBindingResult;
-import org.springframework.validation.MessageCodesResolver;
-import org.springframework.validation.Validator;
 
 import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
 
-import primrose.error.ArgumentValidationException;
 import primrose.rpcservices.CustomersRpc;
 import primrose.service.Search;
 import primrose.service.SearchResult;
@@ -17,37 +15,31 @@ import primrose.service.customer.Customer;
 import primrose.service.customer.CustomerCreate;
 import primrose.service.customer.CustomerSearch;
 import primrose.service.customer.CustomerService;
+import primrose.spring.ValidationSupport;
 
 @AutoJsonRpcServiceImpl
 @Component
 public class CustomersRpcImpl implements CustomersRpc {
 
   private CustomerService      customerService;
-  private Validator            validator;
-  private MessageCodesResolver messageCodesResolver;
+  private ValidationSupport validationSupport;
 
-  public CustomersRpcImpl(CustomerService customerService, Validator validator, MessageCodesResolver messageCodesResolver) {
+  public CustomersRpcImpl(CustomerService customerService, ValidationSupport validationSupport) {
     this.customerService = customerService;
-    this.validator = validator;
-    this.messageCodesResolver = messageCodesResolver;
+    this.validationSupport = validationSupport;
   }
 
   @Override
   public SearchResult<CustomerSearch> search(Search search) {
-    DirectFieldBindingResult bindingResult = new DirectFieldBindingResult(search, "search");
-    bindingResult.setMessageCodesResolver(messageCodesResolver);
-    validator.validate(search, bindingResult);
-    if (bindingResult.hasErrors()) { throw new ArgumentValidationException(bindingResult); }
+    validationSupport.validate("search", search);
 
     return customerService.search(search);
   }
 
   @Override
-  public long create(CustomerCreate customer) {
-    DirectFieldBindingResult bindingResult = new DirectFieldBindingResult(customer, "customer");
-    bindingResult.setMessageCodesResolver(messageCodesResolver);
-    validator.validate(customer, bindingResult);
-    if (bindingResult.hasErrors()) { throw new ArgumentValidationException(bindingResult); }
+  public long create(@Valid CustomerCreate customer) {
+    validationSupport.validate("customer", customer);
+
     return customerService.create(customer);
   }
 
