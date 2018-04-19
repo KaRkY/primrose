@@ -6,11 +6,13 @@ import { withStyles } from "material-ui/styles";
 import normalizeArray from "../../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
+import debounce from "lodash/debounce";
 import * as actions from "../../../actions";
 import * as location from "../../../store/location";
 import customers from "../../../store/customers";
 import meta from "../../../store/meta";
 
+import SearchBar from "material-ui-search-bar";
 import DataGrid from "../../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
 import Toolbar from "material-ui/Toolbar";
@@ -33,6 +35,7 @@ const deleteCustomers = promiseListener.createAsyncFunction({
 const contentStyle = theme => ({
   root: {
     position: "relative",
+    marginTop: theme.spacing.unit * 3,
   },
 
   grow: {
@@ -59,7 +62,7 @@ const contentStyle = theme => ({
     bottom: 0,
     left: 0,
     right: 0,
-  }
+  },
 });
 
 const mapState = (state, props) => ({
@@ -100,6 +103,12 @@ const enhance = compose(
         sortDirection: direction,
       }
     }),
+    onQueryChange: ({ query, goToCustomers }) => debounce((queryTerm) => goToCustomers({
+      query: {
+        ...query,
+        query: queryTerm ? queryTerm : undefined,
+      }
+    }), 500),
     onSelectedRowsChange: ({ query, pagination, goToCustomers }) => (event, value, checked) => goToCustomers({
       query: {
         ...query,
@@ -114,9 +123,7 @@ const enhance = compose(
 );
 
 const getRowId = row => row.code;
-
-
-
+// Reimplement search this does not work. Search schould have search button
 const Content = ({
   classes,
   customers,
@@ -126,8 +133,10 @@ const Content = ({
   totalSize,
   isDeleting,
   query,
+  searchOpen,
   goToCustomers,
   onSelectedRowsChange,
+  onQueryChange,
   onPageChange,
   onPageSizeChange,
   onSortChange,
@@ -135,98 +144,106 @@ const Content = ({
   onOpenCustomer,
   onEditCustomer,
 }) => (
-    <Paper className={classes.root}>
-      <Toolbar>
-        <div className={classes.grow} />
-        <Tooltip
-          title="New Customer"
-          enterDelay={300}
-        >
-          <IconButton onClick={onNewCustomer}>
-            <PersonAddIcon />
-          </IconButton>
-        </Tooltip>
-        {pagination.selected && pagination.selected.length > 0 && (
+    <React.Fragment>
+      <SearchBar
+        onChange={onQueryChange}
+        onRequestSearch={onQueryChange}
+        style={{ width: "100%" }}
+        value={query && query.query}
+      />
+      <Paper className={classes.root}>
+        <Toolbar>
+          <div className={classes.grow} />
           <Tooltip
-            title="Delete Customers"
+            title="New Customer"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={() => {
-              deleteCustomers.asyncFunction({ customers: pagination.selected })
-                .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
-                .catch(console.log);
-            }}>
-              <DeleteIcon />
+            <IconButton onClick={onNewCustomer}>
+              <PersonAddIcon />
             </IconButton>
           </Tooltip>
-        )}
-      </Toolbar>
-      <DataGrid
-        getRowId={getRowId}
-        rows={customers || []}
-      >
-
-        <DataGrid.Columns>
-          <DataGrid.Column name="code" title="Code" />
-          <DataGrid.Column name="relationType" title="Relation type" getCellValue={row => customerRelationTypes[row.relationType]} />
-          <DataGrid.Column name="type" title="Type" getCellValue={row => customerTypes[row.type]} />
-          <DataGrid.Column name="name" title="Name" getCellValue={row => row.displayName || row.fullName} />
-          <DataGrid.Column name="primaryEmail" title="Primary email" />
-          <DataGrid.Column name="primaryPhone" title="Primary phone" />
-        </DataGrid.Columns>
-
-        <DataGrid.Pagination
-          totalSize={totalSize}
-          page={pagination.page}
-          size={pagination.size}
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
-        />
-
-        <DataGrid.Sorting
-          sort={pagination.sort}
-          onSortChange={onSortChange}
-        />
-
-        <DataGrid.Selecting
-          rowIds={pagination.selected || []}
-          onSelectRowsChange={onSelectedRowsChange}
-        />
-
-        <DataGrid.RowActions>{row => (
-          <React.Fragment>
+          {pagination.selected && pagination.selected.length > 0 && (
             <Tooltip
-              title="Open Customer"
+              title="Delete Customers"
               enterDelay={300}
             >
-              <IconButton onClick={event => onOpenCustomer(event, row.code)}>
-                <ZoomInIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip
-              title="Edit Customer"
-              enterDelay={300}
-            >
-              <IconButton onClick={event => onEditCustomer(event, row.code)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip
-              title="Delete Customer"
-              enterDelay={300}
-            >
-              <IconButton onClick={event => {
-                deleteCustomers.asyncFunction({ customers: row.code })
+              <IconButton disabled={isDeleting} onClick={() => {
+                deleteCustomers.asyncFunction({ customers: pagination.selected })
                   .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
                   .catch(console.log);
               }}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
-          </React.Fragment>
-        )}</DataGrid.RowActions>
-      </DataGrid>
-    </Paper >
+          )}
+        </Toolbar>
+        <DataGrid
+          getRowId={getRowId}
+          rows={customers || []}
+        >
+
+          <DataGrid.Columns>
+            <DataGrid.Column name="code" title="Code" />
+            <DataGrid.Column name="relationType" title="Relation type" getCellValue={row => customerRelationTypes[row.relationType]} />
+            <DataGrid.Column name="type" title="Type" getCellValue={row => customerTypes[row.type]} />
+            <DataGrid.Column name="name" title="Name" getCellValue={row => row.displayName || row.fullName} />
+            <DataGrid.Column name="primaryEmail" title="Primary email" />
+            <DataGrid.Column name="primaryPhone" title="Primary phone" />
+          </DataGrid.Columns>
+
+          <DataGrid.Pagination
+            totalSize={totalSize}
+            page={pagination.page}
+            size={pagination.size}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+          />
+
+          <DataGrid.Sorting
+            sort={pagination.sort}
+            onSortChange={onSortChange}
+          />
+
+          <DataGrid.Selecting
+            rowIds={pagination.selected || []}
+            onSelectRowsChange={onSelectedRowsChange}
+          />
+
+          <DataGrid.RowActions>{row => (
+            <React.Fragment>
+              <Tooltip
+                title="Open Customer"
+                enterDelay={300}
+              >
+                <IconButton onClick={event => onOpenCustomer(event, row.code)}>
+                  <ZoomInIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title="Edit Customer"
+                enterDelay={300}
+              >
+                <IconButton onClick={event => onEditCustomer(event, row.code)}>
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title="Delete Customer"
+                enterDelay={300}
+              >
+                <IconButton onClick={event => {
+                  deleteCustomers.asyncFunction({ customers: row.code })
+                    .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
+                    .catch(console.log);
+                }}>
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            </React.Fragment>
+          )}</DataGrid.RowActions>
+        </DataGrid>
+      </Paper>
+    </React.Fragment>
   );
 
 export default enhance(Content);

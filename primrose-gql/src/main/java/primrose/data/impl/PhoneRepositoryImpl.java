@@ -1,13 +1,16 @@
 package primrose.data.impl;
 
 import java.util.List;
+import java.util.Set;
 
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 import primrose.data.PhoneRepository;
+import primrose.jooq.JooqUtil;
 import primrose.jooq.Tables;
+import primrose.service.CodeId;
 import primrose.service.PhoneFullDisplay;
 
 @Repository
@@ -39,7 +42,7 @@ public class PhoneRepositoryImpl implements PhoneRepository {
   }
 
   @Override
-  public void assignToCustomer(long customerCodeId, long phoneId, String phoneType, Boolean primary) {
+  public void assignToCustomer(CodeId code, long phoneId, String phoneType, Boolean primary) {
     create
       .insertInto(Tables.CUSTOMER_PHONE_NUMBERS)
       .columns(
@@ -48,7 +51,7 @@ public class PhoneRepositoryImpl implements PhoneRepository {
         Tables.CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER_TYPE,
         Tables.CUSTOMER_PHONE_NUMBERS.PRIM)
       .values(
-        DSL.value(customerCodeId),
+        DSL.value(code.getId()),
         DSL.value(phoneId),
         create
           .select(Tables.PHONE_NUMBER_TYPES.ID)
@@ -60,7 +63,7 @@ public class PhoneRepositoryImpl implements PhoneRepository {
   }
 
   @Override
-  public void assignToContact(long contactId, long phoneId, String phoneType, Boolean primary) {
+  public void assignToContact(CodeId code, long phoneId, String phoneType, Boolean primary) {
     create
       .insertInto(Tables.CONTACT_PHONE_NUMBERS)
       .columns(
@@ -69,7 +72,7 @@ public class PhoneRepositoryImpl implements PhoneRepository {
         Tables.CONTACT_PHONE_NUMBERS.PHONE_NUMBER_TYPE,
         Tables.CONTACT_PHONE_NUMBERS.PRIM)
       .values(
-        DSL.value(contactId),
+        DSL.value(code.getId()),
         DSL.value(phoneId),
         create
           .select(Tables.PHONE_NUMBER_TYPES.ID)
@@ -81,7 +84,7 @@ public class PhoneRepositoryImpl implements PhoneRepository {
   }
 
   @Override
-  public List<PhoneFullDisplay> customerPhones(long customerCodeId) {
+  public List<PhoneFullDisplay> customerPhones(CodeId code) {
     return create
       .select(
         Tables.PHONE_NUMBERS.ID,
@@ -93,15 +96,14 @@ public class PhoneRepositoryImpl implements PhoneRepository {
       .innerJoin(Tables.PHONE_NUMBER_TYPES)
       .on(Tables.PHONE_NUMBER_TYPES.ID.eq(Tables.CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER_TYPE))
       .where(
-        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customerCodeId),
-        DSL.currentOffsetDateTime().between(Tables.CUSTOMER_PHONE_NUMBERS.VALID_FROM)
-          .and(DSL.isnull(Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())))
+        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(code.getId()),
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CUSTOMER_PHONE_NUMBERS.VALID_FROM, Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO))
       .fetch()
       .map(record -> new PhoneFullDisplay(record.value1(), record.value2(), record.value3(), record.value4()));
   }
 
   @Override
-  public List<PhoneFullDisplay> customerPhonesForUpdate(long customerCodeId) {
+  public List<PhoneFullDisplay> customerPhonesForUpdate(CodeId code) {
     return create
       .select(
         Tables.PHONE_NUMBERS.ID,
@@ -113,16 +115,15 @@ public class PhoneRepositoryImpl implements PhoneRepository {
       .innerJoin(Tables.PHONE_NUMBER_TYPES)
       .on(Tables.PHONE_NUMBER_TYPES.ID.eq(Tables.CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER_TYPE))
       .where(
-        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customerCodeId),
-        DSL.currentOffsetDateTime().between(Tables.CUSTOMER_PHONE_NUMBERS.VALID_FROM)
-          .and(DSL.isnull(Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())))
+        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(code.getId()),
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CUSTOMER_PHONE_NUMBERS.VALID_FROM, Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO))
       .forUpdate()
       .fetch()
       .map(record -> new PhoneFullDisplay(record.value1(), record.value2(), record.value3(), record.value4()));
   }
 
   @Override
-  public List<PhoneFullDisplay> contactPhones(long contactId) {
+  public List<PhoneFullDisplay> contactPhones(CodeId code) {
     return create
       .select(
         Tables.PHONE_NUMBERS.ID,
@@ -134,15 +135,14 @@ public class PhoneRepositoryImpl implements PhoneRepository {
       .innerJoin(Tables.PHONE_NUMBER_TYPES)
       .on(Tables.PHONE_NUMBER_TYPES.ID.eq(Tables.CONTACT_PHONE_NUMBERS.PHONE_NUMBER_TYPE))
       .where(
-        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(contactId),
-        DSL.currentOffsetDateTime().between(Tables.CONTACT_PHONE_NUMBERS.VALID_FROM)
-          .and(DSL.isnull(Tables.CONTACT_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())))
+        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(code.getId()),
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CONTACT_PHONE_NUMBERS.VALID_FROM, Tables.CONTACT_PHONE_NUMBERS.VALID_TO))
       .fetch()
       .map(record -> new PhoneFullDisplay(record.value1(), record.value2(), record.value3(), record.value4()));
   }
 
   @Override
-  public List<PhoneFullDisplay> contactPhonesForUpdate(long contactId) {
+  public List<PhoneFullDisplay> contactPhonesForUpdate(CodeId code) {
     return create
       .select(
         Tables.PHONE_NUMBERS.ID,
@@ -154,64 +154,82 @@ public class PhoneRepositoryImpl implements PhoneRepository {
       .innerJoin(Tables.PHONE_NUMBER_TYPES)
       .on(Tables.PHONE_NUMBER_TYPES.ID.eq(Tables.CONTACT_PHONE_NUMBERS.PHONE_NUMBER_TYPE))
       .where(
-        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(contactId),
-        DSL.currentOffsetDateTime().between(Tables.CONTACT_PHONE_NUMBERS.VALID_FROM)
-          .and(DSL.isnull(Tables.CONTACT_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())))
+        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(code.getId()),
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CONTACT_PHONE_NUMBERS.VALID_FROM, Tables.CONTACT_PHONE_NUMBERS.VALID_TO))
       .forUpdate()
       .fetch()
       .map(record -> new PhoneFullDisplay(record.value1(), record.value2(), record.value3(), record.value4()));
   }
 
   @Override
-  public boolean isAssignedToCustomer(long customerCodeId, long phoneId) {
+  public boolean isAssignedToCustomer(CodeId code, long phoneId) {
     return create
       .selectOne()
       .from(Tables.CUSTOMER_PHONE_NUMBERS)
       .where(
-        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customerCodeId),
+        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(code.getId()),
         Tables.CUSTOMER_PHONE_NUMBERS.PHONE.eq(phoneId),
-        DSL.currentOffsetDateTime()
-          .between(Tables.CUSTOMER_PHONE_NUMBERS.VALID_FROM)
-          .and(DSL.isnull(Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())))
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CONTACT_PHONE_NUMBERS.VALID_FROM, Tables.CONTACT_PHONE_NUMBERS.VALID_TO))
       .fetchOne(0, Integer.class) != null;
   }
 
   @Override
-  public boolean isAssignedToContact(long contactId, long phoneId) {
+  public boolean isAssignedToContact(CodeId code, long phoneId) {
     return create
       .selectOne()
       .from(Tables.CONTACT_PHONE_NUMBERS)
       .where(
-        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(contactId),
+        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(code.getId()),
         Tables.CONTACT_PHONE_NUMBERS.PHONE.eq(phoneId),
-        DSL.currentOffsetDateTime()
-          .between(Tables.CONTACT_PHONE_NUMBERS.VALID_FROM)
-          .and(DSL.isnull(Tables.CONTACT_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())))
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CONTACT_PHONE_NUMBERS.VALID_FROM, Tables.CONTACT_PHONE_NUMBERS.VALID_TO))
       .fetchOne(0, Integer.class) != null;
   }
 
   @Override
-  public void removeFromCustomer(long customerCodeId, long phoneId) {
+  public void removeFromCustomer(CodeId code, long phoneId) {
     create
       .update(Tables.CUSTOMER_PHONE_NUMBERS)
       .set(Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())
       .where(
-        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customerCodeId),
+        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(code.getId()),
         Tables.CUSTOMER_PHONE_NUMBERS.PHONE.eq(phoneId),
         Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO.isNull())
       .execute();
   }
 
   @Override
-  public void removeFromContact(long contactId, long phoneId) {
+  public void removeExceptFromCustomer(CodeId code, Set<Long> phoneIds) {
+    create
+    .update(Tables.CUSTOMER_PHONE_NUMBERS)
+    .set(Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())
+    .where(
+      Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(code.getId()),
+      Tables.CUSTOMER_PHONE_NUMBERS.PHONE.notIn(phoneIds),
+      Tables.CUSTOMER_PHONE_NUMBERS.VALID_TO.isNull())
+    .execute();
+  }
+
+  @Override
+  public void removeFromContact(CodeId code, long phoneId) {
     create
       .update(Tables.CONTACT_PHONE_NUMBERS)
       .set(Tables.CONTACT_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())
       .where(
-        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(contactId),
+        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(code.getId()),
         Tables.CONTACT_PHONE_NUMBERS.PHONE.eq(phoneId),
         Tables.CONTACT_PHONE_NUMBERS.VALID_TO.isNull())
       .execute();
   }
 
+  @Override
+  public void removeExceptFromContact(CodeId code, Set<Long> phoneIds) {
+    create
+    .update(Tables.CONTACT_PHONE_NUMBERS)
+    .set(Tables.CONTACT_PHONE_NUMBERS.VALID_TO, DSL.currentOffsetDateTime())
+    .where(
+      Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(code.getId()),
+      Tables.CONTACT_PHONE_NUMBERS.PHONE.notIn(phoneIds),
+      Tables.CONTACT_PHONE_NUMBERS.VALID_TO.isNull())
+    .execute();
+  }
 }

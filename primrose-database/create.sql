@@ -194,44 +194,47 @@ create table customers(
 );
 
 create table customer_addresses(
-  address       bigint  not null,
-  customer      bigint  not null,
-  address_type  bigint  not null,
+  id            bigserial not null,
+  address       bigint    not null,
+  customer      bigint    not null,
+  address_type  bigint    not null,
 
   valid_from    timestamp with time zone not null default now(),
   valid_to      timestamp with time zone,
   
-  primary key (address, customer),
+  primary key (id),
   foreign key (address)       references addresses(id),
   foreign key (customer)      references customer_codes(id),
   foreign key (address_type)  references address_types(id)
 );
 
 create table customer_phone_numbers(
-  phone             bigint  not null,
-  customer          bigint  not null,
-  prim              bool    not null default false,
-  phone_number_type bigint  not null,
+  id                bigserial not null,
+  phone             bigint    not null,
+  customer          bigint    not null,
+  prim              bool      not null default false,
+  phone_number_type bigint    not null,
   
   valid_from        timestamp with time zone not null default now(),
   valid_to          timestamp with time zone,
   
-  primary key (phone, customer),
+  primary key (id),
   foreign key (phone)             references phone_numbers(id),
   foreign key (customer)          references customer_codes(id),
   foreign key (phone_number_type) references phone_number_types(id)
 );
 
 create table customer_emails(
-  email       bigint  not null,
-  customer    bigint  not null,
-  prim        bool    not null default false,
-  email_type  bigint  not null,
+  id          bigserial not null,
+  email       bigint    not null,
+  customer    bigint    not null,
+  prim        bool      not null default false,
+  email_type  bigint    not null,
   
   valid_from  timestamp with time zone not null default now(),
   valid_to    timestamp with time zone,
   
-  primary key (email, customer),
+  primary key (id),
   foreign key (email)       references emails(id),
   foreign key (customer)    references customer_codes(id),
   foreign key (email_type)  references email_types(id)
@@ -254,42 +257,45 @@ create table accounts(
 );
 
 create table account_addresses(
-  address       bigint  not null,
-  account       bigint  not null,
-  address_type  bigint  not null,
+  id            bigserial not null,
+  address       bigint    not null,
+  account       bigint    not null,
+  address_type  bigint    not null,
   
   valid_from    timestamp with time zone not null default now(),
   valid_to      timestamp with time zone,
   
-  primary key (address, account),
+  primary key (id),
   foreign key (address)       references addresses(id),
   foreign key (account)       references account_codes(id),
   foreign key (address_type)  references address_types(id)
 );
 
 create table account_phone_numbers(
-  phone             bigint  not null,
-  account           bigint  not null,
-  phone_number_type bigint  not null,
+  id                bigserial not null,
+  phone             bigint    not null,
+  account           bigint    not null,
+  phone_number_type bigint    not null,
   
   valid_from        timestamp with time zone not null default now(),
   valid_to          timestamp with time zone,
   
-  primary key (phone, account),
+  primary key (id),
   foreign key (phone)             references phone_numbers(id),
   foreign key (account)           references account_codes(id),
   foreign key (phone_number_type) references phone_number_types(id)
 );
 
 create table account_emails(
-  email       bigint  not null,
-  account     bigint  not null,
-  email_type  bigint  not null,
+  id          bigserial not null,
+  email       bigint    not null,
+  account     bigint    not null,
+  email_type  bigint    not null,
   
   valid_from  timestamp with time zone not null default now(),
   valid_to    timestamp with time zone,
   
-  primary key (email, account),
+  primary key (id),
   foreign key (email)       references emails(id),
   foreign key (account)     references account_codes(id),
   foreign key (email_type)  references email_types(id)
@@ -309,72 +315,77 @@ create table contacts(
 );
 
 create table contact_addresses(
-  address       bigint  not null,
-  contact       bigint  not null,
-  address_type  bigint  not null,
+  id            bigserial not null,
+  address       bigint    not null,
+  contact       bigint    not null,
+  address_type  bigint    not null,
   
   valid_from    timestamp with time zone not null default now(),
   valid_to      timestamp with time zone,
   
-  primary key (address, contact),
+  primary key (id),
   foreign key (address)       references addresses(id),
   foreign key (contact)       references contact_codes(id),
   foreign key (address_type)  references address_types(id)
 );
 
 create table contact_phone_numbers(
-  phone             bigint  not null,
-  contact           bigint  not null,
-  phone_number_type bigint  not null,
-  prim              boolean not null,
+  id                bigserial not null,
+  phone             bigint    not null,
+  contact           bigint    not null,
+  phone_number_type bigint    not null,
+  prim              boolean   not null,
   
   valid_from        timestamp with time zone not null default now(),
   valid_to          timestamp with time zone,
   
-  primary key (phone, contact),
+  primary key (id),
   foreign key (phone)             references phone_numbers(id),
   foreign key (contact)           references contact_codes(id),
   foreign key (phone_number_type) references phone_number_types(id)
 );
 
 create table contact_emails(
-  email       bigint  not null,
-  contact     bigint  not null,
-  email_type  bigint  not null,
-  prim        boolean not null,
+  id          bigserial not null,
+  email       bigint    not null,
+  contact     bigint    not null,
+  email_type  bigint    not null,
+  prim        boolean   not null,
   
   valid_from  timestamp with time zone not null default now(),
   valid_to    timestamp with time zone,
   
-  primary key (email, contact),
+  primary key (id),
   foreign key (email)       references emails(id),
   foreign key (contact)     references contact_codes(id),
   foreign key (email_type)  references email_types(id)
 );
 
 create table customer_contacts(
-  contact       bigint  not null,
-  customer      bigint  not null,
-  contact_type  bigint  not null,
+  id            bigserial not null,
+  contact       bigint    not null,
+  customer      bigint    not null,
+  contact_type  bigint    not null,
   
   valid_from    timestamp with time zone not null default now(),
   valid_to      timestamp with time zone,
   
-  primary key (contact, customer),
+  primary key (id),
   foreign key (contact)       references contact_codes(id),
   foreign key (customer)      references customer_codes(id),
   foreign key (contact_type)  references contact_types(id)
 );
 
 create table account_contacts(
-  contact       bigint  not null,
-  account       bigint  not null,
-  contact_type  bigint  not null,
+  id            bigserial not null,
+  contact       bigint    not null,
+  account       bigint    not null,
+  contact_type  bigint    not null,
   
   valid_from    timestamp with time zone not null default now(),
   valid_to      timestamp with time zone,
   
-  primary key (contact, account),
+  primary key (id),
   foreign key (contact)       references contact_codes(id),
   foreign key (account)       references account_codes(id),
   foreign key (contact_type)  references contact_types(id)
@@ -400,7 +411,7 @@ create table meetings(
 );
 
 create table meeting_notes(
-  id          bigserial,
+  id          bigserial not null,
   meeting     bigint    not null,
   note        text      not null,
   
@@ -412,10 +423,11 @@ create table meeting_notes(
 );
 
 create table customer_meeting_participants(
-  meeting       bigint  not null,
-  customer      bigint  not null,
+  id            bigserial not null,
+  meeting       bigint    not null,
+  customer      bigint    not null,
   
-  primary key (meeting, customer),
+  primary key (id),
   foreign key (meeting)       references meeting_codes(id),
   foreign key (customer)      references customer_codes(id)
 );

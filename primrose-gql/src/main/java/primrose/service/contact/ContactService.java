@@ -7,9 +7,9 @@ public interface ContactService {
 
   SearchResult<ContactReducedDisplay> search(Search search);
 
-  ContactFullDisplay get(long contactId);
+  ContactFullDisplay get(String contactCode);
 
-  long create(ContactCreate contact);
+  String create(ContactCreate contact);
 
-  long edit(long contactId, ContactCreate contact);
+  String edit(String contactCode, ContactCreate contact);
 }

@@ -22,7 +22,13 @@ export default ({
   }, 0);
 
   const loading = handleActions({
-    [loadingAction]: () => true,
+    [loadingAction]: (state, action) => !!!action.payload,
+    [fetchedAction]: () => false,
+    [errorAction]: () => false,
+  }, false);
+
+  const loadingSearch = handleActions({
+    [loadingAction]: payload => payload,
     [fetchedAction]: () => false,
     [errorAction]: () => false,
   }, false);
@@ -37,6 +43,7 @@ export default ({
     data,
     count,
     loading,
+    loadingSearch,
     error,
   };
 
@@ -45,6 +52,7 @@ export default ({
     getData: createSelector(rootSelector, root => root.data),
     getError: createSelector(rootSelector, root => root.error),
     isLoading: createSelector(rootSelector, root => root.loading),
+    isLoadingSearch: createSelector(rootSelector, root => root.loadingSearch),
   };
 
   return {

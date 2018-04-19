@@ -107,7 +107,7 @@ const enhance = compose(
   withStyles(contentStyle)
 );
 
-const getRowId = row => row.id;
+const getRowId = row => row.code;
 
 
 
@@ -154,6 +154,7 @@ const Content = ({
       >
 
         <DataGrid.Columns>
+          <DataGrid.Column name="code" title="Code" />
           <DataGrid.Column name="fullName" title="Name" />
           <DataGrid.Column name="primaryEmail" title="Email" />
           <DataGrid.Column name="primaryPhone" title="Phone" />
@@ -183,7 +184,7 @@ const Content = ({
               title="Open Contact"
               enterDelay={300}
             >
-              <IconButton onClick={event => onOpenContact(event, row.id)}>
+              <IconButton onClick={event => onOpenContact(event, row.code)}>
                 <ZoomInIcon />
               </IconButton>
             </Tooltip>
@@ -191,7 +192,7 @@ const Content = ({
               title="Edit Contact"
               enterDelay={300}
             >
-              <IconButton onClick={event => onEditContact(event, row.id)}>
+              <IconButton onClick={event => onEditContact(event, row.code)}>
                 <EditIcon />
               </IconButton>
             </Tooltip>
@@ -199,7 +200,7 @@ const Content = ({
               title="Delete Contact"
               enterDelay={300}
             >
-              <IconButton onClick={event => onDeleteContacts(event, [row.id])}>
+              <IconButton onClick={event => onDeleteContacts(event, row.code)}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>

@@ -34,9 +34,9 @@ export const remove = props => {
       jsonrpc: "2.0",
       method: "delete",
       params: Array.isArray(action.payload.contacts) ? {
-        contactIds: action.payload.contacts
+        contactCodes: action.payload.contacts
       } : {
-        contactId: action.payload.contacts
+        contactCode: action.payload.contacts
       },
       id: Date.now(),
     })
@@ -50,12 +50,11 @@ export const edit = props => {
     state,
     action
   } = props;
-  console.log(action);
   axios.post(apiUrl, {
       jsonrpc: "2.0",
       method: "edit",
       params: {
-        contactId: parseInt(location.getCurrentData(state).contact, 10),
+        contactCode: location.getCurrentData(state).contact,
         contact: action.payload,
       },
       id: Date.now(),
@@ -98,7 +97,7 @@ export const single = props => {
       jsonrpc: "2.0",
       method: "get",
       params: {
-        contactId: parseInt(location.getCurrentData(state).contact, 10)
+        contactCode: location.getCurrentData(state).contact,
       },
       id: Date.now(),
     })

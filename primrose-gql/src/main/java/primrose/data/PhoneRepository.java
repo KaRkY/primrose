@@ -1,7 +1,9 @@
 package primrose.data;
 
 import java.util.List;
+import java.util.Set;
 
+import primrose.service.CodeId;
 import primrose.service.PhoneFullDisplay;
 
 public interface PhoneRepository {
@@ -10,23 +12,27 @@ public interface PhoneRepository {
 
   Long get(String phone);
 
-  void assignToCustomer(long customerCodeId, long phoneId, String phoneType, Boolean primary);
+  void assignToCustomer(CodeId code, long phoneId, String phoneType, Boolean primary);
 
-  void assignToContact(long contactId, long phoneId, String phoneType, Boolean primary);
+  void assignToContact(CodeId code, long phoneId, String phoneType, Boolean primary);
 
-  void removeFromCustomer(long customerCodeId, long phoneId);
+  void removeFromCustomer(CodeId code, long phoneId);
 
-  void removeFromContact(long contactId, long phoneId);
+  void removeExceptFromCustomer(CodeId code, Set<Long> phoneIds);
 
-  boolean isAssignedToCustomer(long customerCodeId, long phoneId);
+  void removeFromContact(CodeId code, long phoneId);
 
-  boolean isAssignedToContact(long contactId, long phoneId);
+  void removeExceptFromContact(CodeId code, Set<Long> phoneIds);
 
-  List<PhoneFullDisplay> customerPhones(long customerCodeId);
+  boolean isAssignedToCustomer(CodeId code, long phoneId);
 
-  List<PhoneFullDisplay> customerPhonesForUpdate(long customerCodeId);
+  boolean isAssignedToContact(CodeId code, long phoneId);
 
-  List<PhoneFullDisplay> contactPhones(long contactId);
+  List<PhoneFullDisplay> customerPhones(CodeId code);
 
-  List<PhoneFullDisplay> contactPhonesForUpdate(long contactId);
+  List<PhoneFullDisplay> customerPhonesForUpdate(CodeId code);
+
+  List<PhoneFullDisplay> contactPhones(CodeId code);
+
+  List<PhoneFullDisplay> contactPhonesForUpdate(CodeId code);
 }

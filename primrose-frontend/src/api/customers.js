@@ -71,9 +71,12 @@ export const paged = props => {
     action,
     isLoading,
   } = props;
+  const currentQuery = location.getCurrentQuery(state);
+  const previousQuery = location.getPreviousQuery(state);
 
   if (shouldReloadPageData(state, action, isLoading)) {
-    dispatch(actions.customersLoad());
+    const queryLoad = currentQuery &&  !(currentQuery.query === (previousQuery && previousQuery.query));
+    dispatch(actions.customersLoad(queryLoad));
     axios.post(apiUrl, {
         jsonrpc: "2.0",
         method: "search",

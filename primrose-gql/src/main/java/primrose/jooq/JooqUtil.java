@@ -2,6 +2,7 @@ package primrose.jooq;
 
 import java.util.function.Function;
 
+import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.SortField;
 import org.jooq.SortOrder;
@@ -31,5 +32,9 @@ public class JooqUtil {
     } else {
       return null;
     }
+  }
+
+  public static <T> Condition between(Field<T> field, Field<T> from, Field<T> to) {
+    return field.greaterOrEqual(from).and(field.lt(to).or(to.isNull()));
   }
 }

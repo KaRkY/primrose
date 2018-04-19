@@ -1,7 +1,9 @@
 package primrose.data;
 
 import java.util.List;
+import java.util.Set;
 
+import primrose.service.CodeId;
 import primrose.service.EmailFullDisplay;
 
 public interface EmailRepository {
@@ -10,23 +12,27 @@ public interface EmailRepository {
 
   Long get(String email);
 
-  void assignToCustomer(long customerCodeId, long emailId, String emailType, Boolean primary);
+  void assignToCustomer(CodeId code, long emailId, String emailType, Boolean primary);
 
-  void assignToContact(long contactId, long emailId, String emailType, Boolean primary);
+  void assignToContact(CodeId code, long emailId, String emailType, Boolean primary);
 
-  void removeFromCustomer(long customerCodeId, long emailId);
+  void removeFromCustomer(CodeId code, long emailId);
 
-  void removeFromContact(long contactId, long emailId);
+  void removeExceptFromCustomer(CodeId code, Set<Long> emailIds);
 
-  boolean isAssignedToCustomer(long customerCodeId, long emailId);
+  void removeFromContact(CodeId code, long emailId);
 
-  boolean isAssignedToContact(long contactId, long emailId);
+  void removeExceptFromContact(CodeId code, Set<Long> emailIds);
 
-  List<EmailFullDisplay> customerEmails(long customerCodeId);
+  boolean isAssignedToCustomer(CodeId code, long emailId);
 
-  List<EmailFullDisplay> customerEmailsForUpdate(long customerCodeId);
+  boolean isAssignedToContact(CodeId code, long emailId);
 
-  List<EmailFullDisplay> contactEmails(long contactId);
+  List<EmailFullDisplay> customerEmails(CodeId code);
 
-  List<EmailFullDisplay> contactEmailsForUpdate(long contactId);
+  List<EmailFullDisplay> customerEmailsForUpdate(CodeId code);
+
+  List<EmailFullDisplay> contactEmails(CodeId code);
+
+  List<EmailFullDisplay> contactEmailsForUpdate(CodeId code);
 }

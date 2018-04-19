@@ -1,7 +1,9 @@
 package primrose.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +27,9 @@ public class CustomerServiceImpl implements CustomerService {
   private PhoneRepository    phoneRepository;
 
   public CustomerServiceImpl(
-    CustomerRepository customerRepository,
-    EmailRepository emailRepository,
-    PhoneRepository phoneRepository) {
+      CustomerRepository customerRepository,
+      EmailRepository emailRepository,
+      PhoneRepository phoneRepository) {
     this.customerRepository = customerRepository;
     this.emailRepository = emailRepository;
     this.phoneRepository = phoneRepository;
@@ -42,8 +44,8 @@ public class CustomerServiceImpl implements CustomerService {
 
   @Override
   public CustomerFullDisplay get(String customerCode) {
-    Long customerCodeId = customerRepository.codeId(customerCode);
-    return customerRepository.get(customerCode, emailRepository.customerEmails(customerCodeId), phoneRepository.customerPhones(customerCodeId));
+    CodeId code = customerRepository.codeId(customerCode);
+    return customerRepository.get(code, emailRepository.customerEmails(code), phoneRepository.customerPhones(code));
   }
 
   @Override
@@ -51,74 +53,85 @@ public class CustomerServiceImpl implements CustomerService {
   // TODO implement meta validation
   public String create(CustomerCreate customer) {
     CodeId code = customerRepository.generateCode();
-    customerRepository.create(code.getId(), customer);
+    customerRepository.create(code, customer);
     customer
-      .getEmails()
-      .forEach(email -> {
-        Long emailId = emailRepository.get(email.getValue());
-        if (emailId == null) {
-          emailId = emailRepository.save(email.getValue());
-        }
-        emailRepository.assignToCustomer(code.getId(), emailId, email.getType(), email.getPrimary());
-      });
+        .getEmails()
+        .forEach(email -> {
+          Long emailId = emailRepository.get(email.getValue());
+          if (emailId == null) {
+            emailId = emailRepository.save(email.getValue());
+          }
+          emailRepository.assignToCustomer(code, emailId, email.getType(), email.getPrimary());
+        });
     customer
-      .getPhones()
-      .forEach(phone -> {
-        Long phoneId = phoneRepository.get(phone.getValue());
-        if (phoneId == null) {
-          phoneId = phoneRepository.save(phone.getValue());
-        }
-        phoneRepository.assignToCustomer(code.getId(), phoneId, phone.getType(), phone.getPrimary());
-      });
+        .getPhones()
+        .forEach(phone -> {
+          Long phoneId = phoneRepository.get(phone.getValue());
+          if (phoneId == null) {
+            phoneId = phoneRepository.save(phone.getValue());
+          }
+          phoneRepository.assignToCustomer(code, phoneId, phone.getType(), phone.getPrimary());
+        });
     return code.getCode();
   }
 
   @Override
   public String edit(String customerCode, CustomerCreate customer) {
-    Long customerCodeId = customerRepository.codeId(customerCode);
+    CodeId code = customerRepository.codeId(customerCode);
     CustomerFullDisplay currentCustomer = customerRepository.getForUpdate(
-      customerCode,
-      emailRepository.customerEmailsForUpdate(customerCodeId),
-      phoneRepository.customerPhonesForUpdate(customerCodeId));
+        code,
+        emailRepository.customerEmailsForUpdate(code),
+        phoneRepository.customerPhonesForUpdate(code));
 
-    if (currentCustomer == null) { throw new RuntimeException(); }
+    if (currentCustomer == null) {
+      throw new RuntimeException();
+    }
 
     if (!(Objects.equals(customer.getFullName(), currentCustomer.getFullName()) &&
-      Objects.equals(customer.getDescription(), currentCustomer.getDescription()) &&
-      Objects.equals(customer.getDisplayName(), currentCustomer.getDisplayName()) &&
-      Objects.equals(customer.getType(), currentCustomer.getType()) &&
-      Objects.equals(customer.getRelationType(), currentCustomer.getRelationType()))) {
-      customerRepository.deactivate(currentCustomer.getId());
+        Objects.equals(customer.getDescription(), currentCustomer.getDescription()) &&
+        Objects.equals(customer.getDisplayName(), currentCustomer.getDisplayName()) &&
+        Objects.equals(customer.getType(), currentCustomer.getType()) &&
+        Objects.equals(customer.getRelationType(), currentCustomer.getRelationType()))) {
+      customerRepository.deactivate(code);
       customerRepository.create(customerRepository.codeId(customerCode), customer);
     }
 
+    Set<Long> emails = new HashSet<>();
     customer
-      .getEmails()
-      .forEach(email -> {
-        Long emailId = emailRepository.get(email.getValue());
-        if (emailId == null) {
-          emailRepository.assignToCustomer(customerCodeId, emailRepository.save(email.getValue()), email.getType(), email.getPrimary());
-        } else {
-          if (!emailRepository.isAssignedToCustomer(customerCodeId, emailId)) {
-            emailRepository.assignToCustomer(customerCodeId, emailId, email.getType(), email.getPrimary());
+        .getEmails()
+        .forEach(email -> {
+          Long emailId = emailRepository.get(email.getValue());
+          if (emailId == null) {
+            emailId = emailRepository.save(email.getValue());
+            emailRepository.assignToCustomer(code, emailId, email.getType(), email.getPrimary());
+          } else {
+            if (!emailRepository.isAssignedToCustomer(code, emailId)) {
+              emailRepository.assignToCustomer(code, emailId, email.getType(), email.getPrimary());
+            }
           }
-        }
-      });
+          emails.add(emailId);
+        });
+    System.out.println(emails);
+    emailRepository.removeExceptFromCustomer(code, emails);
 
+    Set<Long> phones = new HashSet<>();
     customer
-      .getPhones()
-      .forEach(phone -> {
-        Long phoneId = phoneRepository.get(phone.getValue());
-        if (phoneId == null) {
-          phoneRepository.assignToCustomer(customerCodeId, phoneRepository.save(phone.getValue()), phone.getType(), phone.getPrimary());
-        } else {
-          if (!phoneRepository.isAssignedToCustomer(customerCodeId, phoneId)) {
-            phoneRepository.assignToCustomer(customerCodeId, phoneId, phone.getType(), phone.getPrimary());
+        .getPhones()
+        .forEach(phone -> {
+          Long phoneId = phoneRepository.get(phone.getValue());
+          if (phoneId == null) {
+            phoneId = phoneRepository.save(phone.getValue());
+            phoneRepository.assignToCustomer(code, phoneId, phone.getType(), phone.getPrimary());
+          } else {
+            if (!phoneRepository.isAssignedToCustomer(code, phoneId)) {
+              phoneRepository.assignToCustomer(code, phoneId, phone.getType(), phone.getPrimary());
+            }
           }
-        }
-      });
+          phones.add(phoneId);
+        });
+    phoneRepository.removeExceptFromCustomer(code, phones);
 
-    return customerCode;
+    return code.getCode();
   }
 
 }

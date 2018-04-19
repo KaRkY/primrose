@@ -1,13 +1,16 @@
 package primrose.data.impl;
 
 import java.util.List;
+import java.util.Set;
 
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 import primrose.data.EmailRepository;
+import primrose.jooq.JooqUtil;
 import primrose.jooq.Tables;
+import primrose.service.CodeId;
 import primrose.service.EmailFullDisplay;
 
 @Repository
@@ -39,7 +42,7 @@ public class EmailRepositoryImpl implements EmailRepository {
   }
 
   @Override
-  public void assignToCustomer(long customerCodeId, long emailId, String emailType, Boolean primary) {
+  public void assignToCustomer(CodeId code, long emailId, String emailType, Boolean primary) {
     create
       .insertInto(Tables.CUSTOMER_EMAILS)
       .columns(
@@ -48,7 +51,7 @@ public class EmailRepositoryImpl implements EmailRepository {
         Tables.CUSTOMER_EMAILS.EMAIL_TYPE,
         Tables.CUSTOMER_EMAILS.PRIM)
       .values(
-        DSL.value(customerCodeId),
+        DSL.value(code.getId()),
         DSL.value(emailId),
         create
           .select(Tables.EMAIL_TYPES.ID)
@@ -60,7 +63,7 @@ public class EmailRepositoryImpl implements EmailRepository {
   }
 
   @Override
-  public void assignToContact(long contactId, long emailId, String emailType, Boolean primary) {
+  public void assignToContact(CodeId code, long emailId, String emailType, Boolean primary) {
     create
       .insertInto(Tables.CONTACT_EMAILS)
       .columns(
@@ -69,7 +72,7 @@ public class EmailRepositoryImpl implements EmailRepository {
         Tables.CONTACT_EMAILS.EMAIL_TYPE,
         Tables.CONTACT_EMAILS.PRIM)
       .values(
-        DSL.value(contactId),
+        DSL.value(code.getId()),
         DSL.value(emailId),
         create
           .select(Tables.EMAIL_TYPES.ID)
@@ -81,7 +84,7 @@ public class EmailRepositoryImpl implements EmailRepository {
   }
 
   @Override
-  public List<EmailFullDisplay> customerEmails(long customerCodeId) {
+  public List<EmailFullDisplay> customerEmails(CodeId code) {
     return create
       .select(
         Tables.EMAILS.ID,
@@ -92,14 +95,14 @@ public class EmailRepositoryImpl implements EmailRepository {
       .innerJoin(Tables.EMAILS).on(Tables.EMAILS.ID.eq(Tables.CUSTOMER_EMAILS.EMAIL))
       .innerJoin(Tables.EMAIL_TYPES).on(Tables.EMAIL_TYPES.ID.eq(Tables.CUSTOMER_EMAILS.EMAIL_TYPE))
       .where(
-        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(customerCodeId),
-        DSL.currentOffsetDateTime().between(Tables.CUSTOMER_EMAILS.VALID_FROM).and(DSL.isnull(Tables.CUSTOMER_EMAILS.VALID_TO, DSL.currentOffsetDateTime())))
+        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(code.getId()),
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CUSTOMER_EMAILS.VALID_FROM, Tables.CUSTOMER_EMAILS.VALID_TO))
       .fetch()
       .map(record -> new EmailFullDisplay(record.value1(), record.value2(), record.value3(), record.value4()));
   }
 
   @Override
-  public List<EmailFullDisplay> customerEmailsForUpdate(long customerCodeId) {
+  public List<EmailFullDisplay> customerEmailsForUpdate(CodeId code) {
     return create
       .select(
         Tables.EMAILS.ID,
@@ -110,15 +113,15 @@ public class EmailRepositoryImpl implements EmailRepository {
       .innerJoin(Tables.EMAILS).on(Tables.EMAILS.ID.eq(Tables.CUSTOMER_EMAILS.EMAIL))
       .innerJoin(Tables.EMAIL_TYPES).on(Tables.EMAIL_TYPES.ID.eq(Tables.CUSTOMER_EMAILS.EMAIL_TYPE))
       .where(
-        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(customerCodeId),
-        DSL.currentOffsetDateTime().between(Tables.CUSTOMER_EMAILS.VALID_FROM).and(DSL.isnull(Tables.CUSTOMER_EMAILS.VALID_TO, DSL.currentOffsetDateTime())))
+        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(code.getId()),
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CUSTOMER_EMAILS.VALID_FROM, Tables.CUSTOMER_EMAILS.VALID_TO))
       .forUpdate()
       .fetch()
       .map(record -> new EmailFullDisplay(record.value1(), record.value2(), record.value3(), record.value4()));
   }
 
   @Override
-  public List<EmailFullDisplay> contactEmails(long contactId) {
+  public List<EmailFullDisplay> contactEmails(CodeId code) {
     return create
       .select(
         Tables.EMAILS.ID,
@@ -129,14 +132,14 @@ public class EmailRepositoryImpl implements EmailRepository {
       .innerJoin(Tables.EMAILS).on(Tables.EMAILS.ID.eq(Tables.CONTACT_EMAILS.EMAIL))
       .innerJoin(Tables.EMAIL_TYPES).on(Tables.EMAIL_TYPES.ID.eq(Tables.CONTACT_EMAILS.EMAIL_TYPE))
       .where(
-        Tables.CONTACT_EMAILS.CONTACT.eq(contactId),
-        DSL.currentOffsetDateTime().between(Tables.CONTACT_EMAILS.VALID_FROM).and(DSL.isnull(Tables.CONTACT_EMAILS.VALID_TO, DSL.currentOffsetDateTime())))
+        Tables.CONTACT_EMAILS.CONTACT.eq(code.getId()),
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CONTACT_EMAILS.VALID_FROM, Tables.CONTACT_EMAILS.VALID_TO))
       .fetch()
       .map(record -> new EmailFullDisplay(record.value1(), record.value2(), record.value3(), record.value4()));
   }
 
   @Override
-  public List<EmailFullDisplay> contactEmailsForUpdate(long contactId) {
+  public List<EmailFullDisplay> contactEmailsForUpdate(CodeId code) {
     return create
       .select(
         Tables.EMAILS.ID,
@@ -147,34 +150,32 @@ public class EmailRepositoryImpl implements EmailRepository {
       .innerJoin(Tables.EMAILS).on(Tables.EMAILS.ID.eq(Tables.CONTACT_EMAILS.EMAIL))
       .innerJoin(Tables.EMAIL_TYPES).on(Tables.EMAIL_TYPES.ID.eq(Tables.CONTACT_EMAILS.EMAIL_TYPE))
       .where(
-        Tables.CONTACT_EMAILS.CONTACT.eq(contactId),
-        DSL.currentOffsetDateTime().between(Tables.CONTACT_EMAILS.VALID_FROM).and(DSL.isnull(Tables.CONTACT_EMAILS.VALID_TO, DSL.currentOffsetDateTime())))
+        Tables.CONTACT_EMAILS.CONTACT.eq(code.getId()),
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CONTACT_EMAILS.VALID_FROM, Tables.CONTACT_EMAILS.VALID_TO))
       .forUpdate()
       .fetch()
       .map(record -> new EmailFullDisplay(record.value1(), record.value2(), record.value3(), record.value4()));
   }
 
   @Override
-  public boolean isAssignedToCustomer(long customerCodeId, long emailId) {
+  public boolean isAssignedToCustomer(CodeId code, long emailId) {
     return create
       .selectOne()
       .from(Tables.CUSTOMER_EMAILS)
       .where(
-        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(customerCodeId),
+        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(code.getId()),
         Tables.CUSTOMER_EMAILS.EMAIL.eq(emailId),
-        DSL.currentOffsetDateTime()
-          .between(Tables.CUSTOMER_EMAILS.VALID_FROM)
-          .and(DSL.isnull(Tables.CUSTOMER_EMAILS.VALID_TO, DSL.currentOffsetDateTime())))
+        JooqUtil.between(DSL.currentOffsetDateTime(), Tables.CUSTOMER_EMAILS.VALID_FROM, Tables.CUSTOMER_EMAILS.VALID_TO))
       .fetchOne(0, Integer.class) != null;
   }
 
   @Override
-  public boolean isAssignedToContact(long contactId, long emailId) {
+  public boolean isAssignedToContact(CodeId code, long emailId) {
     return create
       .selectOne()
       .from(Tables.CONTACT_EMAILS)
       .where(
-        Tables.CONTACT_EMAILS.CONTACT.eq(contactId),
+        Tables.CONTACT_EMAILS.CONTACT.eq(code.getId()),
         Tables.CONTACT_EMAILS.EMAIL.eq(emailId),
         DSL.currentOffsetDateTime()
           .between(Tables.CONTACT_EMAILS.VALID_FROM)
@@ -183,27 +184,50 @@ public class EmailRepositoryImpl implements EmailRepository {
   }
 
   @Override
-  public void removeFromCustomer(long customerCodeId, long emailId) {
+  public void removeFromCustomer(CodeId code, long emailId) {
     create
       .update(Tables.CUSTOMER_EMAILS)
       .set(Tables.CUSTOMER_EMAILS.VALID_TO, DSL.currentOffsetDateTime())
       .where(
-        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(customerCodeId),
+        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(code.getId()),
         Tables.CUSTOMER_EMAILS.EMAIL.eq(emailId),
         Tables.CUSTOMER_EMAILS.VALID_TO.isNull())
       .execute();
   }
 
   @Override
-  public void removeFromContact(long contactId, long emailId) {
+  public void removeExceptFromCustomer(CodeId code, Set<Long> emailIds) {
+    create
+    .update(Tables.CUSTOMER_EMAILS)
+    .set(Tables.CUSTOMER_EMAILS.VALID_TO, DSL.currentOffsetDateTime())
+    .where(
+      Tables.CUSTOMER_EMAILS.CUSTOMER.eq(code.getId()),
+      Tables.CUSTOMER_EMAILS.EMAIL.notIn(emailIds),
+      Tables.CUSTOMER_EMAILS.VALID_TO.isNull())
+    .execute();
+  }
+
+  @Override
+  public void removeFromContact(CodeId code, long emailId) {
     create
       .update(Tables.CONTACT_EMAILS)
       .set(Tables.CONTACT_EMAILS.VALID_TO, DSL.currentOffsetDateTime())
       .where(
-        Tables.CONTACT_EMAILS.CONTACT.eq(contactId),
+        Tables.CONTACT_EMAILS.CONTACT.eq(code.getId()),
         Tables.CONTACT_EMAILS.EMAIL.eq(emailId),
         Tables.CONTACT_EMAILS.VALID_TO.isNull())
       .execute();
   }
 
+  @Override
+  public void removeExceptFromContact(CodeId code, Set<Long> emailIds) {
+    create
+    .update(Tables.CONTACT_EMAILS)
+    .set(Tables.CONTACT_EMAILS.VALID_TO, DSL.currentOffsetDateTime())
+    .where(
+      Tables.CONTACT_EMAILS.CONTACT.eq(code.getId()),
+      Tables.CONTACT_EMAILS.EMAIL.notIn(emailIds),
+      Tables.CONTACT_EMAILS.VALID_TO.isNull())
+    .execute();
+  }
 }

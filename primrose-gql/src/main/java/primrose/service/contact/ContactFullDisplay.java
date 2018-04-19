@@ -17,7 +17,7 @@ import primrose.service.PhoneFullDisplay;
 
 public class ContactFullDisplay {
 
-  private final long           id;
+  private final String           code;
   @NotBlank
   private final String         fullName;
   private final String         description;
@@ -31,7 +31,7 @@ public class ContactFullDisplay {
 
   @JsonCreator
   public ContactFullDisplay(
-    @JsonProperty("id") long id,
+    @JsonProperty("code") String code,
     @JsonProperty("fullName") String fullName,
     @JsonProperty("description") String description,
     @JsonProperty("emails") List<EmailFullDisplay> emails,
@@ -39,7 +39,7 @@ public class ContactFullDisplay {
     @JsonProperty("validFrom") OffsetDateTime validFrom,
     @JsonProperty("validTo") OffsetDateTime validTo) {
     super();
-    this.id = id;
+    this.code = code;
     this.fullName = fullName;
     this.description = description;
     this.emails = emails != null ? new ArrayList<>(emails) : Collections.emptyList();
@@ -48,8 +48,8 @@ public class ContactFullDisplay {
     this.validTo = validTo;
   }
 
-  public long getId() {
-    return id;
+  public String getCode() {
+    return code;
   }
 
   public String getFullName() {

@@ -35,34 +35,34 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public long create(ContactCreate contact) {
+  public String create(ContactCreate contact) {
     validationSupport.validate("contact", contact);
 
     return contactService.create(contact);
   }
 
   @Override
-  public ContactFullDisplay get(long contactId) {
-    return contactService.get(contactId);
+  public ContactFullDisplay get(String customerCode) {
+    return contactService.get(customerCode);
   }
 
   @Override
-  public long delete(long contactId) {
-    System.out.println(contactId);
-    return 0;
+  public String delete(String customerCode) {
+    System.out.println(customerCode);
+    return "";
   }
 
   @Override
-  public Set<Long> delete(Set<Long> contactIds) {
-    System.out.println(contactIds);
+  public Set<String> delete(Set<String> customerCodes) {
+    System.out.println(customerCodes);
     return null;
   }
 
   @Override
-  public long edit(long contactId, ContactCreate contact) {
+  public String edit(String customerCode, ContactCreate contact) {
     validationSupport.validate("data", contact);
 
-    return contactService.edit(contactId, contact);
+    return contactService.edit(customerCode, contact);
   }
 
 }

@@ -15,17 +15,17 @@ public interface CustomerRepository {
 
   CodeId generateCode();
 
-  Long codeId(String code);
+  CodeId codeId(String code);
 
-  long create(long codeId, CustomerCreate customer);
+  void create(CodeId code, CustomerCreate customer);
 
   List<CustomerReducedDisplay> search(Search search);
 
   long count(Search search);
 
-  CustomerFullDisplay get(String code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
+  CustomerFullDisplay get(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
 
-  CustomerFullDisplay getForUpdate(String code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
+  CustomerFullDisplay getForUpdate(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
 
-  void deactivate(long customerId);
+  void deactivate(CodeId code);
 }

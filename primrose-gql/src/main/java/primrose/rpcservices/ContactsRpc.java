@@ -16,13 +16,13 @@ public interface ContactsRpc {
 
   SearchResult<ContactReducedDisplay> search(@JsonRpcParam("search") Search search);
 
-  long create(@JsonRpcParam("contact") ContactCreate contact);
+  String create(@JsonRpcParam("contact") ContactCreate contact);
 
-  ContactFullDisplay get(@JsonRpcParam("contactId") long contactId);
+  ContactFullDisplay get(@JsonRpcParam("contactCode") String contactCode);
 
-  long delete(@JsonRpcParam("contactId") long contactId);
+  String delete(@JsonRpcParam("contactCode") String contactCode);
 
-  Set<Long> delete(@JsonRpcParam("contactIds") Set<Long> contactIds);
+  Set<String> delete(@JsonRpcParam("contactCodes") Set<String> contactCodes);
 
-  long edit(@JsonRpcParam("contactId") long contactId, @JsonRpcParam("contact") ContactCreate contact);
+  String edit(@JsonRpcParam("contactCode") String contactCode, @JsonRpcParam("contact") ContactCreate contact);
 }

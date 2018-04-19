@@ -10,6 +10,7 @@ export default (state, action, isLoading) => {
     if (
       prev.page === cur.page && 
       prev.size === cur.size &&
+      prev.query === cur.query &&
       currentPathname === previousPathname) {
         if(prev.sort === undefined && cur.sort === undefined) {
           return false;
