@@ -5,7 +5,7 @@ import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Phone {
+public class EmailFullDisplay {
 
   private final long   id;
   @NotBlank
@@ -17,7 +17,7 @@ public class Phone {
   private final Boolean primary;
 
   @JsonCreator
-  public Phone(
+  public EmailFullDisplay(
     @JsonProperty("id") long id,
     @JsonProperty("type") String type,
     @JsonProperty("value") String value,

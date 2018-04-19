@@ -12,10 +12,10 @@ import * as actions from "../../../actions";
 import contacts from "../../../store/contacts";
 import meta from "../../../store/meta";
 
-const createContact = promiseListener.createAsyncFunction({
-  start: actions.contactCreate.toString(),
-  resolve: actions.contactCreateFinished.toString(),
-  reject: actions.contactCreateError.toString(),
+const editContact = promiseListener.createAsyncFunction({
+  start: actions.contactEdit.toString(),
+  resolve: actions.contactEditFinished.toString(),
+  reject: actions.contactEditError.toString(),
 });
 
 const contentStyle = theme => ({
@@ -29,7 +29,7 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToContact: payload => dispatch(actions.contact({ id: payload })),
+  goToContact: payload => dispatch(actions.contactPage({ contact: payload })),
 });
 
 const enhance = compose(
@@ -46,7 +46,15 @@ const Content = ({
 }) => (
     <ContactForm
       initialValues={contact}
-      onSubmit={console.log}
+      onSubmit={values => {
+        return editContact
+          .asyncFunction(values)
+          .then(result => {
+            goToContact(result);
+            return {};
+          })
+          .catch(error => console.error(error) || ({ [FORM_ERROR]: error }));
+      }}
       emailTypes={emailTypes}
       phoneNumberTypes={phoneNumberTypes}
     />

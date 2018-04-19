@@ -34,7 +34,7 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToCustomer: payload => dispatch(actions.customer({ id: payload })),
+  goToCustomer: payload => dispatch(actions.customerPage({ customer: payload })),
 });
 
 const enhance = compose(

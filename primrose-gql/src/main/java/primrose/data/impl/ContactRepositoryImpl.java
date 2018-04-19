@@ -8,12 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import primrose.data.ContactRepository;
 import primrose.jooq.Tables;
-import primrose.service.Email;
-import primrose.service.Phone;
+import primrose.service.EmailFullDisplay;
+import primrose.service.PhoneFullDisplay;
 import primrose.service.Search;
-import primrose.service.contact.Contact;
 import primrose.service.contact.ContactCreate;
-import primrose.service.contact.ContactSearch;
+import primrose.service.contact.ContactFullDisplay;
+import primrose.service.contact.ContactReducedDisplay;
 
 @Repository
 public class ContactRepositoryImpl implements ContactRepository {
@@ -40,7 +40,7 @@ public class ContactRepositoryImpl implements ContactRepository {
   }
 
   @Override
-  public List<ContactSearch> search(Search search) {
+  public List<ContactReducedDisplay> search(Search search) {
     int limit = search.getSize();
     int offset = search.getPage() * search.getSize();
     return create
@@ -64,10 +64,11 @@ public class ContactRepositoryImpl implements ContactRepository {
           .limit(1)
           .<String>asField())
       .from(Tables.CONTACTS)
+      .where(DSL.currentOffsetDateTime().between(Tables.CONTACTS.VALID_FROM).and(DSL.isnull(Tables.CONTACTS.VALID_TO, DSL.currentOffsetDateTime())))
       .limit(limit)
       .offset(offset)
       .fetch()
-      .map(record -> new ContactSearch(
+      .map(record -> new ContactReducedDisplay(
         record.value1(),
         record.value2(),
         record.value3(),
@@ -79,12 +80,13 @@ public class ContactRepositoryImpl implements ContactRepository {
     return create
       .selectCount()
       .from(Tables.CONTACTS)
+      .where(DSL.currentOffsetDateTime().between(Tables.CONTACTS.VALID_FROM).and(DSL.isnull(Tables.CONTACTS.VALID_TO, DSL.currentOffsetDateTime())))
       .fetchOne()
       .value1();
   }
 
   @Override
-  public Contact get(long contactId, List<Email> emails, List<Phone> phones) {
+  public ContactFullDisplay get(long contactId, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones) {
     return create
       .select(
         Tables.CONTACTS.ID,
@@ -94,7 +96,7 @@ public class ContactRepositoryImpl implements ContactRepository {
         Tables.CONTACTS.VALID_TO)
       .from(Tables.CONTACTS)
       .where(Tables.CONTACTS.ID.eq(contactId))
-      .fetchOne(record -> new Contact(
+      .fetchOne(record -> new ContactFullDisplay(
         record.value1(),
         record.value2(),
         record.value3(),
@@ -102,6 +104,41 @@ public class ContactRepositoryImpl implements ContactRepository {
         phones,
         record.value4(),
         record.value5()));
+  }
+
+  @Override
+  public ContactFullDisplay getForUpdate(long contactId, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones) {
+    return create
+      .select(
+        Tables.CONTACTS.ID,
+        Tables.CONTACTS.FULL_NAME,
+        Tables.CONTACTS.DESCRIPTION,
+        Tables.CONTACTS.VALID_FROM,
+        Tables.CONTACTS.VALID_TO)
+      .from(Tables.CONTACTS)
+      .where(
+        Tables.CONTACTS.ID.eq(contactId),
+        Tables.CONTACTS.VALID_TO.isNull())
+      .forUpdate()
+      .fetchOne(record -> new ContactFullDisplay(
+        record.value1(),
+        record.value2(),
+        record.value3(),
+        emails,
+        phones,
+        record.value4(),
+        record.value5()));
+  }
+
+  @Override
+  public void deactivate(long contactId) {
+    create
+      .update(Tables.CONTACTS)
+      .set(Tables.CONTACTS.VALID_TO, DSL.currentOffsetDateTime())
+      .where(
+        Tables.CONTACTS.ID.eq(contactId),
+        Tables.CONTACTS.VALID_TO.isNull())
+      .execute();
   }
 
 }

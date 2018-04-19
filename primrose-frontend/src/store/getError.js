@@ -7,44 +7,44 @@ import meta from "./meta";
 import * as location from "./location";
 
 const components = {
-  [actions.customers]: state =>
+  [actions.customersPage]: state =>
     customers.paged.getError(state) ||
     meta.customerTypes.getError(state) ||
     meta.customerRelationTypes.getError(state),
 
-  [actions.customerNew]: state =>
+  [actions.customerPageNew]: state =>
     meta.customerTypes.getError(state) ||
     meta.customerRelationTypes.getError(state) ||
     meta.emailTypes.getError(state) ||
     meta.phoneNumberTypes.getError(state),
 
-  [actions.contactNew]: state =>
+  [actions.contactPageNew]: state =>
     meta.emailTypes.getError(state) ||
     meta.phoneNumberTypes.getError(state),
 
-  [actions.customer]: state =>
+  [actions.customerPage]: state =>
     customers.single.getError(state) ||
     meta.customerTypes.getError(state) ||
     meta.customerRelationTypes.getError(state) ||
     meta.emailTypes.getError(state) ||
     meta.phoneNumberTypes.getError(state),
 
-  [actions.customerEdit]: state =>
+  [actions.customerPageEdit]: state =>
     customers.single.getError(state) ||
     meta.customerTypes.getError(state) ||
     meta.customerRelationTypes.getError(state) ||
     meta.emailTypes.getError(state) ||
     meta.phoneNumberTypes.getError(state),
 
-  [actions.contacts]: state =>
+  [actions.contactsPage]: state =>
     contacts.paged.getError(state),
 
-  [actions.contact]: state =>
+  [actions.contactPage]: state =>
     contacts.single.getError(state) ||
     meta.emailTypes.getError(state) ||
     meta.phoneNumberTypes.getError(state),
     
-  [actions.contactEdit]: state =>
+  [actions.contactPageEdit]: state =>
     contacts.single.getError(state) ||
     meta.emailTypes.getError(state) ||
     meta.phoneNumberTypes.getError(state),

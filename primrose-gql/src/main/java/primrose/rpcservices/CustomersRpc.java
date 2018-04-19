@@ -7,20 +7,22 @@ import com.googlecode.jsonrpc4j.JsonRpcService;
 
 import primrose.service.Search;
 import primrose.service.SearchResult;
-import primrose.service.customer.Customer;
 import primrose.service.customer.CustomerCreate;
-import primrose.service.customer.CustomerSearch;
+import primrose.service.customer.CustomerFullDisplay;
+import primrose.service.customer.CustomerReducedDisplay;
 
 @JsonRpcService("/customers")
 public interface CustomersRpc {
 
-  SearchResult<CustomerSearch> search(@JsonRpcParam("search") Search search);
+  SearchResult<CustomerReducedDisplay> search(@JsonRpcParam("search") Search search);
 
-  long create(@JsonRpcParam("customer") CustomerCreate customer);
+  String create(@JsonRpcParam("customer") CustomerCreate customer);
 
-  Customer get(@JsonRpcParam("customer") long customer);
+  CustomerFullDisplay get(@JsonRpcParam("customerCode") String customerCode);
 
-  long delete(@JsonRpcParam("customer") long id);
+  String delete(@JsonRpcParam("customerCode") String customerCode);
 
-  Set<Long> delete(@JsonRpcParam("customers") Set<Long> ids);
+  Set<String> delete(@JsonRpcParam("customerCodes") Set<String> customerCodes);
+
+  String edit(@JsonRpcParam("customerCode") String customerCode, @JsonRpcParam("customer") CustomerCreate customer);
 }

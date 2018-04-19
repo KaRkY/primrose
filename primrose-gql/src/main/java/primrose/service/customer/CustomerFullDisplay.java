@@ -12,42 +12,45 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import primrose.service.Email;
-import primrose.service.Phone;
+import primrose.service.EmailFullDisplay;
+import primrose.service.PhoneFullDisplay;
 
-public class Customer {
+public class CustomerFullDisplay {
 
-  private final long           id;
+  private final long                   id;
+  private final String                 code;
   @NotBlank
-  private final String         type;
+  private final String                 type;
   @NotBlank
-  private final String         relationType;
-  private final String         displayName;
+  private final String                 relationType;
+  private final String                 displayName;
   @NotBlank
-  private final String         fullName;
-  private final String         description;
+  private final String                 fullName;
+  private final String                 description;
   @Valid
-  private final List<Email>    emails;
+  private final List<EmailFullDisplay> emails;
   @Valid
-  private final List<Phone>    phones;
+  private final List<PhoneFullDisplay> phones;
   @NotNull
-  private final OffsetDateTime validFrom;
-  private final OffsetDateTime validTo;
+  private final OffsetDateTime         validFrom;
+  private final OffsetDateTime         validTo;
 
   @JsonCreator
-  public Customer(
+  public CustomerFullDisplay(
     @JsonProperty("id") long id,
+    @JsonProperty("code") String code,
     @JsonProperty("type") String type,
     @JsonProperty("relationType") String relationType,
     @JsonProperty("displayName") String displayName,
     @JsonProperty("fullName") String fullName,
     @JsonProperty("description") String description,
-    @JsonProperty("emails") List<Email> emails,
-    @JsonProperty("phones") List<Phone> phones,
+    @JsonProperty("emails") List<EmailFullDisplay> emails,
+    @JsonProperty("phones") List<PhoneFullDisplay> phones,
     @JsonProperty("validFrom") OffsetDateTime validFrom,
     @JsonProperty("validTo") OffsetDateTime validTo) {
     super();
     this.id = id;
+    this.code = code;
     this.type = type;
     this.relationType = relationType;
     this.displayName = displayName;
@@ -61,6 +64,10 @@ public class Customer {
 
   public long getId() {
     return id;
+  }
+
+  public String getCode() {
+    return code;
   }
 
   public String getType() {
@@ -83,11 +90,11 @@ public class Customer {
     return description;
   }
 
-  public List<Email> getEmails() {
+  public List<EmailFullDisplay> getEmails() {
     return Collections.unmodifiableList(emails);
   }
 
-  public List<Phone> getPhones() {
+  public List<PhoneFullDisplay> getPhones() {
     return Collections.unmodifiableList(phones);
   }
 

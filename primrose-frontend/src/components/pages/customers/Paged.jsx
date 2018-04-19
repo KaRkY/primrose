@@ -72,10 +72,10 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToCustomers: payload => dispatch(actions.customers(payload)),
-  goToCustomer: payload => dispatch(actions.customer(payload)),
-  goToNewCustomer: payload => dispatch(actions.customerNew(payload)),
-  goToEditCustomer: payload => dispatch(actions.customerEdit(payload)),
+  goToCustomers: payload => dispatch(actions.customersPage(payload)),
+  goToCustomer: payload => dispatch(actions.customerPage(payload)),
+  goToNewCustomer: payload => dispatch(actions.customerPageNew(payload)),
+  goToEditCustomer: payload => dispatch(actions.customerPageEdit(payload)),
 });
 
 const enhance = compose(
@@ -113,7 +113,7 @@ const enhance = compose(
   withStyles(contentStyle)
 );
 
-const getRowId = row => row.id;
+const getRowId = row => row.code;
 
 
 
@@ -167,6 +167,7 @@ const Content = ({
       >
 
         <DataGrid.Columns>
+          <DataGrid.Column name="code" title="Code" />
           <DataGrid.Column name="relationType" title="Relation type" getCellValue={row => customerRelationTypes[row.relationType]} />
           <DataGrid.Column name="type" title="Type" getCellValue={row => customerTypes[row.type]} />
           <DataGrid.Column name="name" title="Name" getCellValue={row => row.displayName || row.fullName} />
@@ -198,7 +199,7 @@ const Content = ({
               title="Open Customer"
               enterDelay={300}
             >
-              <IconButton onClick={event => onOpenCustomer(event, row.id)}>
+              <IconButton onClick={event => onOpenCustomer(event, row.code)}>
                 <ZoomInIcon />
               </IconButton>
             </Tooltip>
@@ -206,7 +207,7 @@ const Content = ({
               title="Edit Customer"
               enterDelay={300}
             >
-              <IconButton onClick={event => onEditCustomer(event, row.id)}>
+              <IconButton onClick={event => onEditCustomer(event, row.code)}>
                 <EditIcon />
               </IconButton>
             </Tooltip>
@@ -215,7 +216,7 @@ const Content = ({
               enterDelay={300}
             >
               <IconButton onClick={event => {
-                deleteCustomers.asyncFunction({ customers: row.id })
+                deleteCustomers.asyncFunction({ customers: row.code })
                   .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
                   .catch(console.log);
               }}>

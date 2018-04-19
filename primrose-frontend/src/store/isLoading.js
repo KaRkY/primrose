@@ -7,44 +7,44 @@ import meta from "./meta";
 import * as location from "./location";
 
 const components = {
-  [actions.customers]: state =>
+  [actions.customersPage]: state =>
     customers.paged.isLoading(state) ||
     meta.customerTypes.isLoading(state) ||
     meta.customerRelationTypes.isLoading(state),
 
-  [actions.customerNew]: state =>
+  [actions.customerPageNew]: state =>
     meta.customerTypes.isLoading(state) ||
     meta.customerRelationTypes.isLoading(state) ||
     meta.emailTypes.isLoading(state) ||
     meta.phoneNumberTypes.isLoading(state),
 
-  [actions.contactNew]: state =>
+  [actions.contactPageNew]: state =>
     meta.emailTypes.isLoading(state) ||
     meta.phoneNumberTypes.isLoading(state),
 
-  [actions.customer]: state =>
+  [actions.customerPage]: state =>
     customers.single.isLoading(state) ||
     meta.customerTypes.isLoading(state) ||
     meta.customerRelationTypes.isLoading(state) ||
     meta.emailTypes.isLoading(state) ||
     meta.phoneNumberTypes.isLoading(state),
 
-  [actions.customerEdit]: state =>
+  [actions.customerPageEdit]: state =>
     customers.single.isLoading(state) ||
     meta.customerTypes.isLoading(state) ||
     meta.customerRelationTypes.isLoading(state) ||
     meta.emailTypes.isLoading(state) ||
     meta.phoneNumberTypes.isLoading(state),
 
-  [actions.contacts]: state =>
+  [actions.contactsPage]: state =>
     contacts.paged.isLoading(state),
 
-  [actions.contact]: state =>
+  [actions.contactPage]: state =>
     contacts.single.isLoading(state) ||
     meta.emailTypes.isLoading(state) ||
     meta.phoneNumberTypes.isLoading(state),
     
-  [actions.contactEdit]: state =>
+  [actions.contactPageEdit]: state =>
     contacts.single.isLoading(state) ||
     meta.emailTypes.isLoading(state) ||
     meta.phoneNumberTypes.isLoading(state),

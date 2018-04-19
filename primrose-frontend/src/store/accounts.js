@@ -1,8 +1,9 @@
+import { combineReducers } from "redux";
 import * as actions from "../actions";
 import * as location from "./location";
 import createFullEntity from "./creators/createFullEntity";
 
-export default createFullEntity({
+const { reducers, selectors } =  createFullEntity({
   entityName: "accounts",
   apiUrl: "/accounts",
   rootSelector: state => state.accounts,
@@ -19,8 +20,8 @@ export default createFullEntity({
   }),
 
   editAction: actions.accountEdit,
-  editFinishedAction: actions.accountsEditFinished,
-  editErrorAction: actions.accountsEditError,
+  editFinishedAction: actions.accountEditFinished,
+  editErrorAction: actions.accountEditError,
   editApiParameters: ({
     action,
     state
@@ -61,3 +62,9 @@ export default createFullEntity({
     search: location.getCurrentPagination(state),
   }),
 });
+
+export const reducer = combineReducers({
+  ...reducers
+});
+
+export default selectors;

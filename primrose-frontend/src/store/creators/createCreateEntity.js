@@ -1,8 +1,3 @@
-import axios from "../../axios";
-import convertError from "../../util/convertError";
-import {
-  combineReducers
-} from "redux";
 import {
   handleActions
 } from "redux-actions";
@@ -15,9 +10,6 @@ export default ({
   createdAction,
   errorAction,
   rootSelector,
-  apiUrl,
-  apiParameters,
-  ...rest
 }) => {
   const loading = handleActions({
     [baseAction]: () => true,
@@ -31,10 +23,10 @@ export default ({
     [errorAction]: (state, action) => action.payload,
   }, null);
 
-  const reducer = combineReducers({
+  const reducers = {
     loading,
     error,
-  });
+  };
 
   const selectors = {
     getError: createSelector(rootSelector, root => root.error),
@@ -42,28 +34,7 @@ export default ({
   };
 
   return {
-    reducer,
-    ...selectors,
-
-    api: ({
-      dispatch,
-      state,
-      action
-    }) => {
-      axios.post(apiUrl, {
-          jsonrpc: "2.0",
-          method: "create",
-          params: apiParameters({
-            dispatch,
-            state,
-            action
-          }),
-          id: Date.now(),
-        })
-        .then(result => dispatch(createdAction(result.data.result)))
-        .catch(error => dispatch(errorAction(convertError(error))));
-    },
-
-    ...rest
+    reducers,
+    selectors,
   };
 };

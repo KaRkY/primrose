@@ -9,13 +9,14 @@ import promiseListener from "../../../store/promiseListener";
 import { FORM_ERROR } from "final-form";
 
 import * as actions from "../../../actions";
+import * as location from "../../../store/location";
 import customers from "../../../store/customers";
 import meta from "../../../store/meta";
 
-const createCustomer = promiseListener.createAsyncFunction({
-  start: actions.customerCreate.toString(),
-  resolve: actions.customerCreateFinished.toString(),
-  reject: actions.customerCreateError.toString(),
+const editCustomer = promiseListener.createAsyncFunction({
+  start: actions.customerEdit.toString(),
+  resolve: actions.customerEditFinished.toString(),
+  reject: actions.customerEditError.toString(),
 });
 
 const contentStyle = theme => ({
@@ -24,6 +25,7 @@ const contentStyle = theme => ({
 
 const mapState = (state, props) => ({
   customer: customers.single.getData(state),
+  customerId: location.getCurrentData(state).customer,
   customerTypes: meta.customerTypes.getData(state),
   customerRelationTypes: meta.customerRelationTypes.getData(state),
   emailTypes: meta.emailTypes.getData(state),
@@ -32,7 +34,7 @@ const mapState = (state, props) => ({
 
 
 const mapDispatchTo = dispatch => ({
-  goToCustomer: payload => dispatch(actions.customer({ id: payload })),
+  goToCustomer: payload => dispatch(actions.customerPage({ customer: payload })),
 });
 
 const enhance = compose(
@@ -43,6 +45,7 @@ const enhance = compose(
 const Content = ({
   classes,
   customer,
+  customerId,
   goToCustomer,
   customerTypes,
   customerRelationTypes,
@@ -51,7 +54,15 @@ const Content = ({
 }) => (
     <CustomerForm
       initialValues={customer}
-      onSubmit={console.log}
+      onSubmit={values => {
+        return editCustomer
+          .asyncFunction(values)
+          .then(result => {
+            goToCustomer(result);
+            return {};
+          })
+          .catch(error => console.error(error) || ({ [FORM_ERROR]: error }));
+      }}
       customerTypes={customerTypes}
       customerRelationTypes={customerRelationTypes}
       emailTypes={emailTypes}

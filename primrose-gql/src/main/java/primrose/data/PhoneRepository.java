@@ -2,17 +2,31 @@ package primrose.data;
 
 import java.util.List;
 
-import primrose.service.Phone;
+import primrose.service.PhoneFullDisplay;
 
 public interface PhoneRepository {
 
   long save(String phone);
 
-  void assignToCustomer(long customerId, long phoneId, String phoneType, Boolean primary);
+  Long get(String phone);
+
+  void assignToCustomer(long customerCodeId, long phoneId, String phoneType, Boolean primary);
 
   void assignToContact(long contactId, long phoneId, String phoneType, Boolean primary);
 
-  List<Phone> customerPhones(long customerId);
+  void removeFromCustomer(long customerCodeId, long phoneId);
 
-  List<Phone> contactPhones(long contactId);
+  void removeFromContact(long contactId, long phoneId);
+
+  boolean isAssignedToCustomer(long customerCodeId, long phoneId);
+
+  boolean isAssignedToContact(long contactId, long phoneId);
+
+  List<PhoneFullDisplay> customerPhones(long customerCodeId);
+
+  List<PhoneFullDisplay> customerPhonesForUpdate(long customerCodeId);
+
+  List<PhoneFullDisplay> contactPhones(long contactId);
+
+  List<PhoneFullDisplay> contactPhonesForUpdate(long contactId);
 }

@@ -9,9 +9,9 @@ import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
 import primrose.rpcservices.ContactsRpc;
 import primrose.service.Search;
 import primrose.service.SearchResult;
-import primrose.service.contact.Contact;
 import primrose.service.contact.ContactCreate;
-import primrose.service.contact.ContactSearch;
+import primrose.service.contact.ContactFullDisplay;
+import primrose.service.contact.ContactReducedDisplay;
 import primrose.service.contact.ContactService;
 import primrose.spring.ValidationSupport;
 
@@ -28,7 +28,7 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public SearchResult<ContactSearch> search(Search search) {
+  public SearchResult<ContactReducedDisplay> search(Search search) {
     validationSupport.validate("search", search);
 
     return contactService.search(search);
@@ -42,20 +42,27 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public Contact get(long contact) {
-    return contactService.get(contact);
+  public ContactFullDisplay get(long contactId) {
+    return contactService.get(contactId);
   }
 
   @Override
-  public long delete(long id) {
-    System.out.println(id);
+  public long delete(long contactId) {
+    System.out.println(contactId);
     return 0;
   }
 
   @Override
-  public Set<Long> delete(Set<Long> ids) {
-    System.out.println(ids);
+  public Set<Long> delete(Set<Long> contactIds) {
+    System.out.println(contactIds);
     return null;
+  }
+
+  @Override
+  public long edit(long contactId, ContactCreate contact) {
+    validationSupport.validate("data", contact);
+
+    return contactService.edit(contactId, contact);
   }
 
 }

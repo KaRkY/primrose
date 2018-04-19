@@ -61,10 +61,10 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToContacts: payload => dispatch(actions.contacts(payload)),
-  goToContact: payload => dispatch(actions.contact(payload)),
-  goToNewContact: payload => dispatch(actions.contactNew(payload)),
-  goToEditContact: payload => dispatch(actions.contactEdit(payload)),
+  goToContacts: payload => dispatch(actions.contactsPage(payload)),
+  goToContact: payload => dispatch(actions.contactPage(payload)),
+  goToNewContact: payload => dispatch(actions.contactPageNew(payload)),
+  goToEditContact: payload => dispatch(actions.contactPageEdit(payload)),
   executeDeleteContact: payload => dispatch(actions.contactsDelete(payload)),
 });
 

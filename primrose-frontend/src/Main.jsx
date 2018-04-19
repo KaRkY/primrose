@@ -43,10 +43,10 @@ const Main = props => (
 
       <App.Navigation>
         <Nav>
-          <Nav.Item exact to={actions.dashboard()} name="Dashboard" />
-          <Nav.Item to={actions.customers({ force: true })} name="Customers" />
-          <Nav.Item to={actions.contacts()} name="Contacts" />
-          <Nav.Item exact to={actions.error()} name="Error" />
+          <Nav.Item exact to={actions.dashboardPage()} name="Dashboard" />
+          <Nav.Item to={actions.customersPage({ force: true })} name="Customers" />
+          <Nav.Item to={actions.contactsPage()} name="Contacts" />
+          <Nav.Item exact to={actions.errorPage()} name="Error" />
         </Nav>
       </App.Navigation>
 

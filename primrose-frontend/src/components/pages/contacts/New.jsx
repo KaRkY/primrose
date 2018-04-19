@@ -27,7 +27,7 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToContact: payload => dispatch(actions.contact({ id: payload })),
+  goToContact: payload => dispatch(actions.contactPage({ contact: payload })),
 });
 
 const enhance = compose(

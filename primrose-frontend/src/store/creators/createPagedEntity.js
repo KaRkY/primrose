@@ -1,24 +1,15 @@
 import {
-  combineReducers
-} from "redux";
-import {
   handleActions
 } from "redux-actions";
 import {
   createSelector
 } from "reselect";
-import axios from "../../axios";
-import shouldReloadPageData from "../../util/shouldReloadPageData";
-import convertError from "../../util/convertError";
 
 export default ({
   loadingAction,
   fetchedAction,
   errorAction,
   rootSelector,
-  apiUrl,
-  apiParameters,
-  ...rest
 }) => {
   const data = handleActions({
     [fetchedAction]: (state, action) => action.payload.data,
@@ -42,12 +33,12 @@ export default ({
     [errorAction]: (state, action) => action.payload,
   }, null);
 
-  const reducer = combineReducers({
+  const reducers = {
     data,
     count,
     loading,
     error,
-  });
+  };
 
   const selectors = {
     getCount: createSelector(rootSelector, root => root.count),
@@ -57,31 +48,7 @@ export default ({
   };
 
   return {
-    reducer,
-    ...selectors,
-
-    api: ({
-      dispatch,
-      state,
-      action
-    }) => {
-      if (shouldReloadPageData(state, action, selectors.isLoading)) {
-        dispatch(loadingAction());
-        axios.post(apiUrl, {
-            jsonrpc: "2.0",
-            method: "search",
-            params: apiParameters({
-              dispatch,
-              state,
-              action
-            }),
-            id: Date.now(),
-          })
-          .then(result => dispatch(fetchedAction(result.data.result)))
-          .catch(error => dispatch(errorAction(convertError(error))));
-      }
-    },
-
-    ...rest
+    reducers,
+    selectors,
   };
 };

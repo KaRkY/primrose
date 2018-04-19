@@ -5,10 +5,11 @@ import primrose.service.SearchResult;
 
 public interface CustomerService {
 
-  SearchResult<CustomerSearch> search(Search search);
+  SearchResult<CustomerReducedDisplay> search(Search search);
 
-  Customer get(long customerId);
+  CustomerFullDisplay get(String customerCode);
 
-  long create(CustomerCreate customer);
+  String create(CustomerCreate customer);
 
+  String edit(String customerCode, CustomerCreate customer);
 }

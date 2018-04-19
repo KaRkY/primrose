@@ -5,9 +5,9 @@ import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CustomerSearch {
+public class CustomerReducedDisplay {
 
-  private final long   id;
+  private final String code;
   @NotBlank
   private final String type;
   @NotBlank
@@ -19,8 +19,8 @@ public class CustomerSearch {
   private final String primaryPhone;
 
   @JsonCreator
-  public CustomerSearch(
-    @JsonProperty("id") long id,
+  public CustomerReducedDisplay(
+    @JsonProperty("code") String code,
     @JsonProperty("type") String type,
     @JsonProperty("relationType") String relationType,
     @JsonProperty("displayName") String displayName,
@@ -28,7 +28,7 @@ public class CustomerSearch {
     @JsonProperty("primaryEmail") String primaryEmail,
     @JsonProperty("primaryPhone") String primaryPhone) {
     super();
-    this.id = id;
+    this.code = code;
     this.type = type;
     this.relationType = relationType;
     this.displayName = displayName;
@@ -37,8 +37,8 @@ public class CustomerSearch {
     this.primaryPhone = primaryPhone;
   }
 
-  public long getId() {
-    return id;
+  public String getCode() {
+    return code;
   }
 
   public String getType() {

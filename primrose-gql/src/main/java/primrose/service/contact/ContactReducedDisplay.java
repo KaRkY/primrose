@@ -5,7 +5,7 @@ import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ContactSearch {
+public class ContactReducedDisplay {
 
   private final long   id;
   @NotBlank
@@ -14,7 +14,7 @@ public class ContactSearch {
   private final String primaryPhone;
 
   @JsonCreator
-  public ContactSearch(
+  public ContactReducedDisplay(
     @JsonProperty("id") long id,
     @JsonProperty("fullName") String fullName,
     @JsonProperty("primaryEmail") String primaryEmail,

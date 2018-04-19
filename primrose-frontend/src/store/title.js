@@ -1,16 +1,16 @@
 import * as actions from "../actions";
 
 const components = {
-  [actions.dashboard]: "Dashboard",
-  [actions.error]: "Sample error page",
-  [actions.customers]: "Customers",
-  [actions.customer]: "Customer",
-  [actions.customerNew]: "New Customer",
-  [actions.customerEdit]: "Edit Customer",
-  [actions.contacts]: "Contacts",
-  [actions.contact]: "Contact",
-  [actions.contactNew]: "New Contact",
-  [actions.contactEdit]: "Edit Contact",
+  [actions.dashboardPage]: "Dashboard",
+  [actions.errorPage]: "Sample error page",
+  [actions.customersPage]: "Customers",
+  [actions.customerPage]: "Customer",
+  [actions.customerPageNew]: "New Customer",
+  [actions.customerPageEdit]: "Edit Customer",
+  [actions.contactsPage]: "Contacts",
+  [actions.contactPage]: "Contact",
+  [actions.contactPageNew]: "New Contact",
+  [actions.contactPageEdit]: "Edit Contact",
   [actions.notFound]: "404 Not found"
 }
 

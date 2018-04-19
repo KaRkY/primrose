@@ -5,9 +5,11 @@ import primrose.service.SearchResult;
 
 public interface ContactService {
 
-  SearchResult<ContactSearch> search(Search search);
+  SearchResult<ContactReducedDisplay> search(Search search);
 
-  Contact get(long contactId);
+  ContactFullDisplay get(long contactId);
 
   long create(ContactCreate contact);
+
+  long edit(long contactId, ContactCreate contact);
 }

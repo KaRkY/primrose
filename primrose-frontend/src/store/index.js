@@ -1,12 +1,7 @@
-import contactsEntity from "./contacts";
-import customersEntity from "./customers";
-import accountsEntity from "./accounts";
-import metaEntity from "./meta";
-
-export const contacts = contactsEntity.reducer;
-export const customers = customersEntity.reducer;
-export const accounts = accountsEntity.reducer;
-export const meta = metaEntity.reducer;
+export { reducer as contacts } from "./contacts";
+export { reducer as customers } from "./customers";
+export { reducer as accounts } from "./accounts";
+export { reducer as meta } from "./meta";
 
 export { default as page } from "./page";
 export { default as title } from "./title";

@@ -72,10 +72,10 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToCustomers: payload => dispatch(actions.customers(payload)),
-  goToCustomer: payload => dispatch(actions.customer(payload)),
-  goToNewCustomer: payload => dispatch(actions.customerNew(payload)),
-  goToEditCustomer: payload => dispatch(actions.customerEdit(payload)),
+  goToCustomers: payload => dispatch(actions.customersPage(payload)),
+  goToCustomer: payload => dispatch(actions.customerPage(payload)),
+  goToNewCustomer: payload => dispatch(actions.customerPageNew(payload)),
+  goToEditCustomer: payload => dispatch(actions.customerPageEdit(payload)),
 });
 
 const enhance = compose(
