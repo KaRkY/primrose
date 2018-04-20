@@ -55,7 +55,7 @@ export default {
   [actions.accountsPage]: {
     path: "/customers/:customer/accounts"
   },
-  
+
   [actions.accountPageNew]: {
     path: "/customers/:customer/accounts/new"
   },
@@ -97,7 +97,7 @@ export default {
       metaApi.phoneNumberTypes({ dispatch, state: getState(), action, ...meta.phoneNumberTypes }),
     ]),
   },
-  
+
   [actions.customerCreate]: {
     thunk: (dispatch, getState, { action }) => customersApi.create({ dispatch, state: getState(), action }),
   },
@@ -111,7 +111,7 @@ export default {
   },
 
   [actions.accountsDelete]: {
-          
+
   },
 
   [actions.accountCreate]: {

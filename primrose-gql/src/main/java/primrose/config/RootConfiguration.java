@@ -14,19 +14,19 @@ import primrose.error.CustomErrorResolver;
 @Configuration
 public class RootConfiguration {
 
-  @Bean
-  public static ErrorResolver resolver() {
-    return new MultipleErrorResolver(
-      new CustomErrorResolver(),
-      AnnotationsErrorResolver.INSTANCE,
-      DefaultErrorResolver.INSTANCE);
-  }
+   @Bean
+   public static ErrorResolver resolver() {
+      return new MultipleErrorResolver(
+         new CustomErrorResolver(),
+         AnnotationsErrorResolver.INSTANCE,
+         DefaultErrorResolver.INSTANCE);
+   }
 
-  @Bean
-  public Slugify slugify() {
-    Slugify slugify = new Slugify();
-    slugify.withTransliterator(true);
-    slugify.withLowerCase(true);
-    return slugify;
-  }
+   @Bean
+   public Slugify slugify() {
+      Slugify slugify = new Slugify();
+      slugify.withTransliterator(true);
+      slugify.withLowerCase(true);
+      return slugify;
+   }
 }

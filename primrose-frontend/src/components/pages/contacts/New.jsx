@@ -4,18 +4,11 @@ import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
 
 import ContactForm from "../../composedForm/ContactFrom";
-import promiseListener from "../../../store/promiseListener";
 
 import { FORM_ERROR } from "final-form";
 
 import * as actions from "../../../actions";
 import meta from "../../../store/meta";
-
-const createContact = promiseListener.createAsyncFunction({
-  start: actions.contactCreate.toString(),
-  resolve: actions.contactCreateFinished.toString(),
-  reject: actions.contactCreateError.toString(),
-});
 
 const contentStyle = theme => ({
 
@@ -27,7 +20,7 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToContact: payload => dispatch(actions.contactPage({ contact: payload })),
+  handleSingle: payload => dispatch(actions.contactPage(payload)),
 });
 
 const enhance = compose(
@@ -37,19 +30,18 @@ const enhance = compose(
 
 const Content = ({
   classes,
-  goToContact,
+  handleSingle,
   emailTypes,
   phoneNumberTypes,
 }) => (
     <ContactForm 
       onSubmit={values => {
-        return createContact
-          .asyncFunction(values)
+        return actions.contactCreatePromise(values)
           .then(result => {
-            goToContact(result);
+            handleSingle(result);
             return {};
           })
-          .catch(error => console.error(error) || ({ [FORM_ERROR]: error }));
+          .catch(error => ({ [FORM_ERROR]: error }));
       }}
       emailTypes={emailTypes}
       phoneNumberTypes={phoneNumberTypes}

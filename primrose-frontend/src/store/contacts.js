@@ -3,7 +3,7 @@ import * as actions from "../actions";
 import * as location from "./location";
 import createFullEntity from "./creators/createFullEntity";
 
-const { reducers, selectors } =  createFullEntity({
+const { reducers, selectors, async } = createFullEntity({
   entityName: "contacts",
   apiUrl: "/contacts",
   rootSelector: state => state.contacts,
@@ -34,8 +34,8 @@ const { reducers, selectors } =  createFullEntity({
   }) => Array.isArray(action.payload.contacts) ? {
     contacts: action.payload.contacts
   } : {
-    contact: action.payload.contacts
-  },
+        contact: action.payload.contacts
+      },
 
   loadSingleAction: actions.contactLoad,
   loadSingleFinishedAction: actions.contactLoadFinished,
@@ -58,4 +58,5 @@ export const reducer = combineReducers({
   ...reducers
 });
 
+export const promise = async;
 export default selectors;

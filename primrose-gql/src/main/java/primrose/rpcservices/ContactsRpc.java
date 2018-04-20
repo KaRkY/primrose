@@ -14,15 +14,15 @@ import primrose.service.contact.ContactReducedDisplay;
 @JsonRpcService("/contacts")
 public interface ContactsRpc {
 
-  SearchResult<ContactReducedDisplay> search(@JsonRpcParam("search") Search search);
+   SearchResult<ContactReducedDisplay> search(@JsonRpcParam("search") Search search);
 
-  String create(@JsonRpcParam("contact") ContactCreate contact);
+   String create(@JsonRpcParam("contact") ContactCreate contact);
 
-  ContactFullDisplay get(@JsonRpcParam("contactCode") String contactCode);
+   ContactFullDisplay get(@JsonRpcParam("contactCode") String contactCode);
 
-  String delete(@JsonRpcParam("contactCode") String contactCode);
+   String delete(@JsonRpcParam("contactCode") String contactCode);
 
-  Set<String> delete(@JsonRpcParam("contactCodes") Set<String> contactCodes);
+   Set<String> delete(@JsonRpcParam("contactCodes") Set<String> contactCodes);
 
-  String edit(@JsonRpcParam("contactCode") String contactCode, @JsonRpcParam("contact") ContactCreate contact);
+   String edit(@JsonRpcParam("contactCode") String contactCode, @JsonRpcParam("contact") ContactCreate contact);
 }

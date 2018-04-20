@@ -19,11 +19,12 @@ import EditIcon from "@material-ui/icons/Edit";
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
-
+import Search from "../../Search";
 
 const contentStyle = theme => ({
   root: {
     position: "relative",
+    marginTop: theme.spacing.unit * 3,
   },
 
   grow: {
@@ -61,55 +62,47 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToContacts: payload => dispatch(actions.contactsPage(payload)),
-  goToContact: payload => dispatch(actions.contactPage(payload)),
-  goToNewContact: payload => dispatch(actions.contactPageNew(payload)),
-  goToEditContact: payload => dispatch(actions.contactPageEdit(payload)),
-  executeDeleteContact: payload => dispatch(actions.contactsDelete(payload)),
+  handlePaged: payload => dispatch(actions.contactsPage(payload)),
+  handleSingle: payload => dispatch(actions.contactPage(payload)),
+  handleNew: payload => dispatch(actions.contactPageNew(payload)),
+  handleEdit: payload => dispatch(actions.contactPageEdit(payload)),
 });
 
 const enhance = compose(
   connect(mapState, mapDispatchTo),
   withHandlers({
-    onPageChange: ({ query, goToContacts }) => (event, page) => goToContacts({
-      query: {
-        ...query,
-        page,
-      }
+    onPageChange: ({ query, handlePaged }) => (event, page) => handlePaged({
+      ...query,
+      page,
     }),
-    onPageSizeChange: ({ query, goToContacts }) => (event, size) => goToContacts({
-      query: {
-        ...query,
-        size,
-      }
+    onPageSizeChange: ({ query, handlePaged }) => (event, size) => handlePaged({
+      ...query,
+      size,
     }),
-    onSortChange: ({ query, goToContacts }) => (event, sortProperty, direction) => goToContacts({
-      query: {
-        ...query,
-        sortProperty,
-        sortDirection: direction,
-      }
+    onSortChange: ({ query, handlePaged }) => (event, sortProperty, direction) => handlePaged({
+      ...query,
+      sortProperty,
+      sortDirection: direction,
     }),
-    onSelectedRowsChange: ({ query, pagination, goToContacts }) => (event, value, checked) => goToContacts({
-      query: {
-        ...query,
-        selected: (checked ? union(normalizeArray(pagination.selected), value) : difference(normalizeArray(pagination.selected), value)),
-      }
+    onQueryChange: ({ query, handlePaged }) => (event, value) => handlePaged({
+      ...query,
+      query: value ? value : undefined,
     }),
-    onNewContact: ({ goToNewContact }) => (event) => goToNewContact && goToNewContact(),
-    onOpenContact: ({ goToContact }) => (event, contact) => goToContact && goToContact({ contact }),
-    onEditContact: ({ goToEditContact }) => (event, contact) => goToEditContact && goToEditContact({ contact }),
-    onDeleteContacts: ({ query, executeDeleteContacts }) => (event, contacts) => executeDeleteContacts && executeDeleteContacts({
-      contacts,
-      query,
+    onSelectedRowsChange: ({ query, pagination, handlePaged }) => (event, value, checked) => handlePaged({
+      ...query,
+      selected: (checked ? union(normalizeArray(pagination.selected), value) : difference(normalizeArray(pagination.selected), value)),
     }),
+    onNew: ({ handleNew }) => (event) => handleNew(),
+    onOpen: ({ handleSingle }) => (event, value) => handleSingle(value),
+    onEdit: ({ handleEdit }) => (event, value) => handleEdit(value),
+    onDelete: ({ pagination, handlePaged, query }) => (event, values) => actions.contactDeletePromise(values)
+      .then(result => handlePaged({ ...query, selected: undefined, force: true }))
+      .catch(console.log)
   }),
   withStyles(contentStyle)
 );
 
 const getRowId = row => row.code;
-
-
 
 const Content = ({
   classes,
@@ -117,97 +110,105 @@ const Content = ({
   pagination,
   totalSize,
   isDeleting,
+  query,
   onSelectedRowsChange,
+  onQueryChange,
   onPageChange,
   onPageSizeChange,
   onSortChange,
-  onNewContact,
-  onOpenContact,
-  onEditContact,
-  onDeleteContacts,
+  onNew,
+  onOpen,
+  onEdit,
+  onDelete,
 }) => (
-    <Paper className={classes.root}>
-      <Toolbar>
-        <div className={classes.grow} />
-        <Tooltip
-          title="New Contact"
-          enterDelay={300}
-        >
-          <IconButton onClick={onNewContact}>
-            <PersonAddIcon />
-          </IconButton>
-        </Tooltip>
-        {pagination.selected && pagination.selected.length > 0 && (
+    <React.Fragment>
+      <Search
+        onSearch={onQueryChange}
+        value={query && query.query}
+      />
+      <Paper className={classes.root}>
+        <Toolbar>
+          <div className={classes.grow} />
           <Tooltip
-            title="Delete Contacts"
+            title="New Contact"
             enterDelay={300}
           >
-            <IconButton disabled={isDeleting} onClick={() => onDeleteContacts(pagination.selected)}>
-              <DeleteIcon />
+            <IconButton onClick={onNew}>
+              <PersonAddIcon />
             </IconButton>
           </Tooltip>
-        )}
-      </Toolbar>
-      <DataGrid
-        getRowId={getRowId}
-        rows={contacts || []}
-      >
-
-        <DataGrid.Columns>
-          <DataGrid.Column name="code" title="Code" />
-          <DataGrid.Column name="fullName" title="Name" />
-          <DataGrid.Column name="primaryEmail" title="Email" />
-          <DataGrid.Column name="primaryPhone" title="Phone" />
-        </DataGrid.Columns>
-
-        <DataGrid.Pagination
-          totalSize={totalSize}
-          page={pagination.page}
-          size={pagination.size}
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
-        />
-
-        <DataGrid.Sorting
-          sort={pagination.sort}
-          onSortChange={onSortChange}
-        />
-
-        <DataGrid.Selecting
-          rowIds={pagination.selected || []}
-          onSelectRowsChange={onSelectedRowsChange}
-        />
-
-        <DataGrid.RowActions>{row => (
-          <React.Fragment>
+          {pagination.selected && pagination.selected.length > 0 && (
             <Tooltip
-              title="Open Contact"
+              title="Delete Contacts"
               enterDelay={300}
             >
-              <IconButton onClick={event => onOpenContact(event, row.code)}>
-                <ZoomInIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip
-              title="Edit Contact"
-              enterDelay={300}
-            >
-              <IconButton onClick={event => onEditContact(event, row.code)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip
-              title="Delete Contact"
-              enterDelay={300}
-            >
-              <IconButton onClick={event => onDeleteContacts(event, row.code)}>
+              <IconButton disabled={isDeleting} onClick={event => onDelete(event, pagination.selected)}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
-          </React.Fragment>
-        )}</DataGrid.RowActions>
-      </DataGrid>
-    </Paper >
+          )}
+        </Toolbar>
+        <DataGrid
+          getRowId={getRowId}
+          rows={contacts || []}
+        >
+
+          <DataGrid.Columns>
+            <DataGrid.Column name="code" title="Code" />
+            <DataGrid.Column name="fullName" title="Name" />
+            <DataGrid.Column name="primaryEmail" title="Email" />
+            <DataGrid.Column name="primaryPhone" title="Phone" />
+          </DataGrid.Columns>
+
+          <DataGrid.Pagination
+            totalSize={totalSize}
+            page={pagination.page}
+            size={pagination.size}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+          />
+
+          <DataGrid.Sorting
+            sort={pagination.sort}
+            onSortChange={onSortChange}
+          />
+
+          <DataGrid.Selecting
+            rowIds={pagination.selected || []}
+            onSelectRowsChange={onSelectedRowsChange}
+          />
+
+          <DataGrid.RowActions>{row => (
+            <React.Fragment>
+              <Tooltip
+                title="Open Contact"
+                enterDelay={300}
+              >
+                <IconButton onClick={event => onOpen(event, row.code)}>
+                  <ZoomInIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title="Edit Contact"
+                enterDelay={300}
+              >
+                <IconButton onClick={event => onEdit(event, row.code)}>
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title="Delete Contact"
+                enterDelay={300}
+              >
+                <IconButton onClick={event => onDelete(event, row.code)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            </React.Fragment>
+          )}</DataGrid.RowActions>
+        </DataGrid>
+      </Paper >
+    </React.Fragment>
   );
 
 export default enhance(Content);

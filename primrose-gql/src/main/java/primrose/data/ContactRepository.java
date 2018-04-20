@@ -12,19 +12,19 @@ import primrose.service.contact.ContactReducedDisplay;
 
 public interface ContactRepository {
 
-  CodeId generateCode();
+   CodeId generateCode();
 
-  CodeId codeId(String code);
+   CodeId codeId(String code);
 
-  void create(CodeId code, ContactCreate contact);
+   void create(CodeId code, ContactCreate contact);
 
-  List<ContactReducedDisplay> search(Search search);
+   List<ContactReducedDisplay> search(Search search);
 
-  long count(Search search);
+   long count(Search search);
 
-  ContactFullDisplay get(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
+   ContactFullDisplay get(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
 
-  ContactFullDisplay getForUpdate(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
+   ContactFullDisplay getForUpdate(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
 
-  void deactivate(CodeId code);
+   void deactivate(CodeId code);
 }

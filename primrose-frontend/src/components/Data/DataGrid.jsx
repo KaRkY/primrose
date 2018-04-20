@@ -146,11 +146,11 @@ const DataGrid = ({
 
       <TableBody>
         {rows.map(row => {
-          const currentRowId = extractId(getRowId, row);
+          const currentRowId = extractId(getRowId, row).toString();
           const selectedRowIds = (selecting && selecting.rowIds) || [];
           const detailedRowIds = (detailed && detailed.rowIds) || [];
-          const isSelected = selectedRowIds.find(el => el === currentRowId) !== undefined ? true : false;
-          const isPanelOpen = detailedRowIds.find(el => el === currentRowId)  !== undefined ? true : false;
+          const isSelected = selectedRowIds.find(el => el.toString() === currentRowId) !== undefined ? true : false;
+          const isPanelOpen = detailedRowIds.find(el => el.toString() === currentRowId)  !== undefined ? true : false;
 
           return (
             <React.Fragment key={currentRowId}>

@@ -14,15 +14,15 @@ import primrose.service.customer.CustomerReducedDisplay;
 @JsonRpcService("/customers")
 public interface CustomersRpc {
 
-  SearchResult<CustomerReducedDisplay> search(@JsonRpcParam("search") Search search);
+   SearchResult<CustomerReducedDisplay> search(@JsonRpcParam("search") Search search);
 
-  String create(@JsonRpcParam("customer") CustomerCreate customer);
+   String create(@JsonRpcParam("customer") CustomerCreate customer);
 
-  CustomerFullDisplay get(@JsonRpcParam("customerCode") String customerCode);
+   CustomerFullDisplay get(@JsonRpcParam("customerCode") String customerCode);
 
-  String delete(@JsonRpcParam("customerCode") String customerCode);
+   String delete(@JsonRpcParam("customerCode") String customerCode);
 
-  Set<String> delete(@JsonRpcParam("customerCodes") Set<String> customerCodes);
+   Set<String> delete(@JsonRpcParam("customerCodes") Set<String> customerCodes);
 
-  String edit(@JsonRpcParam("customerCode") String customerCode, @JsonRpcParam("customer") CustomerCreate customer);
+   String edit(@JsonRpcParam("customerCode") String customerCode, @JsonRpcParam("customer") CustomerCreate customer);
 }

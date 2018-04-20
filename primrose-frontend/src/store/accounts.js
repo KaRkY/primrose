@@ -3,7 +3,7 @@ import * as actions from "../actions";
 import * as location from "./location";
 import createFullEntity from "./creators/createFullEntity";
 
-const { reducers, selectors } =  createFullEntity({
+const { reducers, selectors, async } = createFullEntity({
   entityName: "accounts",
   apiUrl: "/accounts",
   rootSelector: state => state.accounts,
@@ -40,9 +40,9 @@ const { reducers, selectors } =  createFullEntity({
     customer: parseInt(location.getCurrentData(state).customer, 10),
     accounts: action.payload.accounts
   } : {
-    customer: parseInt(location.getCurrentData(state).customer, 10),
-    account: action.payload.accounts
-  },
+        customer: parseInt(location.getCurrentData(state).customer, 10),
+        account: action.payload.accounts
+      },
 
   loadSingleAction: actions.accountLoad,
   loadSingleFinishedAction: actions.accountLoadFinished,
@@ -67,4 +67,5 @@ export const reducer = combineReducers({
   ...reducers
 });
 
+export const promise = async;
 export default selectors;

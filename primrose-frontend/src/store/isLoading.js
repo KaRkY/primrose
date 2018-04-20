@@ -43,7 +43,7 @@ const components = {
     contacts.single.isLoading(state) ||
     meta.emailTypes.isLoading(state) ||
     meta.phoneNumberTypes.isLoading(state),
-    
+
   [actions.contactPageEdit]: state =>
     contacts.single.isLoading(state) ||
     meta.emailTypes.isLoading(state) ||

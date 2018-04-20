@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
 
 import CustomerForm from "../../composedForm/CustomerForm";
-import promiseListener from "../../../store/promiseListener";
 
 import { FORM_ERROR } from "final-form";
 
@@ -12,12 +11,6 @@ import * as actions from "../../../actions";
 import * as location from "../../../store/location";
 import customers from "../../../store/customers";
 import meta from "../../../store/meta";
-
-const editCustomer = promiseListener.createAsyncFunction({
-  start: actions.customerEdit.toString(),
-  resolve: actions.customerEditFinished.toString(),
-  reject: actions.customerEditError.toString(),
-});
 
 const contentStyle = theme => ({
 
@@ -55,8 +48,7 @@ const Content = ({
     <CustomerForm
       initialValues={customer}
       onSubmit={values => {
-        return editCustomer
-          .asyncFunction(values)
+        return actions.customerEditPromise(values)
           .then(result => {
             goToCustomer(result);
             return {};

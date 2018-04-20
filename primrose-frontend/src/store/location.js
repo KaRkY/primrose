@@ -1,6 +1,4 @@
-import {
-  createSelector
-} from "reselect";
+import { createSelector } from "reselect";
 import normalizeArray from "../util/normalizeArray";
 
 const getPaginationFromQuery = (query = {}) => {
@@ -14,11 +12,7 @@ const getPaginationFromQuery = (query = {}) => {
 
   let selected;
   if (query.selected) {
-    selected = normalizeArray(query.selected)
-      .map(val => {
-        const num = Number(val);
-        return Number.isNaN(num) ? val : num;
-      });
+    selected = normalizeArray(query.selected);
   }
 
   return {

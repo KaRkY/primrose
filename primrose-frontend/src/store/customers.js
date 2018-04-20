@@ -2,7 +2,7 @@ import { combineReducers } from "redux";
 import * as actions from "../actions";
 import createFullEntity from "./creators/createFullEntity";
 
-const { reducers, selectors } = createFullEntity({
+const { reducers, selectors, async } = createFullEntity({
   rootSelector: state => state.customers,
 
   createAction: actions.customerCreate,
@@ -30,4 +30,5 @@ export const reducer = combineReducers({
   ...reducers
 });
 
+export const promise = async;
 export default selectors;

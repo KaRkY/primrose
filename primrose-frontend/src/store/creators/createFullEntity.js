@@ -3,12 +3,8 @@ import createDeleteEntity from "../creators/createDeleteEntity";
 import createEditEntity from "../creators/createEditEntity";
 import createPagedEntity from "../creators/createPagedEntity";
 import createEntity from "../creators/createEntity";
-import {
-  combineReducers
-} from "redux";
-import {
-  createSelector
-} from "reselect";
+import { combineReducers } from "redux";
+import { createSelector } from "reselect";
 
 export default ({
   createAction,
@@ -44,7 +40,7 @@ export default ({
 
   const del = createDeleteEntity({
     baseAction: deleteAction,
-    createdAction: deleteFinishedAction,
+    deletedAction: deleteFinishedAction,
     errorAction: deleteErrorAction,
     rootSelector: createSelector(rootSelector, root => root.delete),
   });
@@ -65,11 +61,11 @@ export default ({
 
   return {
     reducers: {
-      create: combineReducers({...create.reducers}),
-      edit: combineReducers({...edit.reducers}),
-      delete: combineReducers({...del.reducers}),
-      paged: combineReducers({...paged.reducers}),
-      single: combineReducers({...single.reducers}),
+      create: combineReducers({ ...create.reducers }),
+      edit: combineReducers({ ...edit.reducers }),
+      delete: combineReducers({ ...del.reducers }),
+      paged: combineReducers({ ...paged.reducers }),
+      single: combineReducers({ ...single.reducers }),
     },
 
     selectors: {
@@ -78,6 +74,6 @@ export default ({
       delete: del.selectors,
       paged: paged.selectors,
       single: single.selectors,
-    }
+    },
   };
 }

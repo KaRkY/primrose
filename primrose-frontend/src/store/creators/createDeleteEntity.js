@@ -1,25 +1,21 @@
-import {
-  handleActions
-} from "redux-actions";
-import {
-  createSelector
-} from "reselect";
+import { handleActions } from "redux-actions";
+import { createSelector } from "reselect";
 
 export default ({
   baseAction,
-  createdAction,
+  deletedAction,
   errorAction,
   rootSelector,
 }) => {
   const loading = handleActions({
     [baseAction]: () => true,
-    [createdAction]: () => false,
+    [deletedAction]: () => false,
     [errorAction]: () => false,
   }, false);
 
   const error = handleActions({
     [baseAction]: () => null,
-    [createdAction]: () => null,
+    [deletedAction]: () => null,
     [errorAction]: (state, action) => action.payload,
   }, null);
 

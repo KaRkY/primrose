@@ -43,7 +43,7 @@ const components = {
     contacts.single.getError(state) ||
     meta.emailTypes.getError(state) ||
     meta.phoneNumberTypes.getError(state),
-    
+
   [actions.contactPageEdit]: state =>
     contacts.single.getError(state) ||
     meta.emailTypes.getError(state) ||

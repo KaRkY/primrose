@@ -1,6 +1,4 @@
-import {
-  combineReducers
-} from "redux";
+import { combineReducers } from "redux";
 import * as actions from "../actions";
 import createMetaEntity from "./creators/createMetaEntity";
 

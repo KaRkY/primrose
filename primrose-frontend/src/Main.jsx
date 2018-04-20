@@ -30,31 +30,31 @@ const enhance = compose(
 );
 
 const Main = props => (
-    <App>
-      <App.Toolbar position="fixed" title={props.title}>
-        <Tooltip title="Actions" enterDelay={300}>
-          <IconButton
-            variant="raised"
-            color="inherit">
-            <MoreVert />
-          </IconButton>
-        </Tooltip>
-      </App.Toolbar>
+  <App>
+    <App.Toolbar position="fixed" title={props.title}>
+      <Tooltip title="Actions" enterDelay={300}>
+        <IconButton
+          variant="raised"
+          color="inherit">
+          <MoreVert />
+        </IconButton>
+      </Tooltip>
+    </App.Toolbar>
 
-      <App.Navigation>
-        <Nav>
-          <Nav.Item exact to={actions.dashboardPage()} name="Dashboard" />
-          <Nav.Item to={actions.customersPage({ force: true })} name="Customers" />
-          <Nav.Item to={actions.contactsPage()} name="Contacts" />
-          <Nav.Item exact to={actions.errorPage()} name="Error" />
-        </Nav>
-      </App.Navigation>
+    <App.Navigation>
+      <Nav>
+        <Nav.Item exact to={actions.dashboardPage()} name="Dashboard" />
+        <Nav.Item to={actions.customersPage({ force: true })} name="Customers" />
+        <Nav.Item to={actions.contactsPage()} name="Contacts" />
+        <Nav.Item exact to={actions.errorPage()} name="Error" />
+      </Nav>
+    </App.Navigation>
 
-      <App.Content>
-        <Switcher {...props} />
-      </App.Content>
-    </App>
-  );
+    <App.Content>
+      <Switcher {...props} />
+    </App.Content>
+  </App>
+);
 
 const EnhancedMain = enhance(Main);
 

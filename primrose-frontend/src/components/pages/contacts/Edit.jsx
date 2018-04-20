@@ -4,19 +4,12 @@ import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
 
 import ContactForm from "../../composedForm/ContactFrom";
-import promiseListener from "../../../store/promiseListener";
 
 import { FORM_ERROR } from "final-form";
 
 import * as actions from "../../../actions";
 import contacts from "../../../store/contacts";
 import meta from "../../../store/meta";
-
-const editContact = promiseListener.createAsyncFunction({
-  start: actions.contactEdit.toString(),
-  resolve: actions.contactEditFinished.toString(),
-  reject: actions.contactEditError.toString(),
-});
 
 const contentStyle = theme => ({
 
@@ -47,8 +40,7 @@ const Content = ({
     <ContactForm
       initialValues={contact}
       onSubmit={values => {
-        return editContact
-          .asyncFunction(values)
+        return actions.contactEditPromise(values)
           .then(result => {
             goToContact(result);
             return {};

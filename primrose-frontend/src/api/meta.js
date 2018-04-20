@@ -5,19 +5,9 @@ import convertError from "../util/convertError";
 const apiUrl = "/meta";
 
 const create = entity => props => {
-  const {
-    dispatch,
-    state,
-    getData,
-    getError,
-  } = props;
+  const { dispatch, state, getData, getError, } = props;
 
-  const {
-    entityName,
-    entityLoadAction,
-    entityFinishedAction,
-    entityErrorAction,
-  } = entity;
+  const { entityName, entityLoadAction, entityFinishedAction, entityErrorAction, } = entity;
 
   if (!getData(state) || getError(state)) {
     dispatch(entityLoadAction());

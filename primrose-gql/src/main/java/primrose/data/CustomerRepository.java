@@ -10,22 +10,21 @@ import primrose.service.customer.CustomerCreate;
 import primrose.service.customer.CustomerFullDisplay;
 import primrose.service.customer.CustomerReducedDisplay;
 
-//TODO: Change code to codeId
 public interface CustomerRepository {
 
-  CodeId generateCode();
+   CodeId generateCode();
 
-  CodeId codeId(String code);
+   CodeId codeId(String code);
 
-  void create(CodeId code, CustomerCreate customer);
+   void create(CodeId code, CustomerCreate customer);
 
-  List<CustomerReducedDisplay> search(Search search);
+   List<CustomerReducedDisplay> search(Search search);
 
-  long count(Search search);
+   long count(Search search);
 
-  CustomerFullDisplay get(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
+   CustomerFullDisplay get(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
 
-  CustomerFullDisplay getForUpdate(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
+   CustomerFullDisplay getForUpdate(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
 
-  void deactivate(CodeId code);
+   void deactivate(CodeId code);
 }

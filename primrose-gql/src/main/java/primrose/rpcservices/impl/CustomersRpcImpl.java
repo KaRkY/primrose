@@ -21,50 +21,50 @@ import primrose.spring.ValidationSupport;
 @Component
 public class CustomersRpcImpl implements CustomersRpc {
 
-  private CustomerService   customerService;
-  private ValidationSupport validationSupport;
+   private CustomerService   customerService;
+   private ValidationSupport validationSupport;
 
-  public CustomersRpcImpl(CustomerService customerService, ValidationSupport validationSupport) {
-    this.customerService = customerService;
-    this.validationSupport = validationSupport;
-  }
+   public CustomersRpcImpl(CustomerService customerService, ValidationSupport validationSupport) {
+      this.customerService = customerService;
+      this.validationSupport = validationSupport;
+   }
 
-  @Override
-  public SearchResult<CustomerReducedDisplay> search(Search search) {
-    validationSupport.validate("search", search);
+   @Override
+   public SearchResult<CustomerReducedDisplay> search(Search search) {
+      validationSupport.validate("search", search);
 
-    return customerService.search(search);
-  }
+      return customerService.search(search);
+   }
 
-  @Override
-  public String create(@Valid CustomerCreate customer) {
-    validationSupport.validate("customer", customer);
+   @Override
+   public String create(@Valid CustomerCreate customer) {
+      validationSupport.validate("customer", customer);
 
-    return customerService.create(customer);
-  }
+      return customerService.create(customer);
+   }
 
-  @Override
-  public CustomerFullDisplay get(String customerCode) {
-    return customerService.get(customerCode);
-  }
+   @Override
+   public CustomerFullDisplay get(String customerCode) {
+      return customerService.get(customerCode);
+   }
 
-  @Override
-  public String delete(String customerCode) {
-    System.out.println(customerCode);
-    return "";
-  }
+   @Override
+   public String delete(String customerCode) {
+      System.out.println(customerCode);
+      return "";
+   }
 
-  @Override
-  public Set<String> delete(Set<String> customerCodes) {
-    System.out.println(customerCodes);
-    return null;
-  }
+   @Override
+   public Set<String> delete(Set<String> customerCodes) {
+      System.out.println(customerCodes);
+      return null;
+   }
 
-  @Override
-  public String edit(String customerCode, CustomerCreate customer) {
-    validationSupport.validate("data", customer);
+   @Override
+   public String edit(String customerCode, CustomerCreate customer) {
+      validationSupport.validate("data", customer);
 
-    return customerService.edit(customerCode, customer);
-  }
+      return customerService.edit(customerCode, customer);
+   }
 
 }

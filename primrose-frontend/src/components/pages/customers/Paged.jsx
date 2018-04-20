@@ -6,13 +6,11 @@ import { withStyles } from "material-ui/styles";
 import normalizeArray from "../../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
-import debounce from "lodash/debounce";
 import * as actions from "../../../actions";
 import * as location from "../../../store/location";
 import customers from "../../../store/customers";
 import meta from "../../../store/meta";
 
-import SearchBar from "material-ui-search-bar";
 import DataGrid from "../../Data/ChildConfigDataGrid";
 import Paper from "material-ui/Paper";
 import Toolbar from "material-ui/Toolbar";
@@ -22,14 +20,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import IconButton from "material-ui/IconButton";
 import Tooltip from "material-ui/Tooltip";
-
-import promiseListener from "../../../store/promiseListener";
-
-const deleteCustomers = promiseListener.createAsyncFunction({
-  start: actions.customersDelete.toString(),
-  resolve: actions.customersDeleteFinished.toString(),
-  reject: actions.customersDeleteError.toString(),
-});
+import Search from "../../Search";
 
 
 const contentStyle = theme => ({
@@ -75,49 +66,42 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToCustomers: payload => dispatch(actions.customersPage(payload)),
-  goToCustomer: payload => dispatch(actions.customerPage(payload)),
-  goToNewCustomer: payload => dispatch(actions.customerPageNew(payload)),
-  goToEditCustomer: payload => dispatch(actions.customerPageEdit(payload)),
+  handlePaged: payload => dispatch(actions.customersPage(payload)),
+  handleSingle: payload => dispatch(actions.customerPage(payload)),
+  handleNew: payload => dispatch(actions.customerPageNew(payload)),
+  handleEdit: payload => dispatch(actions.customerPageEdit(payload)),
 });
 
 const enhance = compose(
   connect(mapState, mapDispatchTo),
   withHandlers({
-    onPageChange: ({ query, goToCustomers }) => (event, page) => goToCustomers({
-      query: {
-        ...query,
-        page,
-      }
+    onPageChange: ({ query, handlePaged }) => (event, page) => handlePaged({
+      ...query,
+      page,
     }),
-    onPageSizeChange: ({ query, goToCustomers }) => (event, size) => goToCustomers({
-      query: {
-        ...query,
-        size,
-      }
+    onPageSizeChange: ({ query, handlePaged }) => (event, size) => handlePaged({
+      ...query,
+      size,
     }),
-    onSortChange: ({ query, goToCustomers }) => (event, sortProperty, direction) => goToCustomers({
-      query: {
-        ...query,
-        sortProperty,
-        sortDirection: direction,
-      }
+    onSortChange: ({ query, handlePaged }) => (event, sortProperty, direction) => handlePaged({
+      ...query,
+      sortProperty,
+      sortDirection: direction,
     }),
-    onQueryChange: ({ query, goToCustomers }) => debounce((queryTerm) => goToCustomers({
-      query: {
-        ...query,
-        query: queryTerm ? queryTerm : undefined,
-      }
-    }), 500),
-    onSelectedRowsChange: ({ query, pagination, goToCustomers }) => (event, value, checked) => goToCustomers({
-      query: {
-        ...query,
-        selected: (checked ? union(normalizeArray(pagination.selected), value) : difference(normalizeArray(pagination.selected), value)),
-      }
+    onQueryChange: ({ query, handlePaged }) => (event, value) => handlePaged({
+      ...query,
+      query: value ? value : undefined,
     }),
-    onNewCustomer: ({ goToNewCustomer }) => (event) => goToNewCustomer && goToNewCustomer(),
-    onOpenCustomer: ({ goToCustomer }) => (event, customer) => goToCustomer && goToCustomer({ customer }),
-    onEditCustomer: ({ goToEditCustomer }) => (event, customer) => goToEditCustomer && goToEditCustomer({ customer }),
+    onSelectedRowsChange: ({ query, pagination, handlePaged }) => (event, value, checked) => handlePaged({
+      ...query,
+      selected: (checked ? union(normalizeArray(pagination.selected), value) : difference(normalizeArray(pagination.selected), value)),
+    }),
+    onNew: ({ handleNew }) => (event) => handleNew(),
+    onOpen: ({ handleSingle }) => (event, value) => handleSingle(value),
+    onEdit: ({ handleEdit }) => (event, value) => handleEdit(value),
+    onDelete: ({ pagination, handlePaged, query }) => (event, values) => actions.customerDeletePromise(values)
+      .then(result => handlePaged({ ...query, selected: undefined, force: true }))
+      .catch(console.log)
   }),
   withStyles(contentStyle)
 );
@@ -134,21 +118,20 @@ const Content = ({
   isDeleting,
   query,
   searchOpen,
-  goToCustomers,
+  handlePaged,
   onSelectedRowsChange,
   onQueryChange,
   onPageChange,
   onPageSizeChange,
   onSortChange,
-  onNewCustomer,
-  onOpenCustomer,
-  onEditCustomer,
+  onNew,
+  onOpen,
+  onEdit,
+  onDelete,
 }) => (
     <React.Fragment>
-      <SearchBar
-        onChange={onQueryChange}
-        onRequestSearch={onQueryChange}
-        style={{ width: "100%" }}
+      <Search
+        onSearch={onQueryChange}
         value={query && query.query}
       />
       <Paper className={classes.root}>
@@ -158,7 +141,7 @@ const Content = ({
             title="New Customer"
             enterDelay={300}
           >
-            <IconButton onClick={onNewCustomer}>
+            <IconButton onClick={onNew}>
               <PersonAddIcon />
             </IconButton>
           </Tooltip>
@@ -167,11 +150,7 @@ const Content = ({
               title="Delete Customers"
               enterDelay={300}
             >
-              <IconButton disabled={isDeleting} onClick={() => {
-                deleteCustomers.asyncFunction({ customers: pagination.selected })
-                  .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
-                  .catch(console.log);
-              }}>
+              <IconButton disabled={isDeleting} onClick={event => onDelete(event, pagination.selected)}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
@@ -215,7 +194,7 @@ const Content = ({
                 title="Open Customer"
                 enterDelay={300}
               >
-                <IconButton onClick={event => onOpenCustomer(event, row.code)}>
+                <IconButton onClick={event => onOpen(event, row.code)}>
                   <ZoomInIcon />
                 </IconButton>
               </Tooltip>
@@ -223,7 +202,7 @@ const Content = ({
                 title="Edit Customer"
                 enterDelay={300}
               >
-                <IconButton onClick={event => onEditCustomer(event, row.code)}>
+                <IconButton onClick={event => onEdit(event, row.code)}>
                   <EditIcon />
                 </IconButton>
               </Tooltip>
@@ -231,11 +210,7 @@ const Content = ({
                 title="Delete Customer"
                 enterDelay={300}
               >
-                <IconButton onClick={event => {
-                  deleteCustomers.asyncFunction({ customers: row.code })
-                    .then(result => goToCustomers({ query: { ...query, selected: undefined }, force: true }))
-                    .catch(console.log);
-                }}>
+                <IconButton onClick={event => onDelete(event, row.code)}>
                   <DeleteIcon />
                 </IconButton>
               </Tooltip>

@@ -1,62 +1,123 @@
 import { NOT_FOUND } from "redux-first-router";
 import { createAction } from "redux-actions";
+import promiseListener from "../store/promiseListener";
 
-const createCreateActions = entity => [
-  createAction(`${entity}_CREATE`),
-  createAction(`${entity}_CREATE_FINISHED`),
-  createAction(`${entity}_CREATE_ERROR`)
-];
+const createCreateActions = entity => {
+  const create = createAction(`${entity}_CREATE`);
+  const createFinished = createAction(`${entity}_CREATE_FINISHED`);
+  const createError = createAction(`${entity}_CREATE_ERROR`);
 
-const createEditActions = entity => [
-  createAction(`${entity}_EDIT`),
-  createAction(`${entity}_EDIT_FINISHED`),
-  createAction(`${entity}_EDIT_ERROR`)
-];
+  return [
+    create,
+    createFinished,
+    createError,
+    (function () {
+      if (!this.promiseListener) this.promiseListener = promiseListener({
+        start: create,
+        resolve: createFinished,
+        reject: createError,
+      });
 
-const createDeleteActions = entity => [
-  createAction(`${entity}_DELETE`),
-  createAction(`${entity}_DELETE_FINISHED`),
-  createAction(`${entity}_DELETE_ERROR`)
-];
+      return this.promiseListener.asyncFunction(...arguments);
+    }).bind(this),
+  ];
+};
 
-const createLoadActions = entity => [
-  createAction(`${entity}_LOAD`),
-  createAction(`${entity}_LOAD_FINISHED`),
-  createAction(`${entity}_LOAD_ERROR`)
-];
+const createEditActions = entity => {
+  const edit = createAction(`${entity}_EDIT`);
+  const editFinished = createAction(`${entity}_EDIT_FINISHED`);
+  const editError = createAction(`${entity}_EDIT_ERROR`);
+
+  return [
+    edit,
+    editFinished,
+    editError,
+    function () {
+      if (!this.promiseListener) this.promiseListener = promiseListener({
+        start: edit,
+        resolve: editFinished,
+        reject: editError,
+      });
+
+      return this.promiseListener.asyncFunction(...arguments);
+    }
+  ];
+};
+
+const createDeleteActions = (entity, property) => {
+  const del = createAction(`${entity}_DELETE`);
+  const delFinished = createAction(`${entity}_DELETE_FINISHED`);
+  const delError = createAction(`${entity}_DELETE_ERROR`);
+
+  return [
+    del,
+    delFinished,
+    delError,
+    function () {
+      if (!this.promiseListener) this.promiseListener = promiseListener({
+        start: del,
+        resolve: delFinished,
+        reject: delError,
+      });
+
+      return this.promiseListener.asyncFunction(...arguments);
+    }
+  ];
+};
+
+const createLoadActions = entity => {
+  const load = createAction(`${entity}_LOAD`);
+  const loadFinished = createAction(`${entity}_LOAD_FINISHED`);
+  const loadError = createAction(`${entity}_LOAD_ERROR`);
+
+  return [
+    load,
+    loadFinished,
+    loadError,
+    function () {
+      if (!this.promiseListener) this.promiseListener = promiseListener({
+        start: load,
+        resolve: loadFinished,
+        reject: loadError,
+      });
+
+      return this.promiseListener.asyncFunction(...arguments);
+    }
+  ];
+};
 
 export const dashboardPage = createAction("DASHBOARD_PAGE");
 
-export const customersPage = createAction("CUSTOMERS_PAGE");
-export const customerPage = createAction("CUSTOMER_PAGE");
+export const customersPage = createAction("CUSTOMERS_PAGE", ({ force, ...query } = {}) => ({ query, force }));
+export const customerPage = createAction("CUSTOMER_PAGE", customer => ({ customer }));
 export const customerPageNew = createAction("CUSTOMER_PAGE_NEW");
-export const customerPageEdit = createAction("CUSTOMER_PAGE_EDIT");
-export const [customerCreate, customerCreateFinished, customerCreateError] = createCreateActions("CUSTOMER");
-export const [customersLoad, customersLoadFinished, customersLoadError] = createLoadActions("CUSTOMERS");
-export const [customerLoad, customerLoadFinished, customerLoadError] = createLoadActions("CUSTOMER");
-export const [customerEdit, customerEditFinished, customerEditError] = createEditActions("CUSTOMER");
-export const [customersDelete, customersDeleteFinished, customersDeleteError] = createDeleteActions("CUSTOMERS");
+export const customerPageEdit = createAction("CUSTOMER_PAGE_EDIT", customer => ({ customer }));
+export const [customerCreate, customerCreateFinished, customerCreateError, customerCreatePromise] = createCreateActions("CUSTOMER");
+export const [customersLoad, customersLoadFinished, customersLoadError, customersLoadPromise] = createLoadActions("CUSTOMERS");
+export const [customerLoad, customerLoadFinished, customerLoadError, customerLoadPromise] = createLoadActions("CUSTOMER");
+export const [customerEdit, customerEditFinished, customerEditError, customerEditPromise] = createEditActions("CUSTOMER");
+export const [customersDelete, customersDeleteFinished, customersDeleteError, customerDeletePromise] = createDeleteActions("CUSTOMERS", "customers");
 
 
-export const contactsPage = createAction("CONTACTS_PAGE");
-export const contactPage = createAction("CONTACT_PAGE");
+export const contactsPage = createAction("CONTACTS_PAGE", ({ force, ...query } = {}) => ({ query, force }));
+export const contactPage = createAction("CONTACT_PAGE", contact => ({ contact }));
 export const contactPageNew = createAction("CONTACT_PAGE_NEW");
-export const contactPageEdit = createAction("CONTACT_PAGE_EDIT");
-export const [contactCreate, contactCreateFinished, contactCreateError] = createCreateActions("CONTACT");
-export const [contactLoad, contactLoadFinished, contactLoadError] = createLoadActions("CONTACT");
-export const [contactsLoad, contactsLoadFinished, contactsLoadError] = createLoadActions("CONTACTS");
-export const [contactEdit, contactEditFinished, contactEditError] = createEditActions("CONTACT");
-export const [contactsDelete, contactsDeleteFinished, contactsDeleteError] = createDeleteActions("CONTACT");
+export const contactPageEdit = createAction("CONTACT_PAGE_EDIT", contact => ({ contact }));
+export const [contactCreate, contactCreateFinished, contactCreateError, contactCreatePromise] = createCreateActions("CONTACT");
+export const [contactLoad, contactLoadFinished, contactLoadError, contactsLoadPromise] = createLoadActions("CONTACT");
+export const [contactsLoad, contactsLoadFinished, contactsLoadError, contactLoadPromise] = createLoadActions("CONTACTS");
+export const [contactEdit, contactEditFinished, contactEditError, contactEditPromise] = createEditActions("CONTACT");
+export const [contactsDelete, contactsDeleteFinished, contactsDeleteError, contactDeletePromise] = createDeleteActions("CONTACT", "contacts");
 
-export const accountsPage = createAction("ACCOUNTS_PAGE");
-export const accountPage = createAction("ACCOUNT_PAGE");
-export const accountPageNew = createAction("ACCOUNT_PAGE_NEW");
-export const accountPageEdit = createAction("ACCOUNT_PAGE_EDIT");
-export const [accountCreate, accountCreateFinished, accountCreateError] = createCreateActions("ACCOUNT");
-export const [accountLoad, accountLoadFinished, accountLoadError] = createLoadActions("ACCOUNT");
-export const [accountsLoad, accountsLoadFinished, accountsLoadError] = createLoadActions("ACCOUNTS");
-export const [accountEdit, accountEditFinished, accountEditError] = createEditActions("ACCOUNT");
-export const [accountsDelete, accountsDeleteFinished, accountsDeleteError] = createDeleteActions("ACCOUNT");
+export const accountsPage = createAction("ACCOUNTS_PAGE", (customer, { force, ...query } = {}) => ({ customer, query, force }));
+export const accountPage = createAction("ACCOUNT_PAGE", (customer, account) => ({ customer, account }));
+export const accountPageNew = createAction("ACCOUNT_PAGE_NEW", (customer) => ({ customer }));
+export const accountPageEdit = createAction("ACCOUNT_PAGE_EDIT", (customer, account) => ({ customer, account }));
+export const [accountCreate, accountCreateFinished, accountCreateError, accountCreatePromise] = createCreateActions("ACCOUNT");
+export const [accountLoad, accountLoadFinished, accountLoadError, accountsLoadPromise] = createLoadActions("ACCOUNT");
+export const [accountsLoad, accountsLoadFinished, accountsLoadError, accountLoadPromise] = createLoadActions("ACCOUNTS");
+export const [accountEdit, accountEditFinished, accountEditError, accountEditPromise] = createEditActions("ACCOUNT");
+export const [accountsDelete, accountsDeleteFinished, accountsDeleteError, accountDeletePromise] = createDeleteActions("ACCOUNT", "accounts");
 
 
 export const [customerTypesLoad, customerTypesLoadFinished, customerTypesLoadError] = createLoadActions("CUSTOMER_TYPES");
