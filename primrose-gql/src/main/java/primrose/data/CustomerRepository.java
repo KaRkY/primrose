@@ -1,30 +1,28 @@
 package primrose.data;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 import primrose.service.CodeId;
-import primrose.service.EmailFullDisplay;
-import primrose.service.PhoneFullDisplay;
-import primrose.service.Search;
+import primrose.service.Pagination;
 import primrose.service.customer.CustomerCreate;
 import primrose.service.customer.CustomerFullDisplay;
 import primrose.service.customer.CustomerReducedDisplay;
 
 public interface CustomerRepository {
 
-   CodeId generateCode();
+  CodeId generateCode();
 
-   CodeId codeId(String code);
+  CodeId codeId(String code);
 
-   void create(CodeId code, CustomerCreate customer);
+  void create(CodeId code, CustomerCreate customer);
 
-   List<CustomerReducedDisplay> search(Search search);
+  ImmutableList<CustomerReducedDisplay> list(Pagination search);
 
-   long count(Search search);
+  long count(Pagination search);
 
-   CustomerFullDisplay get(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
+  CustomerFullDisplay get(CodeId code);
 
-   CustomerFullDisplay getForUpdate(CodeId code, List<EmailFullDisplay> emails, List<PhoneFullDisplay> phones);
+  CustomerFullDisplay getForUpdate(CodeId code);
 
-   void deactivate(CodeId code);
+  void deactivate(CodeId code);
 }

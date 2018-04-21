@@ -27,7 +27,7 @@ const mapState = (state, props) => ({
 
 
 const mapDispatchTo = dispatch => ({
-  goToCustomer: payload => dispatch(actions.customerPage({ customer: payload })),
+  handleSingle: payload => dispatch(actions.customerPage(payload)),
 });
 
 const enhance = compose(
@@ -39,7 +39,7 @@ const Content = ({
   classes,
   customer,
   customerId,
-  goToCustomer,
+  handleSingle,
   customerTypes,
   customerRelationTypes,
   emailTypes,
@@ -50,7 +50,7 @@ const Content = ({
       onSubmit={values => {
         return actions.customerEditPromise(values)
           .then(result => {
-            goToCustomer(result);
+            handleSingle(result);
             return {};
           })
           .catch(error => console.error(error) || ({ [FORM_ERROR]: error }));

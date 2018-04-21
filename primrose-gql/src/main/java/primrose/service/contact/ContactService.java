@@ -1,15 +1,15 @@
 package primrose.service.contact;
 
-import primrose.service.Search;
-import primrose.service.SearchResult;
+import primrose.service.ListResult;
+import primrose.service.Pagination;
 
 public interface ContactService {
 
-   SearchResult<ContactReducedDisplay> search(Search search);
+  ListResult<ContactReducedDisplay> list(Pagination pagination);
 
-   ContactFullDisplay get(String contactCode);
+  ContactFullDisplay get(String contactCode);
 
-   String create(ContactCreate contact);
+  String create(ContactCreate contact);
 
-   String edit(String contactCode, ContactCreate contact);
+  String edit(String contactCode, ContactCreate contact);
 }

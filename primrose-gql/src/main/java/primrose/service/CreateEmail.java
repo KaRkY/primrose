@@ -1,41 +1,32 @@
 package primrose.service;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import lombok.Builder;
+import lombok.Value;
+import lombok.experimental.Wither;
+
+@Value
+@Builder
+@Wither
+@JsonDeserialize(builder = CreateEmail.CreateEmailBuilder.class)
 public class CreateEmail {
 
-   @NotBlank
-   private final String type;
+  @NotBlank
+  private final String type;
 
-   @NotBlank
-   @javax.validation.constraints.Email
-   private final String  value;
-   private final Boolean primary;
+  @NotBlank
+  @Email
+  private final String  value;
+  private final Boolean primary;
 
-   @JsonCreator
-   public CreateEmail(
-      @JsonProperty("type") String type,
-      @JsonProperty("value") String value,
-      @JsonProperty("primary") Boolean primary) {
-      super();
-      this.type = type;
-      this.value = value;
-      this.primary = primary;
-   }
+  @JsonPOJOBuilder(withPrefix = "")
+  public static class CreateEmailBuilder {
 
-   public String getType() {
-      return type;
-   }
-
-   public String getValue() {
-      return value;
-   }
-
-   public Boolean getPrimary() {
-      return primary;
-   }
+  }
 
 }

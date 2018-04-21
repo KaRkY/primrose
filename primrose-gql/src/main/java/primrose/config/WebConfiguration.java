@@ -12,33 +12,33 @@ import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImplExporter;
 
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
-   private static Converter<String, String> CASE_CONVERT = CaseFormat.UPPER_CAMEL.converterTo(CaseFormat.LOWER_HYPHEN);
+  private static Converter<String, String> CASE_CONVERT = CaseFormat.UPPER_CAMEL.converterTo(CaseFormat.LOWER_HYPHEN);
 
-   @Bean
-   public MessageCodesResolver messageCode() {
-      return new MessageCodesResolver() {
+  @Bean
+  public MessageCodesResolver messageCode() {
+    return new MessageCodesResolver() {
 
-         @Override
-         public String[] resolveMessageCodes(String errorCode, String objectName, String field, Class<?> fieldType) {
-            String newCode = CASE_CONVERT.convert(errorCode);
-            return new String[] { String.join(".", newCode, objectName, field) };
-         }
+      @Override
+      public String[] resolveMessageCodes(String errorCode, String objectName, String field, Class<?> fieldType) {
+        String newCode = CASE_CONVERT.convert(errorCode);
+        return new String[] { String.join(".", newCode, objectName, field) };
+      }
 
-         @Override
-         public String[] resolveMessageCodes(String errorCode, String objectName) {
-            String newCode = CASE_CONVERT.convert(errorCode);
-            return new String[] { String.join(".", newCode, objectName) };
-         }
-      };
-   }
+      @Override
+      public String[] resolveMessageCodes(String errorCode, String objectName) {
+        String newCode = CASE_CONVERT.convert(errorCode);
+        return new String[] { String.join(".", newCode, objectName) };
+      }
+    };
+  }
 
-   @Bean
-   public static AutoJsonRpcServiceImplExporter exporter(ErrorResolver resolver) {
-      AutoJsonRpcServiceImplExporter exporter = new AutoJsonRpcServiceImplExporter();
-      exporter.setErrorResolver(resolver);
-      exporter.setShouldLogInvocationErrors(false);
-      exporter.setRethrowExceptions(false);
-      exporter.setRegisterTraceInterceptor(true);
-      return exporter;
-   }
+  @Bean
+  public static AutoJsonRpcServiceImplExporter exporter(ErrorResolver resolver) {
+    AutoJsonRpcServiceImplExporter exporter = new AutoJsonRpcServiceImplExporter();
+    exporter.setErrorResolver(resolver);
+    exporter.setShouldLogInvocationErrors(false);
+    exporter.setRethrowExceptions(false);
+    exporter.setRegisterTraceInterceptor(true);
+    return exporter;
+  }
 }

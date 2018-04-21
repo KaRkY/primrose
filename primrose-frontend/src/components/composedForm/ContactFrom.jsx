@@ -98,7 +98,13 @@ const CustomerForm = ({
               <Grid item xs={12} md={6}>
                 <Grid container spacing={16} direction="column" alignItems="stretch">
                   <Grid item>
-                    <FieldArray name="emails" label="Emails" push={mutators.push}>
+                    <FieldArray
+                      name="emails"
+                      label="Emails"
+                      push={mutators.push}
+                      initialValue={{
+                        type: emailTypes["home"] ? "home" : undefined,
+                      }}>
                       {({ fields }) =>
                         fields.map((name, index) => (
                           <Grid container spacing={16} key={name}>
@@ -127,7 +133,13 @@ const CustomerForm = ({
                   </Grid>
 
                   <Grid item>
-                    <FieldArray name="phones" label="Phone numbers" push={mutators.push}>
+                    <FieldArray
+                      name="phones"
+                      label="Phone numbers"
+                      push={mutators.push}
+                      initialValue={{
+                        type: phoneNumberTypes["home"] ? "home" : undefined,
+                      }}>
                       {({ fields }) =>
                         fields.map((name, index) => (
                           <Grid container spacing={16} key={name}>

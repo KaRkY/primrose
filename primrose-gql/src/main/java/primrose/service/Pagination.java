@@ -1,7 +1,8 @@
 package primrose.service;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -13,16 +14,22 @@ import lombok.experimental.Wither;
 @Value
 @Builder
 @Wither
-@JsonDeserialize(builder = Sort.SortBuilder.class)
-public class Sort {
+@JsonDeserialize(builder = Pagination.PaginationBuilder.class)
+public class Pagination {
 
   @NotNull
-  private final String property;
-  @Pattern(regexp = "asc|desc|ASC|DESC")
-  private final String direction;
+  @Min(0)
+  private final Integer page;
+
+  @NotNull
+  @Min(1)
+  private final Integer size;
+  @Valid
+  private final Sort    sort;
+  private final String  query;
 
   @JsonPOJOBuilder(withPrefix = "")
-  public static class SortBuilder {
+  public static class PaginationBuilder {
 
   }
 

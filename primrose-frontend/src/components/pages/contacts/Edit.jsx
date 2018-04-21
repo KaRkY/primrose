@@ -22,7 +22,7 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  goToContact: payload => dispatch(actions.contactPage({ contact: payload })),
+  handleSingle: payload => dispatch(actions.contactPage(payload)),
 });
 
 const enhance = compose(
@@ -33,7 +33,7 @@ const enhance = compose(
 const Content = ({
   classes,
   contact,
-  goToContact,
+  handleSingle,
   emailTypes,
   phoneNumberTypes,
 }) => (
@@ -42,7 +42,7 @@ const Content = ({
       onSubmit={values => {
         return actions.contactEditPromise(values)
           .then(result => {
-            goToContact(result);
+            handleSingle(result);
             return {};
           })
           .catch(error => console.error(error) || ({ [FORM_ERROR]: error }));

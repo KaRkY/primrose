@@ -1,4 +1,4 @@
-package primrose.service.contact;
+package primrose.service.account;
 
 import java.time.OffsetDateTime;
 
@@ -20,12 +20,12 @@ import primrose.service.PhoneFullDisplay;
 @Value
 @Builder
 @Wither
-@JsonDeserialize(builder = ContactFullDisplay.ContactFullDisplayBuilder.class)
-public class ContactFullDisplay {
+@JsonDeserialize(builder = AccountFullDisplay.AccountFullDisplayBuilder.class)
+public class AccountFullDisplay {
 
   private final String                          code;
   @NotBlank
-  private final String                          fullName;
+  private final String                          name;
   private final String                          description;
   @Valid
   @Singular
@@ -38,7 +38,7 @@ public class ContactFullDisplay {
   private final OffsetDateTime                  validTo;
 
   @JsonPOJOBuilder(withPrefix = "")
-  public static class ContactFullDisplayBuilder {
+  public static class AccountFullDisplayBuilder {
 
   }
 }

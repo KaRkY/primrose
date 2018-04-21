@@ -2,39 +2,29 @@ package primrose.service;
 
 import javax.validation.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import lombok.Builder;
+import lombok.Value;
+import lombok.experimental.Wither;
+
+@Value
+@Builder
+@Wither
+@JsonDeserialize(builder = CreatePhone.CreatePhoneBuilder.class)
 public class CreatePhone {
 
-   @NotBlank
-   private final String type;
+  @NotBlank
+  private final String type;
 
-   @NotBlank
-   private final String  value;
-   private final Boolean primary;
+  @NotBlank
+  private final String  value;
+  private final Boolean primary;
 
-   @JsonCreator
-   public CreatePhone(
-      @JsonProperty("type") String type,
-      @JsonProperty("value") String value,
-      @JsonProperty("primary") Boolean primary) {
-      super();
-      this.type = type;
-      this.value = value;
-      this.primary = primary;
-   }
+  @JsonPOJOBuilder(withPrefix = "")
+  public static class CreatePhoneBuilder {
 
-   public String getType() {
-      return type;
-   }
-
-   public String getValue() {
-      return value;
-   }
-
-   public Boolean getPrimary() {
-      return primary;
-   }
+  }
 
 }

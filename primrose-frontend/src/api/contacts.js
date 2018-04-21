@@ -60,9 +60,9 @@ export const paged = props => {
     dispatch(actions.contactsLoad());
     axios.post(apiUrl, {
       jsonrpc: "2.0",
-      method: "search",
+      method: "list",
       params: {
-        search: location.getCurrentPagination(state),
+        pagination: location.getCurrentPagination(state),
       },
       id: Date.now(),
     })

@@ -5,8 +5,8 @@ import java.util.Set;
 import com.googlecode.jsonrpc4j.JsonRpcParam;
 import com.googlecode.jsonrpc4j.JsonRpcService;
 
-import primrose.service.Search;
-import primrose.service.SearchResult;
+import primrose.service.ListResult;
+import primrose.service.Pagination;
 import primrose.service.contact.ContactCreate;
 import primrose.service.contact.ContactFullDisplay;
 import primrose.service.contact.ContactReducedDisplay;
@@ -14,15 +14,15 @@ import primrose.service.contact.ContactReducedDisplay;
 @JsonRpcService("/contacts")
 public interface ContactsRpc {
 
-   SearchResult<ContactReducedDisplay> search(@JsonRpcParam("search") Search search);
+  ListResult<ContactReducedDisplay> list(@JsonRpcParam("pagination") Pagination pagination);
 
-   String create(@JsonRpcParam("contact") ContactCreate contact);
+  String create(@JsonRpcParam("contact") ContactCreate contact);
 
-   ContactFullDisplay get(@JsonRpcParam("contactCode") String contactCode);
+  ContactFullDisplay get(@JsonRpcParam("contactCode") String contactCode);
 
-   String delete(@JsonRpcParam("contactCode") String contactCode);
+  String delete(@JsonRpcParam("contactCode") String contactCode);
 
-   Set<String> delete(@JsonRpcParam("contactCodes") Set<String> contactCodes);
+  Set<String> delete(@JsonRpcParam("contactCodes") Set<String> contactCodes);
 
-   String edit(@JsonRpcParam("contactCode") String contactCode, @JsonRpcParam("contact") ContactCreate contact);
+  String edit(@JsonRpcParam("contactCode") String contactCode, @JsonRpcParam("contact") ContactCreate contact);
 }

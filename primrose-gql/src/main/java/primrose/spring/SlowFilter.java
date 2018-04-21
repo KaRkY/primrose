@@ -19,29 +19,29 @@ import org.springframework.core.annotation.Order;
 // @Component
 public class SlowFilter implements Filter {
 
-   private Random random;
+  private Random random;
 
-   @Override
-   public void init(final FilterConfig filterConfig) throws ServletException {
-      random = new Random();
-   }
+  @Override
+  public void init(final FilterConfig filterConfig) throws ServletException {
+    random = new Random();
+  }
 
-   @Override
-   public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
+  @Override
+  public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
       throws IOException, ServletException {
-      final int delay = random.nextInt(2000) + 500;
+    final int delay = random.nextInt(2000) + 500;
 
-      try {
-         Thread.sleep(delay);
-      } catch (final InterruptedException e) {
-         throw new ServletException(e);
-      }
+    try {
+      Thread.sleep(delay);
+    } catch (final InterruptedException e) {
+      throw new ServletException(e);
+    }
 
-      chain.doFilter(request, response);
-   }
+    chain.doFilter(request, response);
+  }
 
-   @Override
-   public void destroy() {
-   }
+  @Override
+  public void destroy() {
+  }
 
 }

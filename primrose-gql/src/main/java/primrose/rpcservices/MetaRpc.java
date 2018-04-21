@@ -9,17 +9,17 @@ import primrose.service.MetaType;
 @JsonRpcService("/meta")
 public interface MetaRpc {
 
-   List<MetaType> customer();
+  List<MetaType> customer();
 
-   List<MetaType> customerRelation();
+  List<MetaType> customerRelation();
 
-   List<MetaType> address();
+  List<MetaType> address();
 
-   List<MetaType> phoneNumber();
+  List<MetaType> phoneNumber();
 
-   List<MetaType> email();
+  List<MetaType> email();
 
-   List<MetaType> contact();
+  List<MetaType> contact();
 
-   List<MetaType> meeting();
+  List<MetaType> meeting();
 }

@@ -1,4 +1,4 @@
-package primrose.service;
+package primrose.service.account;
 
 import javax.validation.constraints.NotBlank;
 
@@ -12,16 +12,17 @@ import lombok.experimental.Wither;
 @Value
 @Builder
 @Wither
-@JsonDeserialize(builder = MetaType.MetaTypeBuilder.class)
-public class MetaType {
+@JsonDeserialize(builder = AccountReducedDisplay.AccountReducedDisplayBuilder.class)
+public class AccountReducedDisplay {
 
-  @NotBlank
-  private final String slug;
+  private final String code;
   @NotBlank
   private final String name;
+  private final String primaryEmail;
+  private final String primaryPhone;
 
   @JsonPOJOBuilder(withPrefix = "")
-  public static class MetaTypeBuilder {
+  public static class AccountReducedDisplayBuilder {
 
   }
 

@@ -7,8 +7,8 @@ import primrose.service.MetaType;
 
 public interface MetaRepository {
 
-   List<MetaType> list(MetaTypes type);
+  List<MetaType> list(MetaTypes type);
 
-   boolean contains(MetaTypes type, String value);
+  boolean contains(MetaTypes type, String value);
 
 }

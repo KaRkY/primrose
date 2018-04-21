@@ -1,4 +1,4 @@
-package primrose.service.contact;
+package primrose.service.account;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -17,11 +17,11 @@ import primrose.service.CreatePhone;
 @Value
 @Builder
 @Wither
-@JsonDeserialize(builder = ContactCreate.ContactCreateBuilder.class)
-public class ContactCreate {
+@JsonDeserialize(builder = AccountCreate.AccountCreateBuilder.class)
+public class AccountCreate {
 
   @NotBlank
-  private final String                     fullName;
+  private final String                     name;
   private final String                     description;
   @Valid
   @Singular
@@ -31,7 +31,7 @@ public class ContactCreate {
   private final ImmutableList<CreatePhone> phones;
 
   @JsonPOJOBuilder(withPrefix = "")
-  public static class ContactCreateBuilder {
+  public static class AccountCreateBuilder {
 
   }
 

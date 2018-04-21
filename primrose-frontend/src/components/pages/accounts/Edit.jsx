@@ -32,7 +32,7 @@ const mapState = (state, props) => ({
 
 
 const mapDispatchTo = dispatch => ({
-  goToCustomer: payload => dispatch(actions.customerPage({ id: payload })),
+  handleSingle: payload => dispatch(actions.customerPage(payload)),
 });
 
 const enhance = compose(
@@ -43,7 +43,7 @@ const enhance = compose(
 const Content = ({
   classes,
   customer,
-  goToCustomer,
+  handleSingle,
   customerTypes,
   customerRelationTypes,
   emailTypes,

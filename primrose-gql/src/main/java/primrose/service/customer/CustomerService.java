@@ -1,15 +1,15 @@
 package primrose.service.customer;
 
-import primrose.service.Search;
-import primrose.service.SearchResult;
+import primrose.service.ListResult;
+import primrose.service.Pagination;
 
 public interface CustomerService {
 
-   SearchResult<CustomerReducedDisplay> search(Search search);
+  ListResult<CustomerReducedDisplay> list(Pagination search);
 
-   CustomerFullDisplay get(String customerCode);
+  CustomerFullDisplay get(String customerCode);
 
-   String create(CustomerCreate customer);
+  String create(CustomerCreate customer);
 
-   String edit(String customerCode, CustomerCreate customer);
+  String edit(String customerCode, CustomerCreate customer);
 }

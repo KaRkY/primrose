@@ -6,6 +6,7 @@ const createCreateActions = entity => {
   const create = createAction(`${entity}_CREATE`);
   const createFinished = createAction(`${entity}_CREATE_FINISHED`);
   const createError = createAction(`${entity}_CREATE_ERROR`);
+  const self = {};
 
   return [
     create,
@@ -19,7 +20,7 @@ const createCreateActions = entity => {
       });
 
       return this.promiseListener.asyncFunction(...arguments);
-    }).bind(this),
+    }).bind(self),
   ];
 };
 
@@ -27,12 +28,13 @@ const createEditActions = entity => {
   const edit = createAction(`${entity}_EDIT`);
   const editFinished = createAction(`${entity}_EDIT_FINISHED`);
   const editError = createAction(`${entity}_EDIT_ERROR`);
+  const self = {};
 
   return [
     edit,
     editFinished,
     editError,
-    function () {
+    (function () {
       if (!this.promiseListener) this.promiseListener = promiseListener({
         start: edit,
         resolve: editFinished,
@@ -40,7 +42,7 @@ const createEditActions = entity => {
       });
 
       return this.promiseListener.asyncFunction(...arguments);
-    }
+    }).bind(self),
   ];
 };
 
@@ -48,12 +50,13 @@ const createDeleteActions = (entity, property) => {
   const del = createAction(`${entity}_DELETE`);
   const delFinished = createAction(`${entity}_DELETE_FINISHED`);
   const delError = createAction(`${entity}_DELETE_ERROR`);
+  const self = {};
 
   return [
     del,
     delFinished,
     delError,
-    function () {
+    (function () {
       if (!this.promiseListener) this.promiseListener = promiseListener({
         start: del,
         resolve: delFinished,
@@ -61,7 +64,7 @@ const createDeleteActions = (entity, property) => {
       });
 
       return this.promiseListener.asyncFunction(...arguments);
-    }
+    }).bind(self),
   ];
 };
 
@@ -69,12 +72,13 @@ const createLoadActions = entity => {
   const load = createAction(`${entity}_LOAD`);
   const loadFinished = createAction(`${entity}_LOAD_FINISHED`);
   const loadError = createAction(`${entity}_LOAD_ERROR`);
+  const self = {};
 
   return [
     load,
     loadFinished,
     loadError,
-    function () {
+    (function () {
       if (!this.promiseListener) this.promiseListener = promiseListener({
         start: load,
         resolve: loadFinished,
@@ -82,7 +86,7 @@ const createLoadActions = entity => {
       });
 
       return this.promiseListener.asyncFunction(...arguments);
-    }
+    }).bind(self),
   ];
 };
 
@@ -124,6 +128,9 @@ export const [customerTypesLoad, customerTypesLoadFinished, customerTypesLoadErr
 export const [customerRelationTypesLoad, customerRelationTypesLoadFinished, customerRelationTypesLoadError] = createLoadActions("CUSTOMER_RELATION_TYPES");
 export const [emailTypesLoad, emailTypesLoadFinished, emailTypesLoadError] = createLoadActions("EMAIL_TYPES");
 export const [phoneNumberTypesLoad, phoneNumberTypesLoadFinished, phoneNumberTypesLoadError] = createLoadActions("PHONE_NUMBER_TYPES");
+
+export const testsPage = createAction("TESTS_PAGE", (customer, { force, ...query } = {}) => ({ customer, query, force }));
+export const [testsLoad, testsLoadFinished, testsLoadError, testLoadPromise] = createLoadActions("TESTS");
 
 export const errorPage = createAction("ERROR_PAGE");
 
