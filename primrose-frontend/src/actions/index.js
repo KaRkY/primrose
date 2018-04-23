@@ -98,6 +98,7 @@ export const customerPageNew = createAction("CUSTOMER_PAGE_NEW");
 export const customerPageEdit = createAction("CUSTOMER_PAGE_EDIT", customer => ({ customer }));
 export const [customerCreate, customerCreateFinished, customerCreateError, customerCreatePromise] = createCreateActions("CUSTOMER");
 export const [customersLoad, customersLoadFinished, customersLoadError, customersLoadPromise] = createLoadActions("CUSTOMERS");
+export const [customerCreateContactsLoad, customerCreateContactsFinished, customerCreateContactsError, customerCreateContactsPromise] = createLoadActions("CUSTOMER_CREATE_CONTACTS");
 export const [customerLoad, customerLoadFinished, customerLoadError, customerLoadPromise] = createLoadActions("CUSTOMER");
 export const [customerEdit, customerEditFinished, customerEditError, customerEditPromise] = createEditActions("CUSTOMER");
 export const [customersDeactivate, customersDeactivateFinished, customersDeactivateError, customerDeactivatePromise] = createDeactivateActions("CUSTOMERS", "customers");

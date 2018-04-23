@@ -37,6 +37,7 @@ public class CustomErrorResolver implements ErrorResolver {
 
       return new JsonError(-32600, "Invalid Request", hashMap);
     }
+
     return null;
   }
 

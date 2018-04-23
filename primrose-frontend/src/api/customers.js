@@ -4,12 +4,13 @@ import * as location from "../store/location";
 import convertError from "../util/convertError";
 import shouldReloadPageData from "../util/shouldReloadPageData";
 
-const apiUrl = "/customers";
+const customersApiURL = "/customers";
+const contactsApiURL = "/contacts";
 
 export const create = props => {
   const { dispatch, action } = props;
 
-  axios.post(apiUrl, {
+  axios.post(customersApiURL, {
     jsonrpc: "2.0",
     method: "create",
     params: {
@@ -24,9 +25,9 @@ export const create = props => {
 export const deactivate = props => {
   const { dispatch, action } = props;
 
-  axios.post(apiUrl, {
+  axios.post(customersApiURL, {
     jsonrpc: "2.0",
-    method: "deactivate",
+    method: "delete",
     params: Array.isArray(action.payload) ? {
       customerCodes: action.payload
     } : {
@@ -41,9 +42,9 @@ export const deactivate = props => {
 export const edit = props => {
   const { dispatch, state, action } = props;
 
-  axios.post(apiUrl, {
+  axios.post(customersApiURL, {
     jsonrpc: "2.0",
-    method: "edit",
+    method: "update",
     params: {
       customerCode: location.getCurrentData(state).customer,
       customer: action.payload,
@@ -58,7 +59,7 @@ export const paged = props => {
   const { dispatch, state, action, isLoading, } = props;
   if (shouldReloadPageData(state, action, isLoading)) {
     dispatch(actions.customersLoad());
-    axios.post(apiUrl, {
+    axios.post(customersApiURL, {
       jsonrpc: "2.0",
       method: "list",
       params: {
@@ -75,7 +76,7 @@ export const single = props => {
   const { dispatch, state } = props;
 
   dispatch(actions.customerLoad());
-  axios.post(apiUrl, {
+  axios.post(customersApiURL, {
     jsonrpc: "2.0",
     method: "get",
     params: {

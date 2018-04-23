@@ -16,7 +16,6 @@ import lombok.experimental.Wither;
 @JsonDeserialize(builder = EmailFullDisplay.EmailFullDisplayBuilder.class)
 public class EmailFullDisplay {
 
-  private final long   id;
   @NotBlank
   private final String type;
 

@@ -39,8 +39,7 @@ public class CustomerFullDisplay {
   @Singular
   private final ImmutableList<PhoneFullDisplay> phones;
   @NotNull
-  private final OffsetDateTime                  validFrom;
-  private final OffsetDateTime                  validTo;
+  private final OffsetDateTime                  version;
 
   @JsonPOJOBuilder(withPrefix = "")
   public static class CustomerFullDisplayBuilder {

@@ -10,6 +10,7 @@ import primrose.rpcservices.ContactsRpc;
 import primrose.service.ListResult;
 import primrose.service.Pagination;
 import primrose.service.contact.ContactCreate;
+import primrose.service.contact.ContactEdit;
 import primrose.service.contact.ContactFullDisplay;
 import primrose.service.contact.ContactReducedDisplay;
 import primrose.service.contact.ContactService;
@@ -28,17 +29,26 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
+  public String create(ContactCreate contact) {
+    validationSupport.validate("data", contact);
+
+    return contactService.create(contact);
+  }
+
+  @Override
+  public String update(String contactCode, ContactEdit contact) {
+    validationSupport.validate("data", contact);
+
+    contactService.update(contactCode, contact);
+
+    return contactCode;
+  }
+
+  @Override
   public ListResult<ContactReducedDisplay> list(Pagination pagination) {
     validationSupport.validate("pagination", pagination);
 
     return contactService.list(pagination);
-  }
-
-  @Override
-  public String create(ContactCreate contact) {
-    validationSupport.validate("contact", contact);
-
-    return contactService.create(contact);
   }
 
   @Override
@@ -47,22 +57,15 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public String deactivate(String contactCode) {
-    System.out.println(contactCode);
+  public String delete(String contactCode) {
+    contactService.delete(contactCode);
     return contactCode;
   }
 
   @Override
-  public Set<String> deactivate(Set<String> contactCodes) {
-    System.out.println(contactCodes);
+  public Set<String> delete(Set<String> contactCodes) {
+    contactService.delete(contactCodes);
     return contactCodes;
-  }
-
-  @Override
-  public String edit(String contactCode, ContactCreate contact) {
-    validationSupport.validate("data", contact);
-
-    return contactService.edit(contactCode, contact);
   }
 
 }

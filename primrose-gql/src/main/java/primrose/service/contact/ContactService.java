@@ -1,15 +1,22 @@
 package primrose.service.contact;
 
+import java.util.Set;
+
 import primrose.service.ListResult;
 import primrose.service.Pagination;
 
 public interface ContactService {
 
+  String create(ContactCreate customer);
+
+  void update(String code, ContactEdit contact);
+
   ListResult<ContactReducedDisplay> list(Pagination pagination);
 
-  ContactFullDisplay get(String contactCode);
+  ContactFullDisplay get(String code);
 
-  String create(ContactCreate contact);
+  void delete(String code);
 
-  String edit(String contactCode, ContactCreate contact);
+  void delete(Set<String> codes);
+
 }

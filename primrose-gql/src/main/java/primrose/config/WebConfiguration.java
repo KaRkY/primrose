@@ -36,9 +36,10 @@ public class WebConfiguration implements WebMvcConfigurer {
   public static AutoJsonRpcServiceImplExporter exporter(ErrorResolver resolver) {
     AutoJsonRpcServiceImplExporter exporter = new AutoJsonRpcServiceImplExporter();
     exporter.setErrorResolver(resolver);
-    exporter.setShouldLogInvocationErrors(false);
+    exporter.setShouldLogInvocationErrors(true);
     exporter.setRethrowExceptions(false);
     exporter.setRegisterTraceInterceptor(true);
+    exporter.setAllowLessParams(true);
     return exporter;
   }
 }

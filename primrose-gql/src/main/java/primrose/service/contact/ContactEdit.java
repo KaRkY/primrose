@@ -14,30 +14,30 @@ import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
 import lombok.experimental.Wither;
-import primrose.service.EmailFullDisplay;
-import primrose.service.PhoneFullDisplay;
+import primrose.service.CreateEmail;
+import primrose.service.CreatePhone;
 
 @Value
 @Builder
 @Wither
-@JsonDeserialize(builder = ContactFullDisplay.ContactFullDisplayBuilder.class)
-public class ContactFullDisplay {
+@JsonDeserialize(builder = ContactEdit.ContactEditBuilder.class)
+public class ContactEdit {
 
-  private final String                          code;
   @NotBlank
-  private final String                          fullName;
-  private final String                          description;
+  private final String                     fullName;
+  private final String                     description;
   @Valid
   @Singular
-  private final ImmutableList<EmailFullDisplay> emails;
+  private final ImmutableList<CreateEmail> emails;
   @Valid
   @Singular
-  private final ImmutableList<PhoneFullDisplay> phones;
+  private final ImmutableList<CreatePhone> phones;
   @NotNull
-  private final OffsetDateTime                  version;
+  private final OffsetDateTime             version;
 
   @JsonPOJOBuilder(withPrefix = "")
-  public static class ContactFullDisplayBuilder {
+  public static class ContactEditBuilder {
 
   }
+
 }

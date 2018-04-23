@@ -1,28 +1,29 @@
 package primrose.data;
 
+import java.util.Set;
+
 import com.google.common.collect.ImmutableList;
 
-import primrose.service.CodeId;
 import primrose.service.Pagination;
 import primrose.service.contact.ContactCreate;
+import primrose.service.contact.ContactEdit;
 import primrose.service.contact.ContactFullDisplay;
 import primrose.service.contact.ContactReducedDisplay;
 
 public interface ContactRepository {
 
-  CodeId generateCode();
+  String create(ContactCreate contact);
 
-  CodeId codeId(String code);
+  void update(String code, ContactEdit contact);
 
-  void create(CodeId code, ContactCreate contact);
+  ImmutableList<ContactReducedDisplay> list(Pagination pagination);
 
-  ImmutableList<ContactReducedDisplay> list(Pagination search);
+  long count(Pagination pagination);
 
-  long count(Pagination search);
+  ContactFullDisplay get(String code);
 
-  ContactFullDisplay get(CodeId code);
+  void delete(String code);
 
-  ContactFullDisplay getForUpdate(CodeId code);
+  void delete(Set<String> codes);
 
-  void deactivate(CodeId code);
 }

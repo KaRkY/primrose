@@ -26,7 +26,7 @@ export const deactivate = props => {
 
   axios.post(apiUrl, {
     jsonrpc: "2.0",
-    method: "deactivate",
+    method: "delete",
     params: Array.isArray(action.payload) ? {
       accountIds: action.payload
     } : {
@@ -43,7 +43,7 @@ export const edit = props => {
 
   axios.post(apiUrl, {
     jsonrpc: "2.0",
-    method: "edit",
+    method: "update",
     params: {
       customerId: parseInt(location.getCurrentData(state).customer, 10),
       accountId: parseInt(location.getCurrentData(state).account, 10),
