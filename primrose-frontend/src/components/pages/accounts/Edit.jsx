@@ -4,19 +4,13 @@ import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
 
 import CustomerForm from "../../composedForm/CustomerForm";
-import promiseListener from "../../../store/promiseListener";
 
 import { FORM_ERROR } from "final-form";
 
 import * as actions from "../../../actions";
+import * as location from "../../../store/location";
 import customers from "../../../store/customers";
 import meta from "../../../store/meta";
-
-const createCustomer = promiseListener.createAsyncFunction({
-  start: actions.customerCreate.toString(),
-  resolve: actions.customerCreateFinished.toString(),
-  reject: actions.customerCreateError.toString(),
-});
 
 const contentStyle = theme => ({
 
@@ -24,6 +18,7 @@ const contentStyle = theme => ({
 
 const mapState = (state, props) => ({
   customer: customers.single.getData(state),
+  customerId: location.getCurrentData(state).customer,
   customerTypes: meta.customerTypes.getData(state),
   customerRelationTypes: meta.customerRelationTypes.getData(state),
   emailTypes: meta.emailTypes.getData(state),
@@ -43,6 +38,7 @@ const enhance = compose(
 const Content = ({
   classes,
   customer,
+  customerId,
   handleSingle,
   customerTypes,
   customerRelationTypes,
@@ -51,7 +47,14 @@ const Content = ({
 }) => (
     <CustomerForm
       initialValues={customer}
-      onSubmit={console.log}
+      onSubmit={values => {
+        return actions.customerEditPromise(values)
+          .then(result => {
+            handleSingle(result);
+            return {};
+          })
+          .catch(error => console.error(error) || ({ [FORM_ERROR]: error }));
+      }}
       customerTypes={customerTypes}
       customerRelationTypes={customerRelationTypes}
       emailTypes={emailTypes}

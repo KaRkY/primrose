@@ -26,9 +26,9 @@ const { reducers, selectors, async } = createFullEntity({
     contact: action.payload
   }),
 
-  deleteAction: actions.contactsDelete,
-  deleteFinishedAction: actions.contactsDeleteFinished,
-  deleteErrorAction: actions.contactsDeleteError,
+  deleteAction: actions.contactsDeactivate,
+  deleteFinishedAction: actions.contactsDeactivateFinished,
+  deleteErrorAction: actions.contactsDeactivateError,
   deleteApiParameters: ({
     action
   }) => Array.isArray(action.payload.contacts) ? {

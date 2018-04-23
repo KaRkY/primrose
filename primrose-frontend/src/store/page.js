@@ -15,7 +15,6 @@ const components = {
   [actions.contactPage]: "contacts/Single",
   [actions.contactPageNew]: "contacts/New",
   [actions.contactPageEdit]: "contacts/Edit",
-  [actions.testsPage]: "tests/Test",
   [actions.notFound]: "PageError"
 }
 

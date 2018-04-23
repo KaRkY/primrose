@@ -46,10 +46,10 @@ const createEditActions = entity => {
   ];
 };
 
-const createDeleteActions = (entity, property) => {
-  const del = createAction(`${entity}_DELETE`);
-  const delFinished = createAction(`${entity}_DELETE_FINISHED`);
-  const delError = createAction(`${entity}_DELETE_ERROR`);
+const createDeactivateActions = (entity) => {
+  const del = createAction(`${entity}_DEACTIVATE`);
+  const delFinished = createAction(`${entity}_DEACTIVATE_FINISHED`);
+  const delError = createAction(`${entity}_DEACTIVATE_ERROR`);
   const self = {};
 
   return [
@@ -100,7 +100,7 @@ export const [customerCreate, customerCreateFinished, customerCreateError, custo
 export const [customersLoad, customersLoadFinished, customersLoadError, customersLoadPromise] = createLoadActions("CUSTOMERS");
 export const [customerLoad, customerLoadFinished, customerLoadError, customerLoadPromise] = createLoadActions("CUSTOMER");
 export const [customerEdit, customerEditFinished, customerEditError, customerEditPromise] = createEditActions("CUSTOMER");
-export const [customersDelete, customersDeleteFinished, customersDeleteError, customerDeletePromise] = createDeleteActions("CUSTOMERS", "customers");
+export const [customersDeactivate, customersDeactivateFinished, customersDeactivateError, customerDeactivatePromise] = createDeactivateActions("CUSTOMERS", "customers");
 
 
 export const contactsPage = createAction("CONTACTS_PAGE", ({ force, ...query } = {}) => ({ query, force }));
@@ -111,7 +111,7 @@ export const [contactCreate, contactCreateFinished, contactCreateError, contactC
 export const [contactLoad, contactLoadFinished, contactLoadError, contactsLoadPromise] = createLoadActions("CONTACT");
 export const [contactsLoad, contactsLoadFinished, contactsLoadError, contactLoadPromise] = createLoadActions("CONTACTS");
 export const [contactEdit, contactEditFinished, contactEditError, contactEditPromise] = createEditActions("CONTACT");
-export const [contactsDelete, contactsDeleteFinished, contactsDeleteError, contactDeletePromise] = createDeleteActions("CONTACT", "contacts");
+export const [contactsDeactivate, contactsDeactivateFinished, contactsDeactivateError, contactDeactivatePromise] = createDeactivateActions("CONTACT", "contacts");
 
 export const accountsPage = createAction("ACCOUNTS_PAGE", (customer, { force, ...query } = {}) => ({ customer, query, force }));
 export const accountPage = createAction("ACCOUNT_PAGE", (customer, account) => ({ customer, account }));
@@ -121,16 +121,13 @@ export const [accountCreate, accountCreateFinished, accountCreateError, accountC
 export const [accountLoad, accountLoadFinished, accountLoadError, accountsLoadPromise] = createLoadActions("ACCOUNT");
 export const [accountsLoad, accountsLoadFinished, accountsLoadError, accountLoadPromise] = createLoadActions("ACCOUNTS");
 export const [accountEdit, accountEditFinished, accountEditError, accountEditPromise] = createEditActions("ACCOUNT");
-export const [accountsDelete, accountsDeleteFinished, accountsDeleteError, accountDeletePromise] = createDeleteActions("ACCOUNT", "accounts");
+export const [accountsDeactivate, accountsDeactivateFinished, accountsDeactivateError, accountDeactivatePromise] = createDeactivateActions("ACCOUNT", "accounts");
 
 
 export const [customerTypesLoad, customerTypesLoadFinished, customerTypesLoadError] = createLoadActions("CUSTOMER_TYPES");
 export const [customerRelationTypesLoad, customerRelationTypesLoadFinished, customerRelationTypesLoadError] = createLoadActions("CUSTOMER_RELATION_TYPES");
 export const [emailTypesLoad, emailTypesLoadFinished, emailTypesLoadError] = createLoadActions("EMAIL_TYPES");
 export const [phoneNumberTypesLoad, phoneNumberTypesLoadFinished, phoneNumberTypesLoadError] = createLoadActions("PHONE_NUMBER_TYPES");
-
-export const testsPage = createAction("TESTS_PAGE", (customer, { force, ...query } = {}) => ({ customer, query, force }));
-export const [testsLoad, testsLoadFinished, testsLoadError, testLoadPromise] = createLoadActions("TESTS");
 
 export const errorPage = createAction("ERROR_PAGE");
 

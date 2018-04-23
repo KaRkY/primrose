@@ -21,21 +21,21 @@ export const create = props => {
     .catch(error => dispatch(actions.accountCreateError(convertError(error))));
 };
 
-export const remove = props => {
+export const deactivate = props => {
   const { dispatch, action } = props;
 
   axios.post(apiUrl, {
     jsonrpc: "2.0",
-    method: "delete",
-    params: Array.isArray(action.payload.accounts) ? {
-      accountIds: action.payload.accounts
+    method: "deactivate",
+    params: Array.isArray(action.payload) ? {
+      accountIds: action.payload
     } : {
-        accountId: action.payload.accounts
+        accountId: action.payload
       },
     id: Date.now(),
   })
-    .then(result => dispatch(actions.accountsDeleteFinished(result.data.result)))
-    .catch(error => dispatch(actions.accountsDeleteError(convertError(error))));
+    .then(result => dispatch(actions.accountsDeactivateFinished(result.data.result)))
+    .catch(error => dispatch(actions.accountsDeactivateError(convertError(error))));
 };
 
 export const edit = props => {

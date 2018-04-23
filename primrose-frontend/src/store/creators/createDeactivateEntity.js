@@ -3,19 +3,19 @@ import { createSelector } from "reselect";
 
 export default ({
   baseAction,
-  deletedAction,
+  deactivatedAction,
   errorAction,
   rootSelector,
 }) => {
   const loading = handleActions({
     [baseAction]: () => true,
-    [deletedAction]: () => false,
+    [deactivatedAction]: () => false,
     [errorAction]: () => false,
   }, false);
 
   const error = handleActions({
     [baseAction]: () => null,
-    [deletedAction]: () => null,
+    [deactivatedAction]: () => null,
     [errorAction]: (state, action) => action.payload,
   }, null);
 

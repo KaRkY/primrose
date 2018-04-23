@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
 
 import ContactForm from "../../composedForm/ContactFrom";
-
 import { FORM_ERROR } from "final-form";
 
 import * as actions from "../../../actions";
@@ -30,22 +29,24 @@ const enhance = compose(
 
 const Content = ({
   classes,
-  handleSingle,
   emailTypes,
   phoneNumberTypes,
+  handleSingle,
 }) => (
-    <ContactForm 
-      onSubmit={values => {
-        return actions.contactCreatePromise(values)
-          .then(result => {
-            handleSingle(result);
-            return {};
-          })
-          .catch(error => ({ [FORM_ERROR]: error }));
-      }}
-      emailTypes={emailTypes}
-      phoneNumberTypes={phoneNumberTypes}
-    />
+    <React.Fragment>
+      <ContactForm
+        onSubmit={values => {
+          return actions.contactCreatePromise(values)
+            .then(result => {
+              handleSingle(result);
+              return {};
+            })
+            .catch(error => ({ [FORM_ERROR]: error }));
+        }}
+        emailTypes={emailTypes}
+        phoneNumberTypes={phoneNumberTypes}
+      />
+    </React.Fragment>
   );
 
 export default enhance(Content);

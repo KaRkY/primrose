@@ -14,5 +14,6 @@
   "files.eol": "\n",
   "workbench.startupEditor": "newUntitledFile",
   "explorer.openEditors.visible": 0,
+  "editor.renderWhitespace": "all", 
   "explorer.autoReveal": false
 }

@@ -1,5 +1,5 @@
 import createCreateEntity from "../creators/createCreateEntity";
-import createDeleteEntity from "../creators/createDeleteEntity";
+import createDeactivateEntity from "../creators/createDeactivateEntity";
 import createEditEntity from "../creators/createEditEntity";
 import createPagedEntity from "../creators/createPagedEntity";
 import createEntity from "../creators/createEntity";
@@ -13,9 +13,9 @@ export default ({
   editAction,
   editFinishedAction,
   editErrorAction,
-  deleteAction,
-  deleteFinishedAction,
-  deleteErrorAction,
+  deactivateAction,
+  deactivateFinishedAction,
+  deactivateErrorAction,
   loadSingleAction,
   loadSingleFinishedAction,
   loadSingleErrorAction,
@@ -38,11 +38,11 @@ export default ({
     rootSelector: createSelector(rootSelector, root => root.edit),
   });
 
-  const del = createDeleteEntity({
-    baseAction: deleteAction,
-    deletedAction: deleteFinishedAction,
-    errorAction: deleteErrorAction,
-    rootSelector: createSelector(rootSelector, root => root.delete),
+  const deactivate = createDeactivateEntity({
+    baseAction: deactivateAction,
+    deactivatedAction: deactivateFinishedAction,
+    errorAction: deactivateErrorAction,
+    rootSelector: createSelector(rootSelector, root => root.deactivate),
   });
 
   const paged = createPagedEntity({
@@ -63,7 +63,7 @@ export default ({
     reducers: {
       create: combineReducers({ ...create.reducers }),
       edit: combineReducers({ ...edit.reducers }),
-      delete: combineReducers({ ...del.reducers }),
+      deactivate: combineReducers({ ...deactivate.reducers }),
       paged: combineReducers({ ...paged.reducers }),
       single: combineReducers({ ...single.reducers }),
     },
@@ -71,7 +71,7 @@ export default ({
     selectors: {
       create: create.selectors,
       edit: edit.selectors,
-      delete: del.selectors,
+      deactivate: deactivate.selectors,
       paged: paged.selectors,
       single: single.selectors,
     },

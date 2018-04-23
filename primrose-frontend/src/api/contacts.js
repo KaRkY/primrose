@@ -21,21 +21,21 @@ export const create = props => {
     .catch(error => dispatch(actions.contactCreateError(convertError(error))));
 };
 
-export const remove = props => {
+export const deactivate = props => {
   const { dispatch, action } = props;
 
   axios.post(apiUrl, {
     jsonrpc: "2.0",
-    method: "delete",
-    params: Array.isArray(action.payload.contacts) ? {
-      contactCodes: action.payload.contacts
+    method: "deactivate",
+    params: Array.isArray(action.payload) ? {
+      contactCodes: action.payload
     } : {
-        contactCode: action.payload.contacts
+        contactCode: action.payload
       },
     id: Date.now(),
   })
-    .then(result => dispatch(actions.contactsDeleteFinished(result.data.result)))
-    .catch(error => dispatch(actions.contactsDeleteError(convertError(error))));
+    .then(result => dispatch(actions.contactsDeactivateFinished(result.data.result)))
+    .catch(error => dispatch(actions.contactsDeactivateError(convertError(error))));
 };
 
 export const edit = props => {

@@ -20,9 +20,9 @@ public interface CustomersRpc {
 
   CustomerFullDisplay get(@JsonRpcParam("customerCode") String customerCode);
 
-  String delete(@JsonRpcParam("customerCode") String customerCode);
+  String deactivate(@JsonRpcParam("customerCode") String customerCode);
 
-  Set<String> delete(@JsonRpcParam("customerCodes") Set<String> customerCodes);
+  Set<String> deactivate(@JsonRpcParam("customerCodes") Set<String> customerCodes);
 
   String edit(@JsonRpcParam("customerCode") String customerCode, @JsonRpcParam("customer") CustomerCreate customer);
 }

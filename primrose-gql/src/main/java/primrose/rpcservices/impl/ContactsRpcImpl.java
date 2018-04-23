@@ -42,27 +42,27 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public ContactFullDisplay get(String customerCode) {
-    return contactService.get(customerCode);
+  public ContactFullDisplay get(String contactCode) {
+    return contactService.get(contactCode);
   }
 
   @Override
-  public String delete(String customerCode) {
-    System.out.println(customerCode);
-    return "";
+  public String deactivate(String contactCode) {
+    System.out.println(contactCode);
+    return contactCode;
   }
 
   @Override
-  public Set<String> delete(Set<String> customerCodes) {
-    System.out.println(customerCodes);
-    return null;
+  public Set<String> deactivate(Set<String> contactCodes) {
+    System.out.println(contactCodes);
+    return contactCodes;
   }
 
   @Override
-  public String edit(String customerCode, ContactCreate contact) {
+  public String edit(String contactCode, ContactCreate contact) {
     validationSupport.validate("data", contact);
 
-    return contactService.edit(customerCode, contact);
+    return contactService.edit(contactCode, contact);
   }
 
 }

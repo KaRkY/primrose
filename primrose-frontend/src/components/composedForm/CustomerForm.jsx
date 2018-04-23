@@ -1,20 +1,35 @@
 import React from "react";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
+import withStateHandlers from "recompose/withStateHandlers";
 
 import Paper from "material-ui/Paper";
-import Button from "material-ui/Button";
 import IconButton from "material-ui/IconButton";
-import ClearIcon from "@material-ui/icons/Clear";
+import Tooltip from "material-ui/Tooltip";
+import AddIcon from "@material-ui/icons/Add";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import SearchIcon from "@material-ui/icons/Search";
+import DeleteIcon from "@material-ui/icons/Delete";
+import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import Toolbar from "material-ui/Toolbar";
 import Typography from "material-ui/Typography";
-import { InputAdornment } from "material-ui/Input";
 import Grid from "material-ui/Grid";
-import { Form } from "react-final-form";
+import { FieldArray } from "react-final-form-arrays";
 import TextField from "../Form/TextField";
+import RenderField from "../Form/RenderField";
 import MenuItem from "material-ui/Menu/MenuItem";
 import arrayMutators from "final-form-arrays";
-import FieldArray from "../Form/FieldArray";
+import SelectSearchList from "../Data/SelectSearchList";
+import Table, {
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
+} from "material-ui/Table";
+import DialogForm from "../Form/DialogForm";
+import SimpleForm from "../Form/SimpleForm";
+import EmailForm from "../composedForm/EmailForm";
+import PhoneForm from "../composedForm/PhoneForm";
 
 
 export const style = theme => ({
@@ -35,19 +50,39 @@ export const style = theme => ({
 });
 
 const enhance = compose(
+  withStateHandlers(
+    { emailInitialValue: {}, emailDialogOpen: false, phoneInitialValue: {}, phoneDialogOpen: false },
+    {
+      onOpenEmailForm: (state) => event => ({ ...state, emailDialogOpen: true }),
+      onCloseEmailForm: (state) => event => ({ ...state, emailDialogOpen: false }),
+      onOpenPhoneForm: (state) => event => ({ ...state, phoneDialogOpen: true }),
+      onClosePhoneForm: (state) => event => ({ ...state, phoneDialogOpen: false }),
+      setEmailInitialValue: state => value => ({ ...state, emailInitialValue: value }),
+      setPhoneInitialValue: state => value => ({ ...state, phoneInitialValue: value }),
+    }),
   withStyles(style),
 );
 
 const CustomerForm = ({
   classes,
   initialValues,
-  onSubmit,
   customerTypes,
   customerRelationTypes,
   emailTypes,
   phoneNumberTypes,
+  emailDialogOpen,
+  phoneDialogOpen,
+  emailInitialValue,
+  phoneInitialValue,
+  onOpenEmailForm,
+  onCloseEmailForm,
+  onOpenPhoneForm,
+  onClosePhoneForm,
+  onSubmit,
+  setEmailInitialValue,
+  setPhoneInitialValue,
 }) => (
-<Form
+    <SimpleForm
       initialValues={initialValues || {
         type: customerTypes["person"] ? "person" : undefined,
         relationType: customerRelationTypes["customer"] ? "customer" : undefined,
@@ -67,7 +102,7 @@ const CustomerForm = ({
         invalid,
         values,
       }) => (
-          <form onSubmit={handleSubmit} onReset={reset}>
+          <React.Fragment>
             <Grid container spacing={16}>
               {submitError &&
                 <Grid item xs={12}>
@@ -123,88 +158,162 @@ const CustomerForm = ({
               <Grid item xs={12} md={6}>
                 <Grid container spacing={16} direction="column" alignItems="stretch">
                   <Grid item>
-                    <FieldArray
-                      name="emails"
-                      label="Emails"
-                      push={mutators.push}
-                      initialValue={{
-                        type: emailTypes["home"] ? "home" : undefined,
-                      }}>
-                      {({ fields }) =>
-                        fields.map((name, index) => (
-                          <Grid container spacing={16} key={name}>
-                            <Grid item xs={3}>
-                              <TextField select name={`${name}.type`} label="Type" fullWidth>
-                                {Object.keys(emailTypes).map(key => (
-                                  <MenuItem key={key} value={key}>{emailTypes[key]}</MenuItem>
-                                ))}
-                              </TextField>
-                            </Grid>
-                            <Grid item xs={9}>
-                              <TextField name={`${name}.value`} label="Email" fullWidth
-                                InputProps={{
-                                  endAdornment: (
-                                    <InputAdornment position="end">
-                                      <IconButton onClick={() => mutators.remove("emails", index)}>
-                                        <ClearIcon />
-                                      </IconButton>
-                                    </InputAdornment>
-                                  )
-                                }} />
-                            </Grid>
-                          </Grid>
-                        ))}
-                    </FieldArray>
+                    <Paper elevation={2}>
+                      <Toolbar>
+                        <Typography variant="title">Emails</Typography>
+                        <div className={classes.grow} />
+                        <IconButton variant="raised" onClick={() => {
+                          setEmailInitialValue({});
+                          onOpenEmailForm();
+                        }}>
+                          <AddIcon />
+                        </IconButton>
+                      </Toolbar>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Type</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell padding="checkbox">Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          <FieldArray name="emails">{({ fields }) => fields.map(((name, index) => (
+                            <TableRow key={name}>
+                              <TableCell>
+                                <RenderField name={`${name}.type`} mapValue={value => emailTypes[value]} />
+                              </TableCell>
+                              <TableCell>
+                                <RenderField name={`${name}.value`} />
+                              </TableCell>
+                              <TableCell padding="checkbox">
+                                <IconButton onClick={() => {
+                                  setEmailInitialValue(fields.value[index]);
+                                  onOpenEmailForm();
+                                }}>
+                                  <OpenInNewIcon />
+                                </IconButton>
+                                <IconButton onClick={() => mutators.remove("emails", index)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          )))}</FieldArray>
+                        </TableBody>
+                      </Table>
+                    </Paper>
                   </Grid>
 
                   <Grid item>
-                    <FieldArray
-                      name="phones"
-                      label="Phone numbers"
-                      push={mutators.push}
-                      initialValue={{
-                        type: phoneNumberTypes["home"] ? "home" : undefined,
-                      }}>
-                      {({ fields }) =>
-                        fields.map((name, index) => (
-                          <Grid container spacing={16} key={name}>
-                            <Grid item xs={3} md={2}>
-                              <TextField select name={`${name}.type`} label="Type" fullWidth>
-                                {Object.keys(phoneNumberTypes).map(key => (
-                                  <MenuItem key={key} value={key}>{phoneNumberTypes[key]}</MenuItem>
-                                ))}
-                              </TextField>
-                            </Grid>
-                            <Grid item xs={9} md={10}>
-                              <TextField name={`${name}.value`} label="Phone" fullWidth
-                                InputProps={{
-                                  endAdornment: (
-                                    <InputAdornment position="end">
-                                      <IconButton onClick={() => mutators.remove("phoneNumbers", index)}>
-                                        <ClearIcon />
-                                      </IconButton>
-                                    </InputAdornment>
-                                  )
-                                }} />
-                            </Grid>
-                          </Grid>
-                        ))}
-                    </FieldArray>
+                    <Paper elevation={2}>
+                      <Toolbar>
+                        <Typography variant="title">Phones</Typography>
+                        <div className={classes.grow} />
+                        <IconButton variant="raised" onClick={onOpenPhoneForm}>
+                          <AddIcon />
+                        </IconButton>
+                      </Toolbar>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Type</TableCell>
+                            <TableCell>Phone</TableCell>
+                            <TableCell padding="checkbox">Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          <FieldArray name="phones">{({ fields }) => fields.map(((name, index) => (
+                            <TableRow key={index}>
+                              <TableCell>
+                                <RenderField name={`${name}.type`} mapValue={value => phoneNumberTypes[value]} />
+                              </TableCell>
+                              <TableCell>
+                                <RenderField name={`${name}.value`} />
+                              </TableCell>
+                              <TableCell padding="checkbox">
+                                <IconButton onClick={() => {
+                                  setPhoneInitialValue(fields.value[index]);
+                                  onOpenEmailForm();
+                                }}>
+                                  <OpenInNewIcon />
+                                </IconButton>
+                                <IconButton onClick={() => mutators.remove("phones", index)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          )))}</FieldArray>
+                        </TableBody>
+                      </Table>
+                    </Paper>
                   </Grid>
                 </Grid>
               </Grid>
 
-              <Grid item container spacing={16}>
-                <Grid item>
-                  <Button variant="raised" color="secondary" type="submit" disabled={submitting || pristine}>Submit</Button>
-                </Grid>
-                <Grid item>
-                  <Button variant="raised" type="reset" disabled={submitting}>Reset</Button>
-                </Grid>
+              <Grid item xs={12}>
+                <Paper>
+                  <Toolbar>
+                    <Typography variant="title">Contacts</Typography>
+                    <div className={classes.grow} />
+                    <Tooltip
+                      title={"New contact"}
+                      enterDelay={300}
+                    >
+                      <IconButton>
+                        <PersonAddIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip
+                      title={"Find Contact"}
+                      enterDelay={300}
+                    >
+                      <IconButton>
+                        <SearchIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Toolbar>
+                </Paper>
               </Grid>
             </Grid>
-          </form>
+
+            <DialogForm
+              title="Add Email"
+              onSubmit={(values, { close }) => {
+                mutators.push("emails", values);
+                close();
+              }}
+              open={emailDialogOpen}
+              onOpen={onOpenEmailForm}
+              onClose={onCloseEmailForm}
+              initialValues={emailInitialValue.type ? emailInitialValue : {
+                type: emailTypes["home"] ? "home" : undefined
+              }}
+              render={props =>
+                <EmailForm
+                  types={emailTypes}
+                  {...props}
+                />}
+            />
+            <DialogForm
+              title="Add Phone"
+              onSubmit={(values, { close }) => {
+                mutators.push("phones", values);
+                close();
+              }}
+              open={phoneDialogOpen}
+              onOpen={onOpenPhoneForm}
+              onClose={onClosePhoneForm}
+              initialValues={phoneInitialValue.type ? phoneInitialValue : {
+                type: phoneNumberTypes["home"] ? "home" : undefined
+              }}
+              render={props =>
+                <PhoneForm
+                  types={phoneNumberTypes}
+                  {...props}
+                />}
+            />
+          </React.Fragment>
         )} />
-);
+  );
 
 export default enhance(CustomerForm);

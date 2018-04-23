@@ -106,11 +106,11 @@ export default {
     thunk: (dispatch, getState, { action }) => customersApi.edit({ dispatch, state: getState(), action }),
   },
 
-  [actions.customersDelete]: {
-    thunk: (dispatch, getState, { action }) => customersApi.remove({ dispatch, state: getState(), action }),
+  [actions.customersDeactivate]: {
+    thunk: (dispatch, getState, { action }) => customersApi.deactivate({ dispatch, state: getState(), action }),
   },
 
-  [actions.accountsDelete]: {
+  [actions.accountsDeactivate]: {
 
   },
 
@@ -126,7 +126,7 @@ export default {
     thunk: (dispatch, getState, { action }) => contactsApi.edit({ dispatch, state: getState(), action }),
   },
 
-  [actions.contactsDelete]: {
-    thunk: (dispatch, getState, { action }) => contactsApi.remove({ dispatch, state: getState(), action }),
+  [actions.contactsDeactivate]: {
+    thunk: (dispatch, getState, { action }) => contactsApi.deactivate({ dispatch, state: getState(), action }),
   },
 };

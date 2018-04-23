@@ -26,7 +26,7 @@ const themes = {
 
 const render = (Main) => {
   ReactDOM.render((
-    <MuiThemeProvider theme={themes["indigoLightBlue" /*"purpleTeal"*/]}>
+    <MuiThemeProvider theme={themes[/*"indigoLightBlue"*/ "purpleTeal"]}>
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <Provider store={store}>
           <Main />

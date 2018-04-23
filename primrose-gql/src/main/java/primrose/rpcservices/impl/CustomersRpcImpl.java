@@ -49,15 +49,15 @@ public class CustomersRpcImpl implements CustomersRpc {
   }
 
   @Override
-  public String delete(String customerCode) {
+  public String deactivate(String customerCode) {
     System.out.println(customerCode);
-    return "";
+    return customerCode;
   }
 
   @Override
-  public Set<String> delete(Set<String> customerCodes) {
+  public Set<String> deactivate(Set<String> customerCodes) {
     System.out.println(customerCodes);
-    return null;
+    return customerCodes;
   }
 
   @Override

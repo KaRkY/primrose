@@ -20,9 +20,9 @@ public interface ContactsRpc {
 
   ContactFullDisplay get(@JsonRpcParam("contactCode") String contactCode);
 
-  String delete(@JsonRpcParam("contactCode") String contactCode);
+  String deactivate(@JsonRpcParam("contactCode") String contactCode);
 
-  Set<String> delete(@JsonRpcParam("contactCodes") Set<String> contactCodes);
+  Set<String> deactivate(@JsonRpcParam("contactCodes") Set<String> contactCodes);
 
   String edit(@JsonRpcParam("contactCode") String contactCode, @JsonRpcParam("contact") ContactCreate contact);
 }

@@ -13,9 +13,9 @@ const { reducers, selectors, async } = createFullEntity({
   editFinishedAction: actions.customerEditFinished,
   editErrorAction: actions.customerEditError,
 
-  deleteAction: actions.customersDelete,
-  deleteFinishedAction: actions.customersDeleteFinished,
-  deleteErrorAction: actions.customersDeleteError,
+  deleteAction: actions.customersDeactivate,
+  deleteFinishedAction: actions.customersDeactivateFinished,
+  deleteErrorAction: actions.customersDeactivateError,
 
   loadSingleAction: actions.customerLoad,
   loadSingleFinishedAction: actions.customerLoadFinished,

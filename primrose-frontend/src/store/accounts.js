@@ -30,9 +30,9 @@ const { reducers, selectors, async } = createFullEntity({
     account: action.payload
   }),
 
-  deleteAction: actions.accountsDelete,
-  deleteFinishedAction: actions.accountsDeleteFinished,
-  deleteErrorAction: actions.accountsDeleteError,
+  deleteAction: actions.accountsDeactivate,
+  deleteFinishedAction: actions.accountsDeactivateFinished,
+  deleteErrorAction: actions.accountsDeactivateError,
   deleteApiParameters: ({
     action,
     state,
