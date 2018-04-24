@@ -10,9 +10,9 @@ import primrose.rpcservices.CustomersRpc;
 import primrose.service.ListResult;
 import primrose.service.Pagination;
 import primrose.service.customer.CustomerCreate;
-import primrose.service.customer.CustomerEdit;
+import primrose.service.customer.Customer;
 import primrose.service.customer.CustomerFullDisplay;
-import primrose.service.customer.CustomerReducedDisplay;
+import primrose.service.customer.CustomerPreview;
 import primrose.service.customer.CustomerService;
 import primrose.spring.ValidationSupport;
 
@@ -36,7 +36,7 @@ public class CustomersRpcImpl implements CustomersRpc {
   }
 
   @Override
-  public String update(String customerCode, CustomerEdit customer) {
+  public String update(String customerCode, Customer customer) {
     validationSupport.validate("data", customer);
 
     customerService.update(customerCode, customer);
@@ -45,7 +45,7 @@ public class CustomersRpcImpl implements CustomersRpc {
   }
 
   @Override
-  public ListResult<CustomerReducedDisplay> list(Pagination pagination) {
+  public ListResult<CustomerPreview> list(Pagination pagination) {
     validationSupport.validate("pagination", pagination);
 
     return customerService.list(pagination);

@@ -1,15 +1,35 @@
 package primrose.service.account;
 
+import java.util.Set;
+
 import primrose.service.ListResult;
 import primrose.service.Pagination;
+import primrose.service.contact.ContactCode;
+import primrose.service.customer.CustomerCode;
 
 public interface AccountService {
 
-  ListResult<AccountReducedDisplay> list(String contactCode, Pagination pagination);
+  AccountCode create(CustomerCode customerCode, Account account);
 
-  AccountFullDisplay get(String contactCode, String accountCode);
+  AccountCode update(Account account);
 
-  String create(String contactCode, AccountCreate account);
+  ListResult<AccountPreview> list(CustomerCode customerCode, Pagination pagination);
 
-  String edit(String contactCode, String accountCode, AccountCreate account);
+  ListResult<AccountPreview> list(Pagination pagination);
+
+  Account get(AccountCode accountCode);
+
+  AccountCode close(AccountCode accountCode);
+
+  AccountCode reopen(AccountCode accountCode);
+
+  void move(AccountCode accountCode, CustomerCode toCustomer);
+
+  void add(ContactCode contactCode);
+
+  void add(Set<ContactCode> contactCodes);
+
+  void remove(ContactCode contactCode);
+
+  void remove(Set<ContactCode> contactCodes);
 }

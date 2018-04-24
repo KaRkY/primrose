@@ -6,17 +6,17 @@ import com.google.common.collect.ImmutableList;
 
 import primrose.service.Pagination;
 import primrose.service.customer.CustomerCreate;
-import primrose.service.customer.CustomerEdit;
+import primrose.service.customer.Customer;
 import primrose.service.customer.CustomerFullDisplay;
-import primrose.service.customer.CustomerReducedDisplay;
+import primrose.service.customer.CustomerPreview;
 
 public interface CustomerRepository {
 
   String create(CustomerCreate customer);
 
-  void update(String code, CustomerEdit customer);
+  void update(String code, Customer customer);
 
-  ImmutableList<CustomerReducedDisplay> list(Pagination pagination);
+  ImmutableList<CustomerPreview> list(Pagination pagination);
 
   long count(Pagination pagination);
 

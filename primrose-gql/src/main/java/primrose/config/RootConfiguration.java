@@ -17,9 +17,9 @@ public class RootConfiguration {
   @Bean
   public static ErrorResolver resolver() {
     return new MultipleErrorResolver(
-        new CustomErrorResolver(),
-        AnnotationsErrorResolver.INSTANCE,
-        DefaultErrorResolver.INSTANCE);
+      new CustomErrorResolver(),
+      AnnotationsErrorResolver.INSTANCE,
+      DefaultErrorResolver.INSTANCE);
   }
 
   @Bean
@@ -29,4 +29,5 @@ public class RootConfiguration {
     slugify.withLowerCase(true);
     return slugify;
   }
+
 }

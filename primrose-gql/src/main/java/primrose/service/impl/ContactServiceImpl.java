@@ -11,9 +11,9 @@ import primrose.data.ContactRepository;
 import primrose.service.ListResult;
 import primrose.service.Pagination;
 import primrose.service.contact.ContactCreate;
-import primrose.service.contact.ContactEdit;
+import primrose.service.contact.Contact;
 import primrose.service.contact.ContactFullDisplay;
-import primrose.service.contact.ContactReducedDisplay;
+import primrose.service.contact.ContactPreview;
 import primrose.service.contact.ContactService;
 
 @Component
@@ -35,15 +35,15 @@ public class ContactServiceImpl implements ContactService {
   @Override
   @Transactional
   // TODO implement meta validation
-  public void update(String code, ContactEdit contact) {
+  public void update(String code, Contact contact) {
     contactRepository.update(code, contact);
   }
 
   @Override
-  public ListResult<ContactReducedDisplay> list(Pagination pagination) {
-    ImmutableList<ContactReducedDisplay> data = contactRepository.list(pagination);
+  public ListResult<ContactPreview> list(Pagination pagination) {
+    ImmutableList<ContactPreview> data = contactRepository.list(pagination);
     long count = contactRepository.count(pagination);
-    return ListResult.<ContactReducedDisplay>builder()
+    return ListResult.<ContactPreview>builder()
       .count(count)
       .data(data)
       .build();

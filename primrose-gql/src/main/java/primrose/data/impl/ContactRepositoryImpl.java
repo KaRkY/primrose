@@ -1,5 +1,11 @@
 package primrose.data.impl;
 
+import static org.jooq.impl.DSL.currentOffsetDateTime;
+import static org.jooq.impl.DSL.defaultValue;
+import static primrose.jooq.Tables.CONTACTS;
+import static primrose.jooq.Tables.CONTACT_DATA;
+import static primrose.jooq.Tables.CONTACT_EMAILS;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,15 +24,15 @@ import primrose.data.ContactRepository;
 import primrose.jooq.JooqUtil;
 import primrose.jooq.Tables;
 import primrose.jooq.tables.records.ContactsRecord;
-import primrose.service.CreateEmail;
-import primrose.service.CreatePhone;
+import primrose.service.Email;
+import primrose.service.PhoneNumberCreate;
 import primrose.service.EmailFullDisplay;
 import primrose.service.Pagination;
-import primrose.service.PhoneFullDisplay;
+import primrose.service.PhoneNumber;
 import primrose.service.contact.ContactCreate;
-import primrose.service.contact.ContactEdit;
+import primrose.service.contact.Contact;
 import primrose.service.contact.ContactFullDisplay;
-import primrose.service.contact.ContactReducedDisplay;
+import primrose.service.contact.ContactPreview;
 
 @Repository
 public class ContactRepositoryImpl implements ContactRepository {
@@ -37,47 +43,71 @@ public class ContactRepositoryImpl implements ContactRepository {
     this.create = create;
   }
 
-  @Override
-  public String create(ContactCreate contact) {
-    ContactsRecord contactRecord = create
-      .insertInto(Tables.CONTACTS)
+  public String generateNewCode() {
+    create
+      .insertInto(CONTACTS)
+      .columns(CONTACTS.ID, CONTACTS.CODE)
+      .values(defaultValue(CONTACTS.ID), defaultValue(CONTACTS.CODE))
+      .returning(CONTACTS.CODE)
+      .fetchOne()
+      .getCode();
+  }
+
+  public void create(String code, ContactCreate contact) {
+    Long contactId = create
+      .select(CONTACTS.ID)
+      .from(CONTACTS)
+      .where(CONTACTS.CODE.eq(code))
+      .fetchOne()
+      .value1();
+
+    create
+      .insertInto(CONTACT_DATA)
       .columns(
-        Tables.CONTACTS.FULL_NAME,
-        Tables.CONTACTS.DESCRIPTION)
+        CONTACT_DATA.FULL_NAME,
+        CONTACT_DATA.DESCRIPTION)
       .values(
-        DSL.value(contact.getFullName()),
-        DSL.value(contact.getDescription()))
-      .returning(
-        Tables.CONTACTS.ID,
-        Tables.CONTACTS.CODE)
-      .fetchOne();
+        contact.getFullName(),
+        contact.getDescription());
 
     contact.getEmails().forEach(email -> {
-      assignEmail(contactRecord.getId(), email);
+      assignEmail(contactId, email);
     });
 
     contact.getPhones().forEach(phone -> {
-      assignPhone(contactRecord.getId(), phone);
+      assignPhone(contactId, phone);
     });
-
-    return contactRecord.getCode();
   }
 
-  @Override
-  public void update(String code, ContactEdit contact) {
+  public void update(String code, Contact contact) {
     Long contactId = create
-      .select(Tables.CONTACTS.ID)
-      .from(Tables.CONTACTS)
-      .where(Tables.CONTACTS.CODE.eq(code))
-      .fetchOne(Tables.CONTACTS.ID);
+      .select(CONTACTS.ID)
+      .from(CONTACTS)
+      .where(CONTACTS.CODE.eq(code))
+      .fetchOne()
+      .value1();
+
+    int updated = create
+      .update(CONTACT_DATA)
+      .set(CONTACT_DATA.VALID_TO, currentOffsetDateTime())
+      .where(
+        CONTACT_DATA.CONTACT.eq(contactId),
+        CONTACT_DATA.VALID_FROM.eq(contact.getVersion()),
+        CONTACT_DATA.VALID_TO.isNull())
+      .execute();
+
+    if (updated == 0) {
+      //throw exception concurent modification
+    }
 
     create
-      .update(Tables.CONTACTS)
-      .set(Tables.CONTACTS.FULL_NAME, contact.getFullName())
-      .set(Tables.CONTACTS.DESCRIPTION, contact.getDescription())
-      .where(
-        Tables.CONTACTS.ID.eq(contactId),
-        Tables.CONTACTS.MODIFIED_AT.eq(contact.getVersion()));
+    .insertInto(CONTACT_DATA)
+    .columns(
+      CONTACT_DATA.FULL_NAME,
+      CONTACT_DATA.DESCRIPTION)
+    .values(
+      contact.getFullName(),
+      contact.getDescription());
 
     Set<Long> assignedEmails = new HashSet<>();
     contact.getEmails().forEach(email -> {
@@ -100,9 +130,9 @@ public class ContactRepositoryImpl implements ContactRepository {
     removePhoneNumbersExcept(contactId, assignedPhones);
   }
 
-  private long assignEmail(long contactId, CreateEmail email) {
+  private long assignEmail(long contactId, Email email) {
     return create
-      .insertInto(Tables.CONTACT_EMAILS)
+      .insertInto(CONTACT_EMAILS)
       .columns(
         Tables.CONTACT_EMAILS.CONTACT,
         Tables.CONTACT_EMAILS.EMAIL,
@@ -122,7 +152,7 @@ public class ContactRepositoryImpl implements ContactRepository {
       .get(Tables.CONTACT_EMAILS.ID);
   }
 
-  private Long assignedEmail(long contactId, CreateEmail email) {
+  private Long assignedEmail(long contactId, Email email) {
     return create
       .select(Tables.CONTACT_EMAILS.ID)
       .from(Tables.CONTACT_EMAILS)
@@ -167,7 +197,7 @@ public class ContactRepositoryImpl implements ContactRepository {
       .execute();
   }
 
-  private long assignPhone(long contactId, CreatePhone phone) {
+  private long assignPhone(long contactId, PhoneNumberCreate phone) {
     return create
       .insertInto(Tables.CONTACT_PHONE_NUMBERS)
       .columns(
@@ -189,7 +219,7 @@ public class ContactRepositoryImpl implements ContactRepository {
       .get(Tables.CONTACT_PHONE_NUMBERS.ID);
   }
 
-  private Long assignedPhone(long contactId, CreatePhone phone) {
+  private Long assignedPhone(long contactId, PhoneNumberCreate phone) {
     return create
       .select(Tables.CONTACT_PHONE_NUMBERS.ID)
       .from(Tables.CONTACT_PHONE_NUMBERS)
@@ -206,7 +236,7 @@ public class ContactRepositoryImpl implements ContactRepository {
       .fetchOne(Tables.CONTACT_PHONE_NUMBERS.ID);
   }
 
-  private ImmutableList<PhoneFullDisplay> assignedPhone(long contact) {
+  private ImmutableList<PhoneNumber> assignedPhone(long contact) {
     return create
       .select(
         Tables.PHONE_NUMBER_TYPES.SLUG,
@@ -217,7 +247,7 @@ public class ContactRepositoryImpl implements ContactRepository {
       .where(Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(contact))
       .fetch()
       .stream()
-      .map(record -> PhoneFullDisplay.builder()
+      .map(record -> PhoneNumber.builder()
         .type(record.get(Tables.PHONE_NUMBER_TYPES.SLUG))
         .value(record.get(Tables.CONTACT_PHONE_NUMBERS.PHONE))
         .primary(record.get(Tables.CONTACT_PHONE_NUMBERS.PRIM))
@@ -234,8 +264,7 @@ public class ContactRepositoryImpl implements ContactRepository {
       .execute();
   }
 
-  @Override
-  public ImmutableList<ContactReducedDisplay> list(Pagination pagination) {
+  public ImmutableList<ContactPreview> list(Pagination pagination) {
     int limit = pagination.getSize();
     int offset = pagination.getPage() * pagination.getSize();
     Condition searchCondition = buildSearchCondition(pagination);
@@ -268,7 +297,7 @@ public class ContactRepositoryImpl implements ContactRepository {
       .offset(offset)
       .fetch()
       .stream()
-      .map(record -> ContactReducedDisplay.builder()
+      .map(record -> ContactPreview.builder()
         .code(record.get(Tables.CONTACTS.CODE))
         .fullName(record.get(Tables.CONTACTS.FULL_NAME))
         .primaryEmail(record.get(primaryEmail))
@@ -277,7 +306,6 @@ public class ContactRepositoryImpl implements ContactRepository {
       .collect(ImmutableList.toImmutableList());
   }
 
-  @Override
   public long count(Pagination pagination) {
 
     Condition searchCondition = buildSearchCondition(pagination);
@@ -316,7 +344,6 @@ public class ContactRepositoryImpl implements ContactRepository {
     return searchCondition;
   }
 
-  @Override
   public ContactFullDisplay get(String code) {
     Long contactId = create
       .select(Tables.CONTACTS.ID)
@@ -342,7 +369,6 @@ public class ContactRepositoryImpl implements ContactRepository {
         .build());
   }
 
-  @Override
   public void delete(String code) {
     create
       .deleteFrom(Tables.CONTACTS)
@@ -350,11 +376,10 @@ public class ContactRepositoryImpl implements ContactRepository {
       .execute();
   }
 
-  @Override
   public void delete(Set<String> codes) {
     create
-    .deleteFrom(Tables.CONTACTS)
-    .where(Tables.CONTACTS.CODE.in(codes))
-    .execute();
+      .deleteFrom(Tables.CONTACTS)
+      .where(Tables.CONTACTS.CODE.in(codes))
+      .execute();
   }
 }

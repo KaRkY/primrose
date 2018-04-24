@@ -23,8 +23,6 @@ public class ValidationSupport {
     DirectFieldBindingResult bindingResult = new DirectFieldBindingResult(value, paramName);
     bindingResult.setMessageCodesResolver(messageCodesResolver);
     validator.validate(value, bindingResult);
-    if (bindingResult.hasErrors()) {
-      throw new ArgumentValidationException(bindingResult);
-    }
+    if (bindingResult.hasErrors()) { throw new ArgumentValidationException(bindingResult); }
   }
 }

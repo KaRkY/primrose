@@ -28,7 +28,7 @@ public class SlowFilter implements Filter {
 
   @Override
   public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
-      throws IOException, ServletException {
+    throws IOException, ServletException {
     final int delay = random.nextInt(2000) + 500;
 
     try {

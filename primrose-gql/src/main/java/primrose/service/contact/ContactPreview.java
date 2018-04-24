@@ -1,6 +1,5 @@
-package primrose.service;
+package primrose.service.contact;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -13,19 +12,18 @@ import lombok.experimental.Wither;
 @Value
 @Builder
 @Wither
-@JsonDeserialize(builder = EmailFullDisplay.EmailFullDisplayBuilder.class)
-public class EmailFullDisplay {
+@JsonDeserialize(builder = ContactPreview.ContactReducedDisplayBuilder.class)
+public class ContactPreview {
 
   @NotBlank
-  private final String type;
-
+  private final String code;
   @NotBlank
-  @Email
-  private final String  value;
-  private final Boolean primary;
+  private final String fullName;
+  private final String primaryEmail;
+  private final String primaryPhone;
 
   @JsonPOJOBuilder(withPrefix = "")
-  public static class EmailFullDisplayBuilder {
+  public static class ContactReducedDisplayBuilder {
 
   }
 

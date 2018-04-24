@@ -1,5 +1,6 @@
 package primrose.jooq;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -14,6 +15,19 @@ import org.jooq.impl.DSL;
 import primrose.service.Sort;
 
 public class JooqUtil {
+
+  public static Field<OffsetDateTime> tstzrange(Field<OffsetDateTime> from, Field<OffsetDateTime> to, Field<String> bounds) {
+    return DSL.function(
+      "tstzrange",
+      OffsetDateTime.class,
+      from,
+      DSL.ifnull(to, DSL.field("'infinity'", OffsetDateTime.class)),
+      bounds);
+  }
+
+  public static <T> Condition containes(Field<T> field, Field<T> value) {
+    return DSL.condition("{0} @> {1}", field, value);
+  }
 
   public static SortOrder map(final String direction) {
     String normalizedDirection = direction != null ? direction.toUpperCase() : null;
@@ -45,9 +59,9 @@ public class JooqUtil {
   @SafeVarargs
   public static <T> List<Condition> search(Field<T> value, Field<T>... fields) {
     return Arrays
-        .stream(fields)
-        .map(field -> field.likeIgnoreCase(DSL.concat(DSL.value("%"), DSL.isnull(value, ""), DSL.value("%"))))
-        .collect(Collectors.toList());
+      .stream(fields)
+      .map(field -> field.likeIgnoreCase(DSL.concat(DSL.value("%"), DSL.isnull(value, ""), DSL.value("%"))))
+      .collect(Collectors.toList());
   }
 
   @SafeVarargs

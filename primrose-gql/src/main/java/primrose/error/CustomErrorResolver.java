@@ -20,19 +20,19 @@ public class CustomErrorResolver implements ErrorResolver {
 
       if (errors.hasGlobalErrors()) {
         hashMap.put("objectErrors", errors
-            .getGlobalErrors()
-            .stream()
-            .map(error -> new ObjectError(error.getObjectName(), error.getCode(), error.getDefaultMessage()))
-            .toArray());
+          .getGlobalErrors()
+          .stream()
+          .map(error -> new ObjectError(error.getObjectName(), error.getCode(), error.getDefaultMessage()))
+          .toArray());
       }
 
       if (errors.hasFieldErrors()) {
         hashMap.put("fieldErrors", errors
-            .getFieldErrors()
-            .stream()
-            .map(error -> new FieldError(error.getObjectName(), error.getField(), error.getCode(),
-                error.getDefaultMessage(), error.getRejectedValue()))
-            .toArray());
+          .getFieldErrors()
+          .stream()
+          .map(error -> new FieldError(error.getObjectName(), error.getField(), error.getCode(),
+            error.getDefaultMessage(), error.getRejectedValue()))
+          .toArray());
       }
 
       return new JsonError(-32600, "Invalid Request", hashMap);

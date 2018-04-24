@@ -4,19 +4,23 @@ import java.util.Set;
 
 import primrose.service.ListResult;
 import primrose.service.Pagination;
+import primrose.service.contact.ContactCode;
 
 public interface CustomerService {
 
-  String create(CustomerCreate customer);
+  CustomerCode create(Customer customer);
 
-  void update(String code, CustomerEdit customer);
+  CustomerCode update(Customer customer);
 
-  ListResult<CustomerReducedDisplay> list(Pagination pagination);
+  ListResult<CustomerPreview> list(Pagination pagination);
 
-  CustomerFullDisplay get(String code);
+  Customer get(CustomerCode customerCode);
 
-  void delete(String code);
+  void add(ContactCode contactCode);
 
-  void delete(Set<String> codes);
+  void add(Set<ContactCode> contactCodes);
 
+  void remove(ContactCode contactCode);
+
+  void remove(Set<ContactCode> contactCodes);
 }

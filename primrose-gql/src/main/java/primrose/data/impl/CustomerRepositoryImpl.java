@@ -18,15 +18,15 @@ import primrose.data.CustomerRepository;
 import primrose.jooq.JooqUtil;
 import primrose.jooq.Tables;
 import primrose.jooq.tables.records.CustomersRecord;
-import primrose.service.CreateEmail;
-import primrose.service.CreatePhone;
+import primrose.service.Email;
+import primrose.service.PhoneNumberCreate;
 import primrose.service.EmailFullDisplay;
 import primrose.service.Pagination;
-import primrose.service.PhoneFullDisplay;
+import primrose.service.PhoneNumber;
 import primrose.service.customer.CustomerCreate;
-import primrose.service.customer.CustomerEdit;
+import primrose.service.customer.Customer;
 import primrose.service.customer.CustomerFullDisplay;
-import primrose.service.customer.CustomerReducedDisplay;
+import primrose.service.customer.CustomerPreview;
 
 @Repository
 public class CustomerRepositoryImpl implements CustomerRepository {
@@ -81,7 +81,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @Override
-  public void update(String code, CustomerEdit customer) {
+  public void update(String code, Customer customer) {
 
     Long customerId = create
       .select(Tables.CUSTOMERS.ID)
@@ -131,7 +131,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     removePhoneNumbersExcept(customerId, assignedPhones);
   }
 
-  private long assignEmail(long customer, CreateEmail email) {
+  private long assignEmail(long customer, Email email) {
     return create
       .insertInto(Tables.CUSTOMER_EMAILS)
       .columns(
@@ -153,7 +153,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .get(Tables.CUSTOMER_EMAILS.ID);
   }
 
-  private Long assignedEmail(long customer, CreateEmail email) {
+  private Long assignedEmail(long customer, Email email) {
     return create
       .select(Tables.CUSTOMER_EMAILS.ID)
       .from(Tables.CUSTOMER_EMAILS)
@@ -198,7 +198,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .execute();
   }
 
-  private long assignPhone(long customer, CreatePhone phone) {
+  private long assignPhone(long customer, PhoneNumberCreate phone) {
     return create
       .insertInto(Tables.CUSTOMER_PHONE_NUMBERS)
       .columns(
@@ -220,7 +220,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .get(Tables.CUSTOMER_PHONE_NUMBERS.ID);
   }
 
-  private Long assignedPhone(long customer, CreatePhone phone) {
+  private Long assignedPhone(long customer, PhoneNumberCreate phone) {
     return create
       .select(Tables.CUSTOMER_PHONE_NUMBERS.ID)
       .from(Tables.CUSTOMER_PHONE_NUMBERS)
@@ -237,7 +237,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .fetchOne(Tables.CUSTOMER_PHONE_NUMBERS.ID);
   }
 
-  private ImmutableList<PhoneFullDisplay> assignedPhone(long customer) {
+  private ImmutableList<PhoneNumber> assignedPhone(long customer) {
     return create
       .select(
         Tables.PHONE_NUMBER_TYPES.SLUG,
@@ -248,7 +248,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .where(Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customer))
       .fetch()
       .stream()
-      .map(record -> PhoneFullDisplay.builder()
+      .map(record -> PhoneNumber.builder()
         .type(record.get(Tables.PHONE_NUMBER_TYPES.SLUG))
         .value(record.get(Tables.CUSTOMER_PHONE_NUMBERS.PHONE))
         .primary(record.get(Tables.CUSTOMER_PHONE_NUMBERS.PRIM))
@@ -266,7 +266,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @Override
-  public ImmutableList<CustomerReducedDisplay> list(Pagination pagination) {
+  public ImmutableList<CustomerPreview> list(Pagination pagination) {
     int limit = pagination.getSize();
     int offset = pagination.getPage() * pagination.getSize();
     Condition searchCondition = buildSearchCondition(pagination);
@@ -305,7 +305,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .offset(offset)
       .fetch()
       .stream()
-      .map(record -> CustomerReducedDisplay.builder()
+      .map(record -> CustomerPreview.builder()
         .code(record.get(Tables.CUSTOMERS.CODE))
         .type(record.get(Tables.CUSTOMER_TYPES.SLUG))
         .relationType(record.get(Tables.CUSTOMER_RELATION_TYPES.SLUG))

@@ -29,11 +29,11 @@ public class MetaRepositoryImpl implements MetaRepository {
     Field<String> name = DSL.field("name", String.class);
     Field<String> sort = DSL.field("sort", String.class);
     return create
-        .select(slug, name)
-        .from(tableName)
-        .orderBy(sort.asc())
-        .fetch()
-        .map(this::map);
+      .select(slug, name)
+      .from(tableName)
+      .orderBy(sort.asc())
+      .fetch()
+      .map(this::map);
   }
 
   @Override
@@ -42,10 +42,10 @@ public class MetaRepositoryImpl implements MetaRepository {
     Field<String> slug = DSL.field("slug", String.class);
 
     return create
-        .selectOne()
-        .from(tableName)
-        .where(slug.eq(value))
-        .fetchOne(0) != null;
+      .selectOne()
+      .from(tableName)
+      .where(slug.eq(value))
+      .fetchOne(0) != null;
   }
 
   public enum MetaTypes {
@@ -75,8 +75,8 @@ public class MetaRepositoryImpl implements MetaRepository {
 
   private MetaType map(Record2<String, String> record) {
     return MetaType.builder()
-        .slug(record.value1())
-        .name(record.value2())
-        .build();
+      .slug(record.value1())
+      .name(record.value2())
+      .build();
   }
 }

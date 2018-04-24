@@ -12,8 +12,8 @@ import lombok.experimental.Wither;
 @Value
 @Builder
 @Wither
-@JsonDeserialize(builder = CustomerReducedDisplay.CustomerReducedDisplayBuilder.class)
-public class CustomerReducedDisplay {
+@JsonDeserialize(builder = CustomerPreview.CustomerPreviewBuilder.class)
+public class CustomerPreview {
 
   private final String code;
   @NotBlank
@@ -27,7 +27,7 @@ public class CustomerReducedDisplay {
   private final String primaryPhone;
 
   @JsonPOJOBuilder(withPrefix = "")
-  public static class CustomerReducedDisplayBuilder {
+  public static class CustomerPreviewBuilder {
 
   }
 

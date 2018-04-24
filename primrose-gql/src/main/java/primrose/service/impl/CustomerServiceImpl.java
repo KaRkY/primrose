@@ -11,9 +11,9 @@ import primrose.data.CustomerRepository;
 import primrose.service.ListResult;
 import primrose.service.Pagination;
 import primrose.service.customer.CustomerCreate;
-import primrose.service.customer.CustomerEdit;
+import primrose.service.customer.Customer;
 import primrose.service.customer.CustomerFullDisplay;
-import primrose.service.customer.CustomerReducedDisplay;
+import primrose.service.customer.CustomerPreview;
 import primrose.service.customer.CustomerService;
 
 @Component
@@ -35,15 +35,15 @@ public class CustomerServiceImpl implements CustomerService {
 
   @Override
   @Transactional
-  public void update(String code, CustomerEdit customer) {
+  public void update(String code, Customer customer) {
     customerRepository.update(code, customer);
   }
 
   @Override
-  public ListResult<CustomerReducedDisplay> list(Pagination pagination) {
-    ImmutableList<CustomerReducedDisplay> data = customerRepository.list(pagination);
+  public ListResult<CustomerPreview> list(Pagination pagination) {
+    ImmutableList<CustomerPreview> data = customerRepository.list(pagination);
     long count = customerRepository.count(pagination);
-    return ListResult.<CustomerReducedDisplay>builder()
+    return ListResult.<CustomerPreview>builder()
       .count(count)
       .data(data)
       .build();

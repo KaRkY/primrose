@@ -10,9 +10,9 @@ import primrose.rpcservices.ContactsRpc;
 import primrose.service.ListResult;
 import primrose.service.Pagination;
 import primrose.service.contact.ContactCreate;
-import primrose.service.contact.ContactEdit;
+import primrose.service.contact.Contact;
 import primrose.service.contact.ContactFullDisplay;
-import primrose.service.contact.ContactReducedDisplay;
+import primrose.service.contact.ContactPreview;
 import primrose.service.contact.ContactService;
 import primrose.spring.ValidationSupport;
 
@@ -36,7 +36,7 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public String update(String contactCode, ContactEdit contact) {
+  public String update(String contactCode, Contact contact) {
     validationSupport.validate("data", contact);
 
     contactService.update(contactCode, contact);
@@ -45,7 +45,7 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public ListResult<ContactReducedDisplay> list(Pagination pagination) {
+  public ListResult<ContactPreview> list(Pagination pagination) {
     validationSupport.validate("pagination", pagination);
 
     return contactService.list(pagination);
