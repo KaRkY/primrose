@@ -1,10 +1,6 @@
 package primrose.service;
 
-import java.time.OffsetDateTime;
-
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -14,7 +10,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 
 @Value
-@Builder
+@Builder(toBuilder=true)
 @Wither
 @JsonDeserialize(builder = PhoneNumber.PhoneNumberBuilder.class)
 public class PhoneNumber {
@@ -23,9 +19,6 @@ public class PhoneNumber {
   private final String         type;
   @NotBlank
   private final String         value;
-  @NotNull(groups = UpdateValidationGroup.class)
-  @Null(groups = CreateValidationGroup.class)
-  private final OffsetDateTime             versionm;
 
   @JsonPOJOBuilder(withPrefix = "")
   public static class PhoneNumberBuilder {

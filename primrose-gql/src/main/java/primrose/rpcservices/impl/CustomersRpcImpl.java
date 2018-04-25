@@ -1,7 +1,5 @@
 package primrose.rpcservices.impl;
 
-import java.util.Set;
-
 import org.springframework.stereotype.Component;
 
 import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
@@ -9,9 +7,8 @@ import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
 import primrose.rpcservices.CustomersRpc;
 import primrose.service.ListResult;
 import primrose.service.Pagination;
-import primrose.service.customer.CustomerCreate;
 import primrose.service.customer.Customer;
-import primrose.service.customer.CustomerFullDisplay;
+import primrose.service.customer.CustomerCode;
 import primrose.service.customer.CustomerPreview;
 import primrose.service.customer.CustomerService;
 import primrose.spring.ValidationSupport;
@@ -29,19 +26,17 @@ public class CustomersRpcImpl implements CustomersRpc {
   }
 
   @Override
-  public String create(CustomerCreate customer) {
+  public CustomerCode create(Customer customer) {
     validationSupport.validate("data", customer);
 
     return customerService.create(customer);
   }
 
   @Override
-  public String update(String customerCode, Customer customer) {
+  public CustomerCode update(Customer customer) {
     validationSupport.validate("data", customer);
 
-    customerService.update(customerCode, customer);
-
-    return customerCode;
+    return customerService.update(customer);
   }
 
   @Override
@@ -52,20 +47,8 @@ public class CustomersRpcImpl implements CustomersRpc {
   }
 
   @Override
-  public CustomerFullDisplay get(String customerCode) {
+  public Customer get(CustomerCode customerCode) {
     return customerService.get(customerCode);
-  }
-
-  @Override
-  public String delete(String customerCode) {
-    customerService.delete(customerCode);
-    return customerCode;
-  }
-
-  @Override
-  public Set<String> delete(Set<String> customerCodes) {
-    customerService.delete(customerCodes);
-    return customerCodes;
   }
 
 }

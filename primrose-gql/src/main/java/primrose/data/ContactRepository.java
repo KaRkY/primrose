@@ -1,15 +1,24 @@
 package primrose.data;
 
-import java.util.Set;
-
 import com.google.common.collect.ImmutableList;
 
 import primrose.service.Pagination;
-import primrose.service.contact.ContactCreate;
 import primrose.service.contact.Contact;
-import primrose.service.contact.ContactFullDisplay;
+import primrose.service.contact.ContactCode;
 import primrose.service.contact.ContactPreview;
 
 public interface ContactRepository {
+
+  Contact get(ContactCode code);
+
+  long count(Pagination pagination);
+
+  ImmutableList<ContactPreview> list(Pagination pagination);
+
+  void update(Contact contact);
+
+  void create(Contact contact);
+
+  ContactCode generate();
 
 }

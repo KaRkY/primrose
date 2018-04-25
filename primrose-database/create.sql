@@ -8,118 +8,118 @@ create schema primrose;
  */
 
 create table customer_types(
-  id          bigserial not null,
-  code        text      not null  unique,
-  defaultName text      not null  unique,
-  sort        int       not null  unique,
+  id            bigserial not null,
+  code          text      not null  unique,
+  default_name  text      not null  unique,
+  sort          int       not null  unique,
   
   constraint pk_customer_types              primary key (id),
   constraint uq_customer_types_code         unique (code),
-  constraint uq_customer_types_defaultName  unique (defaultName),
+  constraint uq_customer_types_default_name unique (default_name),
   constraint uq_customer_types_sort         unique (sort)
 );
 
-insert into customer_types(code, defaultName, sort) values 
+insert into customer_types(code, default_name, sort) values 
 ('person', 'Person', 1),
 ('company', 'Company', 2);
 
 create table address_types(
-  id          bigserial not null,
-  code        text      not null  unique,
-  defaultName text      not null  unique,
-  sort        int       not null  unique,
+  id            bigserial not null,
+  code          text      not null  unique,
+  default_name  text      not null  unique,
+  sort          int       not null  unique,
   
-  constraint pk_address_types             primary key (id),
-  constraint uq_address_types_code        unique (code),
-  constraint uq_address_types_defaultName unique (defaultName),
-  constraint uq_address_types_sort        unique (sort)
+  constraint pk_address_types               primary key (id),
+  constraint uq_address_types_code          unique (code),
+  constraint uq_address_types_default_name  unique (default_name),
+  constraint uq_address_types_sort          unique (sort)
 );
 
-insert into address_types(code, defaultName, sort) values
+insert into address_types(code, default_name, sort) values
 ('billing', 'Billing', 1),
 ('shipping', 'Shipping', 2);
 
 create table customer_relation_types(
-  id          bigserial not null,
-  code        text      not null  unique,
-  defaultName text      not null  unique,
-  sort        int       not null  unique,
+  id            bigserial not null,
+  code          text      not null  unique,
+  default_name  text      not null  unique,
+  sort          int       not null  unique,
   
-  constraint pk_customer_relation_types             primary key (id),
-  constraint uq_customer_relation_types_code        unique (code),
-  constraint uq_customer_relation_types_defaultName unique (defaultName),
-  constraint uq_customer_relation_types_sort        unique (sort)
+  constraint pk_customer_relation_types               primary key (id),
+  constraint uq_customer_relation_types_code          unique (code),
+  constraint uq_customer_relation_types_default_name  unique (default_name),
+  constraint uq_customer_relation_types_sort          unique (sort)
 );
 
-insert into customer_relation_types(code, defaultName, sort) values 
+insert into customer_relation_types(code, default_name, sort) values 
 ('customer', 'Customer', 1),
 ('partner', 'Partner', 2),
 ('investor', 'Investor', 3),
 ('reseller', 'Reseller', 4);
 
 create table phone_number_types(
-  id          bigserial not null,
-  code        text      not null  unique,
-  defaultName text      not null  unique,
-  sort        int       not null  unique,
+  id            bigserial not null,
+  code          text      not null  unique,
+  default_name  text      not null  unique,
+  sort          int       not null  unique,
   
-  constraint pk_phone_number_types              primary key (id),
-  constraint uq_phone_number_types_code         unique (code),
-  constraint uq_phone_number_types_defaultName  unique (defaultName),
-  constraint uq_phone_number_types_sort         unique (sort)
+  constraint pk_phone_number_types                primary key (id),
+  constraint uq_phone_number_types_code           unique (code),
+  constraint uq_phone_number_types_default_name   unique (default_name),
+  constraint uq_phone_number_types_sort           unique (sort)
 );
 
-insert into phone_number_types(code, defaultName, sort) values 
+insert into phone_number_types(code, default_name, sort) values 
 ('work', 'Work', 1),
 ('home', 'Home', 2),
 ('other', 'Other', 3);
 
 create table email_types(
-  id          bigserial not null,
-  code        text      not null  unique,
-  defaultName text      not null  unique,
-  sort        int       not null  unique,
+  id            bigserial not null,
+  code          text      not null  unique,
+  default_name  text      not null  unique,
+  sort          int       not null  unique,
   
-  constraint pk_email_types             primary key (id),
-  constraint uq_email_types_code        unique (code),
-  constraint uq_email_types_defaultName unique (defaultName),
-  constraint uq_email_types_sort        unique (sort)
+  constraint pk_email_types               primary key (id),
+  constraint uq_email_types_code          unique (code),
+  constraint uq_email_types_default_name  unique (default_name),
+  constraint uq_email_types_sort          unique (sort)
 );
 
-insert into email_types(code, defaultName, sort) values 
+insert into email_types(code, default_name, sort) values 
 ('work', 'Work', 1),
 ('home', 'Home', 2),
 ('other', 'Other', 3);
 
 create table contact_types(
-  id          bigserial not null,
-  code        text      not null  unique,
-  defaultName text      not null  unique,
-  sort        int       not null  unique,
+  id            bigserial not null,
+  code          text      not null  unique,
+  default_name  text      not null  unique,
+  sort          int       not null  unique,
   
-  constraint pk_contact_types             primary key (id),
-  constraint uq_contact_types_code        unique (code),
-  constraint uq_contact_types_defaultName unique (defaultName),
-  constraint uq_contact_types_sort        unique (sort)
+  constraint pk_contact_types               primary key (id),
+  constraint uq_contact_types_code          unique (code),
+  constraint uq_contact_types_default_name  unique (default_name),
+  constraint uq_contact_types_sort          unique (sort)
 );
 
-insert into contact_types(code, defaultName, sort) values 
+insert into contact_types(code, default_name, sort) values 
 ('sales', 'Sales', 1),
 ('manager', 'Manager', 2);
 
 create table meeting_types(
-  id          bigserial not null,
-  code        text      not null  unique,
-  defaultName text      not null  unique,
-  sort        int       not null  unique,
+  id            bigserial not null,
+  code          text      not null  unique,
+  default_name  text      not null  unique,
+  sort          int       not null  unique,
   
-  constraint pk_meeting_types             primary key (id),
-  constraint uq_meeting_types_code        unique (code),
-  constraint uq_meeting_types_defaultName unique (defaultName),
-  constraint uq_meeting_types_sort        unique (sort)
+  constraint pk_meeting_types               primary key (id),
+  constraint uq_meeting_types_code          unique (code),
+  constraint uq_meeting_types_default_name  unique (default_name),
+  constraint uq_meeting_types_sort          unique (sort)
 );
 
-insert into meeting_types(code, defaultName, sort) values 
+insert into meeting_types(code, default_name, sort) values 
 ('call', 'Call', 1),
 ('on-site', 'On Site', 2),
 ('email', 'Email', 3),
@@ -200,9 +200,10 @@ create table customer_addresses(
   valid_to      timestamptz,
   
   constraint pk_customer_addresses              primary key (address, customer, valid_from),
-  constraint fk_customer_addresses_address      foreign key (address)       references addresses(id),
-  constraint fk_customer_addresses_customer     foreign key (customer)      references customers(id),
-  constraint fk_customer_addresses_address_type foreign key (address_type)  references address_types(id),
+  constraint fk_customer_addresses_address      foreign key (address)               references addresses(id),
+  constraint fk_customer_addresses_customer     foreign key (customer)              references customers(id),
+  constraint fk_customer_addresses_data         foreign key (customer, valid_from)  references customer_data(customer, valid_from),
+  constraint fk_customer_addresses_address_type foreign key (address_type)          references address_types(id),
   constraint rg_customer_addresses_validity     exclude using gist (
     address with =,
     customer with =,
@@ -218,9 +219,10 @@ create table customer_phone_numbers(
   valid_to          timestamptz,
   
   constraint pk_customer_phone_numbers                    primary key (customer, phone_number, valid_from),
-  constraint fk_customer_phone_numbers_customer           foreign key (customer)          references customers(id),
-  constraint fk_customer_phone_numbers_phone_number       foreign key (phone_number)      references phone_numbers(id),
-  constraint fk_customer_phone_numbers_phone_number_type  foreign key (phone_number_type) references phone_number_types(id),
+  constraint fk_customer_phone_numbers_customer           foreign key (customer)              references customers(id),
+  constraint fk_customer_phone_numbers_phone_number       foreign key (phone_number)          references phone_numbers(id),
+  constraint fk_customer_phone_numbers_phone_number_type  foreign key (phone_number_type)     references phone_number_types(id),
+  constraint fk_customer_phone_numbers_data               foreign key (customer, valid_from)  references customer_data(customer, valid_from),
   constraint rg_customer_phone_numbers_validity           exclude using gist (
     customer with =,
     phone_number with =,
@@ -236,9 +238,10 @@ create table customer_emails(
   valid_to    timestamptz,
   
   constraint pk_customer_emails             primary key (customer, email, valid_from),
-  constraint fk_customer_emails_email       foreign key (email)    references emails(id),
-  constraint fk_customer_emails_customer    foreign key (customer)    references customers(id),
-  constraint fk_customer_emails_email_type  foreign key (email_type)  references email_types(id),
+  constraint fk_customer_emails_email       foreign key (email)                 references emails(id),
+  constraint fk_customer_emails_customer    foreign key (customer)              references customers(id),
+  constraint fk_customer_emails_email_type  foreign key (email_type)            references email_types(id),
+  constraint fk_customer_emails_data        foreign key (customer, valid_from)  references customer_data(customer, valid_from),
   constraint rg_customer_emails_validity    exclude using gist (
     customer with =,
     email with =,
@@ -293,9 +296,10 @@ create table account_addresses(
   valid_to      timestamptz,
   
   constraint pk_account_addresses              primary key (address, account, valid_from),
-  constraint fk_account_addresses_address      foreign key (address)       references addresses(id),
-  constraint fk_account_addresses_account      foreign key (account)       references accounts(id),
-  constraint fk_account_addresses_address_type foreign key (address_type)  references address_types(id),
+  constraint fk_account_addresses_address      foreign key (address)              references addresses(id),
+  constraint fk_account_addresses_account      foreign key (account)              references accounts(id),
+  constraint fk_account_addresses_address_type foreign key (address_type)         references address_types(id),
+  constraint fk_account_addresses_data         foreign key (account, valid_from)  references account_data(account, valid_from),
   constraint rg_account_addresses_validity     exclude using gist (
     address with =,
     account with =,
@@ -311,9 +315,10 @@ create table account_phone_numbers(
   valid_to          timestamptz,
   
   constraint pk_account_phone_numbers                   primary key (account, phone_number, valid_from),
-  constraint fk_account_phone_numbers_account           foreign key (account)           references accounts(id),
-  constraint fk_account_phone_numbers_phone_number      foreign key (phone_number)      references phone_numbers(id),
-  constraint fk_account_phone_numbers_phone_number_type foreign key (phone_number_type) references phone_number_types(id),
+  constraint fk_account_phone_numbers_account           foreign key (account)               references accounts(id),
+  constraint fk_account_phone_numbers_phone_number      foreign key (phone_number)          references phone_numbers(id),
+  constraint fk_account_phone_numbers_phone_number_type foreign key (phone_number_type)     references phone_number_types(id),
+  constraint fk_account_phone_numbers_data              foreign key (account, valid_from)   references account_data(account, valid_from),
   constraint rg_account_phone_numbers_validity          exclude using gist (
     account with =,
     phone_number with =,
@@ -329,9 +334,10 @@ create table account_emails(
   valid_to    timestamptz,
   
   constraint pk_account_emails              primary key (account, email, valid_from),
-  constraint fk_account_emails_email        foreign key (email)      references emails(id),
-  constraint fk_account_emails_account      foreign key (account)   references accounts(id),
-  constraint fk_account_emails_email_type   foreign key (email_type) references email_types(id),
+  constraint fk_account_emails_email        foreign key (email)                 references emails(id),
+  constraint fk_account_emails_account      foreign key (account)               references accounts(id),
+  constraint fk_account_emails_email_type   foreign key (email_type)            references email_types(id),
+  constraint fk_account_emails_data         foreign key (account, valid_from)   references account_data(account, valid_from),
   constraint rg_account_emails_validity     exclude using gist (
     account with =,
     email with =,
@@ -349,7 +355,7 @@ create table contacts(
 
 create table contact_data(
   contact     bigint      not null,
-  full_name   text        not null unique,
+  full_name   text        not null,
   description text,
   valid_from  timestamptz not null default now(),
   valid_to    timestamptz,
@@ -370,9 +376,10 @@ create table contact_addresses(
   valid_to      timestamptz,
   
   constraint pk_contact_addresses              primary key (address, contact, valid_from),
-  constraint fk_contact_addresses_address      foreign key (address)       references addresses(id),
-  constraint fk_contact_addresses_contact      foreign key (contact)       references contacts(id),
-  constraint fk_contact_addresses_address_type foreign key (address_type)  references address_types(id),
+  constraint fk_contact_addresses_address      foreign key (address)              references addresses(id),
+  constraint fk_contact_addresses_contact      foreign key (contact)              references contacts(id),
+  constraint fk_contact_addresses_address_type foreign key (address_type)         references address_types(id),
+  constraint fk_contact_addresses_data         foreign key (contact, valid_from)  references contact_data(contact, valid_from),
   constraint rg_contact_addresses_validity     exclude using gist (
     address with =,
     contact with =,
@@ -388,9 +395,10 @@ create table contact_phone_numbers(
   valid_to          timestamptz,
   
   constraint pk_contact_phone_numbers                   primary key (contact, phone_number, valid_from),
-  constraint fk_contact_phone_numbers_contact           foreign key (contact)           references contacts(id),
-  constraint fk_contact_phone_numbers_phone_number      foreign key (phone_number)      references phone_numbers(id),
-  constraint fk_contact_phone_numbers_phone_number_type foreign key (phone_number_type) references phone_number_types(id),
+  constraint fk_contact_phone_numbers_contact           foreign key (contact)               references contacts(id),
+  constraint fk_contact_phone_numbers_phone_number      foreign key (phone_number)          references phone_numbers(id),
+  constraint fk_contact_phone_numbers_phone_number_type foreign key (phone_number_type)     references phone_number_types(id),
+  constraint fk_contact_phone_numbers_data              foreign key (contact, valid_from)   references contact_data(contact, valid_from),
   constraint rg_contact_phone_numbers_validity          exclude using gist (
     contact with =,
     phone_number with =,
@@ -406,9 +414,10 @@ create table contact_emails(
   valid_to    timestamptz,
   
   constraint pk_contact_emails              primary key (contact, email, valid_from),
-  constraint fk_contact_emails_email        foreign key (email)      references emails(id),
-  constraint fk_contact_emails_contact      foreign key (contact)   references contacts(id),
-  constraint fk_contact_emails_email_type   foreign key (email_type) references email_types(id),
+  constraint fk_contact_emails_email        foreign key (email)                 references emails(id),
+  constraint fk_contact_emails_contact      foreign key (contact)               references contacts(id),
+  constraint fk_contact_emails_email_type   foreign key (email_type)            references email_types(id),
+  constraint fk_contact_emails_data         foreign key (contact, valid_from)   references contact_data(contact, valid_from),
   constraint rg_contact_emails_validity     exclude using gist (
     contact with =,
     email with =,

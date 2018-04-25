@@ -1,8 +1,27 @@
 package primrose.data.impl;
 
-import java.util.HashSet;
+import static org.jooq.impl.DSL.currentOffsetDateTime;
+import static org.jooq.impl.DSL.defaultValue;
+import static org.jooq.impl.DSL.value;
+import static primrose.jooq.JooqUtil.containes;
+import static primrose.jooq.JooqUtil.search;
+import static primrose.jooq.JooqUtil.tstzrange;
+import static primrose.jooq.Tables.CUSTOMERS;
+import static primrose.jooq.Tables.CUSTOMER_DATA;
+import static primrose.jooq.Tables.CUSTOMER_EMAILS;
+import static primrose.jooq.Tables.CUSTOMER_PHONE_NUMBERS;
+import static primrose.jooq.Tables.CUSTOMER_RELATION_TYPES;
+import static primrose.jooq.Tables.CUSTOMER_TYPES;
+import static primrose.jooq.Tables.EMAILS;
+import static primrose.jooq.Tables.EMAIL_TYPES;
+import static primrose.jooq.Tables.PHONE_NUMBERS;
+import static primrose.jooq.Tables.PHONE_NUMBER_TYPES;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -15,254 +34,165 @@ import org.springframework.stereotype.Repository;
 import com.google.common.collect.ImmutableList;
 
 import primrose.data.CustomerRepository;
+import primrose.data.EmailAndPhoneNumberRepository;
 import primrose.jooq.JooqUtil;
 import primrose.jooq.Tables;
-import primrose.jooq.tables.records.CustomersRecord;
 import primrose.service.Email;
-import primrose.service.PhoneNumberCreate;
-import primrose.service.EmailFullDisplay;
 import primrose.service.Pagination;
 import primrose.service.PhoneNumber;
-import primrose.service.customer.CustomerCreate;
 import primrose.service.customer.Customer;
-import primrose.service.customer.CustomerFullDisplay;
+import primrose.service.customer.CustomerCode;
 import primrose.service.customer.CustomerPreview;
 
 @Repository
 public class CustomerRepositoryImpl implements CustomerRepository {
 
-  private DSLContext create;
+  private DSLContext                    create;
+  private EmailAndPhoneNumberRepository emailAndPhoneNumberRepository;
 
-  public CustomerRepositoryImpl(DSLContext create) {
+  public CustomerRepositoryImpl(
+    DSLContext create,
+    EmailAndPhoneNumberRepository emailAndPhoneNumberRepository) {
     this.create = create;
+    this.emailAndPhoneNumberRepository = emailAndPhoneNumberRepository;
   }
 
   @Override
-  public String create(CustomerCreate customer) {
+  public CustomerCode generate() {
+    return CustomerCode.of(create
+      .insertInto(CUSTOMERS)
+      .columns(CUSTOMERS.ID, CUSTOMERS.CODE)
+      .values(defaultValue(CUSTOMERS.ID), defaultValue(CUSTOMERS.CODE))
+      .returning(CUSTOMERS.CODE)
+      .fetchOne()
+      .getCode());
+  }
+
+  @Override
+  public void create(Customer customer) {
+    Long customerId = create
+      .select(CUSTOMERS.ID)
+      .from(CUSTOMERS)
+      .where(CUSTOMERS.CODE.eq(customer.getCode().getCode()))
+      .forUpdate()
+      .fetchOne(0, Long.class);
+
+    if (customerId == null) {
+      // throw exception unknown contact
+      throw new RuntimeException();
+    }
 
     Select<Record1<Long>> type = create
-      .select(Tables.CUSTOMER_TYPES.ID)
-      .from(Tables.CUSTOMER_TYPES)
-      .where(Tables.CUSTOMER_TYPES.SLUG.eq(customer.getType()));
+      .select(CUSTOMER_TYPES.ID)
+      .from(CUSTOMER_TYPES)
+      .where(CUSTOMER_TYPES.CODE.eq(customer.getType()));
 
     Select<Record1<Long>> relationType = create
-      .select(Tables.CUSTOMER_RELATION_TYPES.ID)
-      .from(Tables.CUSTOMER_RELATION_TYPES)
-      .where(Tables.CUSTOMER_RELATION_TYPES.SLUG.eq(customer.getRelationType()));
+      .select(CUSTOMER_RELATION_TYPES.ID)
+      .from(CUSTOMER_RELATION_TYPES)
+      .where(CUSTOMER_RELATION_TYPES.CODE.eq(customer.getRelationType()));
 
-    CustomersRecord customerRecord = create
-      .insertInto(Tables.CUSTOMERS)
+    OffsetDateTime version = create
+      .insertInto(CUSTOMER_DATA)
       .columns(
-        Tables.CUSTOMERS.CUSTOMER_TYPE,
-        Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE,
-        Tables.CUSTOMERS.FULL_NAME,
-        Tables.CUSTOMERS.DISPLAY_NAME,
-        Tables.CUSTOMERS.DESCRIPTION)
+        CUSTOMER_DATA.CUSTOMER,
+        CUSTOMER_DATA.CUSTOMER_TYPE,
+        CUSTOMER_DATA.CUSTOMER_RELATION_TYPE,
+        CUSTOMER_DATA.FULL_NAME,
+        CUSTOMER_DATA.DISPLAY_NAME,
+        CUSTOMER_DATA.DESCRIPTION)
       .values(
+        value(customerId),
         type.asField(),
         relationType.asField(),
-        DSL.value(customer.getFullName()),
-        DSL.value(customer.getDisplayName()),
-        DSL.value(customer.getDescription()))
-      .returning(
-        Tables.CUSTOMERS.CODE,
-        Tables.CUSTOMERS.ID)
-      .fetchOne();
+        value(customer.getFullName()),
+        value(customer.getDisplayName()),
+        value(customer.getDescription()))
+      .returning(CUSTOMER_DATA.VALID_FROM)
+      .fetchOne()
+      .getValidFrom();
 
     customer.getEmails().forEach(email -> {
-      assignEmail(customerRecord.getId(), email);
+      long emailId = emailAndPhoneNumberRepository.email(email.getValue());
+      assignEmail(customerId, email.getType(), emailId, value(version));
     });
 
-    customer.getPhones().forEach(phone -> {
-      assignPhone(customerRecord.getId(), phone);
+    customer.getPhoneNumbers().forEach(phone -> {
+      long phoneId = emailAndPhoneNumberRepository.phone(phone.getValue());
+      assignPhone(customerId, phone.getType(), phoneId, value(version));
     });
-
-    return customerRecord.getCode();
   }
 
   @Override
-  public void update(String code, Customer customer) {
-
+  public void update(Customer customer) {
     Long customerId = create
-      .select(Tables.CUSTOMERS.ID)
-      .from(Tables.CUSTOMERS)
-      .where(Tables.CUSTOMERS.CODE.eq(code))
-      .fetchOne(Tables.CUSTOMERS.ID);
+      .select(CUSTOMERS.ID)
+      .from(CUSTOMERS)
+      .where(CUSTOMERS.CODE.eq(customer.getCode().getCode()))
+      .forUpdate()
+      .fetchOne(0, Long.class);
+
+    if (customerId == null) {
+      // throw exception unknown contact
+      throw new RuntimeException();
+    }
+
+    OffsetDateTime currentVersion = create
+      .select(CUSTOMER_DATA.VALID_FROM)
+      .from(CUSTOMER_DATA)
+      .where(
+        CUSTOMER_DATA.CUSTOMER.eq(customerId),
+        containes(tstzrange(CUSTOMER_DATA.VALID_FROM, CUSTOMER_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
+      .fetchOne()
+      .get(CUSTOMER_DATA.VALID_FROM);
 
     Select<Record1<Long>> type = create
-      .select(Tables.CUSTOMER_TYPES.ID)
-      .from(Tables.CUSTOMER_TYPES)
-      .where(Tables.CUSTOMER_TYPES.SLUG.eq(customer.getType()));
+      .select(CUSTOMER_TYPES.ID)
+      .from(CUSTOMER_TYPES)
+      .where(CUSTOMER_TYPES.CODE.eq(customer.getType()));
 
     Select<Record1<Long>> relationType = create
-      .select(Tables.CUSTOMER_RELATION_TYPES.ID)
-      .from(Tables.CUSTOMER_RELATION_TYPES)
-      .where(Tables.CUSTOMER_RELATION_TYPES.SLUG.eq(customer.getRelationType()));
+      .select(CUSTOMER_RELATION_TYPES.ID)
+      .from(CUSTOMER_RELATION_TYPES)
+      .where(CUSTOMER_RELATION_TYPES.CODE.eq(customer.getRelationType()));
 
-    create
-      .update(Tables.CUSTOMERS)
-      .set(Tables.CUSTOMERS.FULL_NAME, customer.getFullName())
-      .set(Tables.CUSTOMERS.DISPLAY_NAME, customer.getDisplayName())
-      .set(Tables.CUSTOMERS.DESCRIPTION, customer.getDescription())
-      .set(Tables.CUSTOMERS.CUSTOMER_TYPE, type)
-      .set(Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE, relationType)
+    boolean update = !create.fetchExists(create
+      .selectOne()
+      .from(CUSTOMER_DATA)
       .where(
-        Tables.CUSTOMERS.ID.eq(customerId),
-        Tables.CUSTOMERS.MODIFIED_AT.eq(customer.getVersion()));
+        CUSTOMER_DATA.FULL_NAME.eq(customer.getFullName()),
+        customer.getDisplayName() != null ? CUSTOMER_DATA.DISPLAY_NAME.eq(customer.getDisplayName()) : CUSTOMER_DATA.DISPLAY_NAME.isNull(),
+        customer.getDescription() != null ? CUSTOMER_DATA.DESCRIPTION.eq(customer.getDescription()) : CUSTOMER_DATA.DESCRIPTION.isNull(),
+        CUSTOMER_DATA.CUSTOMER_TYPE.eq(type),
+        CUSTOMER_DATA.CUSTOMER_RELATION_TYPE.eq(relationType),
+        CUSTOMER_DATA.CUSTOMER.eq(customerId),
+        containes(tstzrange(CUSTOMER_DATA.VALID_FROM, CUSTOMER_DATA.VALID_TO, value("[)")), currentOffsetDateTime())));
 
-    Set<Long> assignedEmails = new HashSet<>();
-    customer.getEmails().forEach(email -> {
-      Long id = assignedEmail(customerId, email);
-      if (id == null) {
-        id = assignEmail(customerId, email);
+    Set<Email> oldEmails = listEmails(customerId, value(currentVersion), Collectors.toSet());
+    Set<PhoneNumber> oldPhoneNumbers = listPhoneNumbers(customerId, value(currentVersion), Collectors.toSet());
+    Set<Email> newEmails = customer.getEmails().stream().collect(Collectors.toSet());
+    Set<PhoneNumber> newPhoneNumbers = customer.getPhoneNumbers().stream().collect(Collectors.toSet());
+
+    if (update || !oldEmails.equals(newEmails) || !oldPhoneNumbers.equals(newPhoneNumbers)) {
+      int updated = create
+        .update(CUSTOMER_DATA)
+        .set(CUSTOMER_DATA.VALID_TO, currentOffsetDateTime())
+        .where(
+          CUSTOMER_DATA.CUSTOMER.eq(customerId),
+          CUSTOMER_DATA.VALID_FROM.eq(customer.getVersion()),
+          CUSTOMER_DATA.VALID_TO.isNull())
+        .execute();
+
+      if (updated != 1) {
+        // throw exception concurent modification
+        throw new RuntimeException();
       }
-      assignedEmails.add(id);
-    });
-    removeEmailsExcept(customerId, assignedEmails);
 
-    Set<Long> assignedPhones = new HashSet<>();
-    customer.getPhones().forEach(phone -> {
-      Long id = assignedPhone(customerId, phone);
-      if (id == null) {
-        id = assignPhone(customerId, phone);
-      }
-      assignedPhones.add(id);
-    });
-    removePhoneNumbersExcept(customerId, assignedPhones);
-  }
+      removeEmails(customerId, value(customer.getVersion()));
+      removePhoneNumbers(customerId, value(customer.getVersion()));
 
-  private long assignEmail(long customer, Email email) {
-    return create
-      .insertInto(Tables.CUSTOMER_EMAILS)
-      .columns(
-        Tables.CUSTOMER_EMAILS.CUSTOMER,
-        Tables.CUSTOMER_EMAILS.EMAIL,
-        Tables.CUSTOMER_EMAILS.EMAIL_TYPE,
-        Tables.CUSTOMER_EMAILS.PRIM)
-      .values(
-        DSL.value(customer),
-        DSL.value(email.getValue()),
-        create
-          .select(Tables.EMAIL_TYPES.ID)
-          .from(Tables.EMAIL_TYPES)
-          .where(Tables.EMAIL_TYPES.SLUG.eq(email.getType()))
-          .asField(),
-        DSL.value(email.getPrimary() != null ? email.getPrimary() : false))
-      .returning(Tables.CUSTOMER_EMAILS.ID)
-      .fetchOne()
-      .get(Tables.CUSTOMER_EMAILS.ID);
-  }
-
-  private Long assignedEmail(long customer, Email email) {
-    return create
-      .select(Tables.CUSTOMER_EMAILS.ID)
-      .from(Tables.CUSTOMER_EMAILS)
-      .where(
-        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(customer),
-        Tables.CUSTOMER_EMAILS.EMAIL_TYPE.eq(
-          create
-            .select(Tables.EMAIL_TYPES.ID)
-            .from(Tables.EMAIL_TYPES)
-            .where(Tables.EMAIL_TYPES.SLUG.eq(email.getType()))
-            .asField()),
-        Tables.CUSTOMER_EMAILS.EMAIL.likeIgnoreCase(email.getValue()))
-      .forUpdate()
-      .fetchOne(Tables.CUSTOMER_EMAILS.ID);
-  }
-
-  private ImmutableList<EmailFullDisplay> assignedEmail(long customer) {
-    return create
-      .select(
-        Tables.EMAIL_TYPES.SLUG,
-        Tables.CUSTOMER_EMAILS.EMAIL,
-        Tables.CUSTOMER_EMAILS.PRIM)
-      .from(Tables.CUSTOMER_EMAILS)
-      .innerJoin(Tables.EMAIL_TYPES).on(Tables.EMAIL_TYPES.ID.eq(Tables.CUSTOMER_EMAILS.EMAIL_TYPE))
-      .where(Tables.CUSTOMER_EMAILS.CUSTOMER.eq(customer))
-      .fetch()
-      .stream()
-      .map(record -> EmailFullDisplay.builder()
-        .type(record.get(Tables.EMAIL_TYPES.SLUG))
-        .value(record.get(Tables.CUSTOMER_EMAILS.EMAIL))
-        .primary(record.get(Tables.CUSTOMER_EMAILS.PRIM))
-        .build())
-      .collect(ImmutableList.toImmutableList());
-  }
-
-  public void removeEmailsExcept(long customer, Set<Long> emailIds) {
-    create
-      .deleteFrom(Tables.CUSTOMER_EMAILS)
-      .where(
-        Tables.CUSTOMER_EMAILS.CUSTOMER.eq(customer),
-        Tables.CUSTOMER_EMAILS.ID.notIn(emailIds))
-      .execute();
-  }
-
-  private long assignPhone(long customer, PhoneNumberCreate phone) {
-    return create
-      .insertInto(Tables.CUSTOMER_PHONE_NUMBERS)
-      .columns(
-        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER,
-        Tables.CUSTOMER_PHONE_NUMBERS.PHONE,
-        Tables.CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER_TYPE,
-        Tables.CUSTOMER_PHONE_NUMBERS.PRIM)
-      .values(
-        DSL.value(customer),
-        DSL.value(phone.getValue()),
-        create
-          .select(Tables.PHONE_NUMBER_TYPES.ID)
-          .from(Tables.PHONE_NUMBER_TYPES)
-          .where(Tables.PHONE_NUMBER_TYPES.SLUG.eq(phone.getType()))
-          .asField(),
-        DSL.value(phone.getPrimary() != null ? phone.getPrimary() : false))
-      .returning(Tables.CUSTOMER_PHONE_NUMBERS.ID)
-      .fetchOne()
-      .get(Tables.CUSTOMER_PHONE_NUMBERS.ID);
-  }
-
-  private Long assignedPhone(long customer, PhoneNumberCreate phone) {
-    return create
-      .select(Tables.CUSTOMER_PHONE_NUMBERS.ID)
-      .from(Tables.CUSTOMER_PHONE_NUMBERS)
-      .where(
-        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customer),
-        Tables.CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER_TYPE.eq(
-          create
-            .select(Tables.PHONE_NUMBER_TYPES.ID)
-            .from(Tables.PHONE_NUMBER_TYPES)
-            .where(Tables.PHONE_NUMBER_TYPES.SLUG.eq(phone.getType()))
-            .asField()),
-        Tables.CUSTOMER_PHONE_NUMBERS.PHONE.likeIgnoreCase(phone.getValue()))
-      .forUpdate()
-      .fetchOne(Tables.CUSTOMER_PHONE_NUMBERS.ID);
-  }
-
-  private ImmutableList<PhoneNumber> assignedPhone(long customer) {
-    return create
-      .select(
-        Tables.PHONE_NUMBER_TYPES.SLUG,
-        Tables.CUSTOMER_PHONE_NUMBERS.PHONE,
-        Tables.CUSTOMER_PHONE_NUMBERS.PRIM)
-      .from(Tables.CUSTOMER_PHONE_NUMBERS)
-      .innerJoin(Tables.PHONE_NUMBER_TYPES).on(Tables.PHONE_NUMBER_TYPES.ID.eq(Tables.CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER_TYPE))
-      .where(Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customer))
-      .fetch()
-      .stream()
-      .map(record -> PhoneNumber.builder()
-        .type(record.get(Tables.PHONE_NUMBER_TYPES.SLUG))
-        .value(record.get(Tables.CUSTOMER_PHONE_NUMBERS.PHONE))
-        .primary(record.get(Tables.CUSTOMER_PHONE_NUMBERS.PRIM))
-        .build())
-      .collect(ImmutableList.toImmutableList());
-  }
-
-  private void removePhoneNumbersExcept(long customer, Set<Long> phoneIds) {
-    create
-      .deleteFrom(Tables.CUSTOMER_PHONE_NUMBERS)
-      .where(
-        Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customer),
-        Tables.CUSTOMER_PHONE_NUMBERS.ID.notIn(phoneIds))
-      .execute();
+      create(customer);
+    }
   }
 
   @Override
@@ -272,34 +202,36 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     Condition searchCondition = buildSearchCondition(pagination);
 
     Field<String> primaryEmail = create
-      .select(Tables.CUSTOMER_EMAILS.EMAIL)
-      .from(Tables.CUSTOMER_EMAILS)
-      .where(Tables.CUSTOMER_EMAILS.CUSTOMER.eq(Tables.CUSTOMERS.ID))
-      .orderBy(Tables.CUSTOMER_EMAILS.PRIM.desc())
+      .select(CUSTOMER_EMAILS.EMAIL)
+      .from(CUSTOMER_EMAILS)
+      .where(CUSTOMER_EMAILS.CUSTOMER.eq(Tables.CUSTOMERS.ID))
+      .orderBy(CUSTOMER_EMAILS.VALID_FROM)
       .limit(1)
       .<String>asField("primaryEmail");
 
     Field<String> primaryPhone = create
-      .select(Tables.CUSTOMER_PHONE_NUMBERS.PHONE)
-      .from(Tables.CUSTOMER_PHONE_NUMBERS)
-      .where(Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(Tables.CUSTOMERS.ID))
-      .orderBy(Tables.CUSTOMER_PHONE_NUMBERS.PRIM.desc())
+      .select(CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER)
+      .from(CUSTOMER_PHONE_NUMBERS)
+      .where(CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(Tables.CUSTOMERS.ID))
+      .orderBy(CUSTOMER_PHONE_NUMBERS.VALID_FROM)
       .limit(1)
       .<String>asField("primaryPhone");
 
     return create
       .select(
-        Tables.CUSTOMERS.CODE,
-        Tables.CUSTOMER_TYPES.SLUG,
-        Tables.CUSTOMER_RELATION_TYPES.SLUG,
-        Tables.CUSTOMERS.DISPLAY_NAME,
-        Tables.CUSTOMERS.FULL_NAME,
+        CUSTOMERS.CODE,
+        CUSTOMER_TYPES.CODE,
+        CUSTOMER_RELATION_TYPES.CODE,
+        CUSTOMER_DATA.DISPLAY_NAME,
+        CUSTOMER_DATA.FULL_NAME,
         primaryEmail,
         primaryPhone)
-      .from(Tables.CUSTOMERS)
-      .innerJoin(Tables.CUSTOMER_TYPES).on(Tables.CUSTOMER_TYPES.ID.eq(Tables.CUSTOMERS.CUSTOMER_TYPE))
-      .innerJoin(Tables.CUSTOMER_RELATION_TYPES)
-      .on(Tables.CUSTOMER_RELATION_TYPES.ID.eq(Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE))
+      .from(CUSTOMERS)
+      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
+      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
+      .innerJoin(CUSTOMER_DATA).on(
+        CUSTOMER_DATA.CUSTOMER.eq(CUSTOMERS.ID),
+        containes(tstzrange(CUSTOMER_DATA.VALID_FROM, CUSTOMER_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
       .where(searchCondition)
       .limit(limit)
       .offset(offset)
@@ -307,10 +239,10 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .stream()
       .map(record -> CustomerPreview.builder()
         .code(record.get(Tables.CUSTOMERS.CODE))
-        .type(record.get(Tables.CUSTOMER_TYPES.SLUG))
-        .relationType(record.get(Tables.CUSTOMER_RELATION_TYPES.SLUG))
-        .displayName(record.get(Tables.CUSTOMERS.DISPLAY_NAME))
-        .fullName(record.get(Tables.CUSTOMERS.FULL_NAME))
+        .type(record.get(Tables.CUSTOMER_TYPES.CODE))
+        .relationType(record.get(Tables.CUSTOMER_RELATION_TYPES.CODE))
+        .displayName(record.get(Tables.CUSTOMER_DATA.DISPLAY_NAME))
+        .fullName(record.get(Tables.CUSTOMER_DATA.FULL_NAME))
         .primaryEmail(record.get(primaryEmail))
         .primaryPhone(record.get(primaryPhone))
         .build())
@@ -324,10 +256,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
     return create
       .selectCount()
-      .from(Tables.CUSTOMERS)
-      .innerJoin(Tables.CUSTOMER_TYPES).on(Tables.CUSTOMER_TYPES.ID.eq(Tables.CUSTOMERS.CUSTOMER_TYPE))
-      .innerJoin(Tables.CUSTOMER_RELATION_TYPES)
-      .on(Tables.CUSTOMER_RELATION_TYPES.ID.eq(Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE))
+      .from(CUSTOMERS)
+      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
+      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
+      .innerJoin(CUSTOMER_DATA).on(
+        CUSTOMER_DATA.CUSTOMER.eq(CUSTOMERS.ID),
+        containes(tstzrange(CUSTOMER_DATA.VALID_FROM, CUSTOMER_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
       .where(searchCondition)
       .fetchOne()
       .value1();
@@ -336,27 +270,30 @@ public class CustomerRepositoryImpl implements CustomerRepository {
   private Condition buildSearchCondition(Pagination pagination) {
     Select<Record1<Integer>> hasEmail = create
       .selectOne()
-      .from(Tables.CUSTOMER_EMAILS)
+      .from(CUSTOMER_EMAILS)
+      .innerJoin(EMAILS).on(EMAILS.ID.eq(CUSTOMER_EMAILS.EMAIL))
       .where(
-        JooqUtil.search(pagination.getQuery(), Tables.CUSTOMER_EMAILS.EMAIL),
-        Tables.CUSTOMERS.ID.eq(Tables.CUSTOMER_EMAILS.CUSTOMER));
+        search(pagination.getQuery(), EMAILS.EMAIL),
+        CUSTOMERS.ID.eq(CUSTOMER_EMAILS.CUSTOMER));
 
     Select<Record1<Integer>> hasPhone = create
       .selectOne()
-      .from(Tables.CUSTOMER_PHONE_NUMBERS)
+      .from(CUSTOMER_PHONE_NUMBERS)
+      .innerJoin(PHONE_NUMBERS).on(PHONE_NUMBERS.ID.eq(CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER))
       .where(
-        JooqUtil.search(pagination.getQuery(), Tables.CUSTOMER_PHONE_NUMBERS.PHONE),
-        Tables.CUSTOMERS.ID.eq(Tables.CUSTOMER_PHONE_NUMBERS.CUSTOMER));
+        search(pagination.getQuery(), PHONE_NUMBERS.PHONE_NUMBER),
+        CUSTOMERS.ID.eq(CUSTOMER_PHONE_NUMBERS.CUSTOMER));
 
     List<Condition> conditions = JooqUtil.search(
       pagination.getQuery(),
-      Tables.CUSTOMERS.CODE,
-      Tables.CUSTOMER_TYPES.SLUG,
-      Tables.CUSTOMER_TYPES.NAME,
-      Tables.CUSTOMER_RELATION_TYPES.SLUG,
-      Tables.CUSTOMER_RELATION_TYPES.NAME,
-      Tables.CUSTOMERS.DISPLAY_NAME,
-      Tables.CUSTOMERS.FULL_NAME);
+      CUSTOMERS.CODE,
+      CUSTOMER_TYPES.CODE,
+      CUSTOMER_TYPES.DEFAULT_NAME,
+      CUSTOMER_RELATION_TYPES.CODE,
+      CUSTOMER_RELATION_TYPES.DEFAULT_NAME,
+      CUSTOMER_DATA.DISPLAY_NAME,
+      CUSTOMER_DATA.FULL_NAME,
+      CUSTOMER_DATA.DESCRIPTION);
     conditions.add(DSL.exists(hasEmail));
     conditions.add(DSL.exists(hasPhone));
 
@@ -365,54 +302,140 @@ public class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @Override
-  public CustomerFullDisplay get(String code) {
+  public Customer get(CustomerCode code) {
     Long customerId = create
       .select(Tables.CUSTOMERS.ID)
       .from(Tables.CUSTOMERS)
-      .where(Tables.CUSTOMERS.CODE.eq(code))
+      .where(Tables.CUSTOMERS.CODE.eq(code.getCode()))
       .fetchOne(Tables.CUSTOMERS.ID);
 
     return create
       .select(
-        Tables.CUSTOMERS.CODE,
-        Tables.CUSTOMER_TYPES.SLUG,
-        Tables.CUSTOMER_RELATION_TYPES.SLUG,
-        Tables.CUSTOMERS.DISPLAY_NAME,
-        Tables.CUSTOMERS.FULL_NAME,
-        Tables.CUSTOMERS.DESCRIPTION,
-        Tables.CUSTOMERS.MODIFIED_AT)
+        CUSTOMERS.CODE,
+        CUSTOMER_TYPES.CODE,
+        CUSTOMER_RELATION_TYPES.CODE,
+        CUSTOMER_DATA.DISPLAY_NAME,
+        CUSTOMER_DATA.FULL_NAME,
+        CUSTOMER_DATA.DESCRIPTION,
+        CUSTOMER_DATA.VALID_FROM)
       .from(Tables.CUSTOMERS)
-      .innerJoin(Tables.CUSTOMER_TYPES).on(Tables.CUSTOMER_TYPES.ID.eq(Tables.CUSTOMERS.CUSTOMER_TYPE))
-      .innerJoin(Tables.CUSTOMER_RELATION_TYPES)
-      .on(Tables.CUSTOMER_RELATION_TYPES.ID.eq(Tables.CUSTOMERS.CUSTOMER_RELATION_TYPE))
-      .where(Tables.CUSTOMERS.CODE.eq(code))
+      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
+      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
+      .innerJoin(CUSTOMER_DATA).on(
+        CUSTOMER_DATA.CUSTOMER.eq(CUSTOMERS.ID),
+        containes(tstzrange(CUSTOMER_DATA.VALID_FROM, CUSTOMER_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
+      .where(CUSTOMERS.CODE.eq(code.getCode()))
       .fetchOne()
-      .map(record -> CustomerFullDisplay.builder()
-        .code(record.get(Tables.CUSTOMERS.CODE))
-        .type(record.get(Tables.CUSTOMER_TYPES.SLUG))
-        .relationType(record.get(Tables.CUSTOMER_RELATION_TYPES.SLUG))
-        .displayName(record.get(Tables.CUSTOMERS.DISPLAY_NAME))
-        .fullName(record.get(Tables.CUSTOMERS.FULL_NAME))
-        .description(record.get(Tables.CUSTOMERS.DESCRIPTION))
-        .version(record.get(Tables.CUSTOMERS.MODIFIED_AT))
-        .emails(assignedEmail(customerId))
-        .phones(assignedPhone(customerId))
+      .map(record -> Customer.builder()
+        .code(CustomerCode.of(record.get(CUSTOMERS.CODE)))
+        .type(record.get(CUSTOMER_TYPES.CODE))
+        .relationType(record.get(CUSTOMER_RELATION_TYPES.CODE))
+        .displayName(record.get(CUSTOMER_DATA.DISPLAY_NAME))
+        .fullName(record.get(CUSTOMER_DATA.FULL_NAME))
+        .description(record.get(CUSTOMER_DATA.DESCRIPTION))
+        .version(record.get(CUSTOMER_DATA.VALID_FROM))
+        .emails(listEmails(customerId, value(record.get(CUSTOMER_DATA.VALID_FROM)), ImmutableList.toImmutableList()))
+        .phoneNumbers(listPhoneNumbers(customerId, value(record.get(CUSTOMER_DATA.VALID_FROM)), ImmutableList.toImmutableList()))
         .build());
   }
 
-  @Override
-  public void delete(String code) {
+  private <C> C listEmails(long customerId, Field<OffsetDateTime> version, Collector<Email, ?, C> collector) {
+    return create
+      .select(
+        EMAIL_TYPES.CODE,
+        EMAILS.EMAIL)
+      .from(CUSTOMER_EMAILS)
+      .innerJoin(EMAILS).on(EMAILS.ID.eq(CUSTOMER_EMAILS.EMAIL))
+      .innerJoin(EMAIL_TYPES).on(EMAIL_TYPES.ID.eq(CUSTOMER_EMAILS.EMAIL_TYPE))
+      .where(
+        CUSTOMER_EMAILS.CUSTOMER.eq(customerId),
+        CUSTOMER_EMAILS.VALID_FROM.eq(version))
+      .fetch()
+      .stream()
+      .map(record -> Email.builder()
+        .type(record.get(EMAIL_TYPES.CODE))
+        .value(record.get(EMAILS.EMAIL))
+        .build())
+      .collect(collector);
+  }
+
+  private <C> C listPhoneNumbers(long customerId, Field<OffsetDateTime> version, Collector<PhoneNumber, ?, C> collector) {
+    return create
+      .select(
+        PHONE_NUMBER_TYPES.CODE,
+        PHONE_NUMBERS.PHONE_NUMBER)
+      .from(CUSTOMER_PHONE_NUMBERS)
+      .innerJoin(PHONE_NUMBERS).on(PHONE_NUMBERS.ID.eq(CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER))
+      .innerJoin(PHONE_NUMBER_TYPES).on(PHONE_NUMBER_TYPES.ID.eq(CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER_TYPE))
+      .where(
+        CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customerId),
+        CUSTOMER_PHONE_NUMBERS.VALID_FROM.eq(version))
+      .fetch()
+      .stream()
+      .map(record -> PhoneNumber.builder()
+        .type(record.get(PHONE_NUMBER_TYPES.CODE))
+        .value(record.get(PHONE_NUMBERS.PHONE_NUMBER))
+        .build())
+      .collect(collector);
+  }
+
+  private void assignEmail(Long customerId, String type, long emailId, Field<OffsetDateTime> version) {
     create
-      .deleteFrom(Tables.CUSTOMERS)
-      .where(Tables.CUSTOMERS.CODE.eq(code))
+      .insertInto(CUSTOMER_EMAILS)
+      .columns(
+        CUSTOMER_EMAILS.CUSTOMER,
+        CUSTOMER_EMAILS.EMAIL_TYPE,
+        CUSTOMER_EMAILS.EMAIL,
+        CUSTOMER_EMAILS.VALID_FROM)
+      .values(
+        value(customerId),
+        create
+          .select(EMAIL_TYPES.ID)
+          .from(EMAIL_TYPES)
+          .where(EMAIL_TYPES.CODE.eq(type))
+          .asField(),
+        value(emailId),
+        version)
       .execute();
   }
 
-  @Override
-  public void delete(Set<String> codes) {
+  private void assignPhone(Long customerId, String type, long phoneId, Field<OffsetDateTime> version) {
     create
-      .deleteFrom(Tables.CUSTOMERS)
-      .where(Tables.CUSTOMERS.CODE.in(codes))
+      .insertInto(CUSTOMER_PHONE_NUMBERS)
+      .columns(
+        CUSTOMER_PHONE_NUMBERS.CUSTOMER,
+        CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER_TYPE,
+        CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER,
+        CUSTOMER_PHONE_NUMBERS.VALID_FROM)
+      .values(
+        value(customerId),
+        create
+          .select(PHONE_NUMBER_TYPES.ID)
+          .from(PHONE_NUMBER_TYPES)
+          .where(PHONE_NUMBER_TYPES.CODE.eq(type))
+          .asField(),
+        value(phoneId),
+        version)
+      .execute();
+  }
+
+  private void removeEmails(long customerId, Field<OffsetDateTime> version) {
+    create
+      .update(CUSTOMER_EMAILS)
+      .set(CUSTOMER_EMAILS.VALID_TO, version)
+      .where(
+        CUSTOMER_EMAILS.CUSTOMER.eq(customerId),
+        CUSTOMER_EMAILS.VALID_FROM.eq(version))
+      .execute();
+  }
+
+  private void removePhoneNumbers(Long customerId, Field<OffsetDateTime> version) {
+    create
+      .update(CUSTOMER_PHONE_NUMBERS)
+      .set(CUSTOMER_EMAILS.VALID_TO, currentOffsetDateTime())
+      .where(
+        CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(customerId),
+        CUSTOMER_PHONE_NUMBERS.VALID_FROM.eq(version))
       .execute();
   }
 }

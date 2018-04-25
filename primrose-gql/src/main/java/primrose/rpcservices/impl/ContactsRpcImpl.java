@@ -1,7 +1,5 @@
 package primrose.rpcservices.impl;
 
-import java.util.Set;
-
 import org.springframework.stereotype.Component;
 
 import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
@@ -9,9 +7,8 @@ import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImpl;
 import primrose.rpcservices.ContactsRpc;
 import primrose.service.ListResult;
 import primrose.service.Pagination;
-import primrose.service.contact.ContactCreate;
 import primrose.service.contact.Contact;
-import primrose.service.contact.ContactFullDisplay;
+import primrose.service.contact.ContactCode;
 import primrose.service.contact.ContactPreview;
 import primrose.service.contact.ContactService;
 import primrose.spring.ValidationSupport;
@@ -29,19 +26,17 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public String create(ContactCreate contact) {
+  public ContactCode create(Contact contact) {
     validationSupport.validate("data", contact);
 
     return contactService.create(contact);
   }
 
   @Override
-  public String update(String contactCode, Contact contact) {
+  public ContactCode update(Contact contact) {
     validationSupport.validate("data", contact);
 
-    contactService.update(contactCode, contact);
-
-    return contactCode;
+    return contactService.update(contact);
   }
 
   @Override
@@ -52,20 +47,8 @@ public class ContactsRpcImpl implements ContactsRpc {
   }
 
   @Override
-  public ContactFullDisplay get(String contactCode) {
+  public Contact get(ContactCode contactCode) {
     return contactService.get(contactCode);
-  }
-
-  @Override
-  public String delete(String contactCode) {
-    contactService.delete(contactCode);
-    return contactCode;
-  }
-
-  @Override
-  public Set<String> delete(Set<String> contactCodes) {
-    contactService.delete(contactCodes);
-    return contactCodes;
   }
 
 }

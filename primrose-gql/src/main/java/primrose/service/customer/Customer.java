@@ -21,14 +21,14 @@ import primrose.service.PhoneNumber;
 import primrose.service.UpdateValidationGroup;
 
 @Value
-@Builder
+@Builder(toBuilder=true)
 @Wither
 @JsonDeserialize(builder = Customer.CustomerBuilder.class)
 public class Customer {
 
   @NotBlank(groups = UpdateValidationGroup.class)
   @Null(groups = CreateValidationGroup.class)
-  private final String                     code;
+  private final CustomerCode               code;
   @NotBlank
   private final String                     type;
   @NotBlank

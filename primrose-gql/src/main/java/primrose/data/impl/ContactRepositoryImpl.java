@@ -2,13 +2,24 @@ package primrose.data.impl;
 
 import static org.jooq.impl.DSL.currentOffsetDateTime;
 import static org.jooq.impl.DSL.defaultValue;
+import static org.jooq.impl.DSL.value;
+import static primrose.jooq.JooqUtil.containes;
+import static primrose.jooq.JooqUtil.search;
+import static primrose.jooq.JooqUtil.tstzrange;
 import static primrose.jooq.Tables.CONTACTS;
 import static primrose.jooq.Tables.CONTACT_DATA;
 import static primrose.jooq.Tables.CONTACT_EMAILS;
+import static primrose.jooq.Tables.CONTACT_PHONE_NUMBERS;
+import static primrose.jooq.Tables.EMAILS;
+import static primrose.jooq.Tables.EMAIL_TYPES;
+import static primrose.jooq.Tables.PHONE_NUMBERS;
+import static primrose.jooq.Tables.PHONE_NUMBER_TYPES;
 
-import java.util.HashSet;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -21,298 +32,187 @@ import org.springframework.stereotype.Repository;
 import com.google.common.collect.ImmutableList;
 
 import primrose.data.ContactRepository;
+import primrose.data.EmailAndPhoneNumberRepository;
 import primrose.jooq.JooqUtil;
 import primrose.jooq.Tables;
-import primrose.jooq.tables.records.ContactsRecord;
 import primrose.service.Email;
-import primrose.service.PhoneNumberCreate;
-import primrose.service.EmailFullDisplay;
 import primrose.service.Pagination;
 import primrose.service.PhoneNumber;
-import primrose.service.contact.ContactCreate;
 import primrose.service.contact.Contact;
-import primrose.service.contact.ContactFullDisplay;
+import primrose.service.contact.ContactCode;
 import primrose.service.contact.ContactPreview;
 
 @Repository
 public class ContactRepositoryImpl implements ContactRepository {
 
-  private DSLContext create;
+  private DSLContext                    create;
+  private EmailAndPhoneNumberRepository emailAndPhoneNumberRepository;
 
-  public ContactRepositoryImpl(DSLContext create) {
+  public ContactRepositoryImpl(
+    DSLContext create,
+    EmailAndPhoneNumberRepository emailAndPhoneNumberRepository) {
     this.create = create;
+    this.emailAndPhoneNumberRepository = emailAndPhoneNumberRepository;
   }
 
-  public String generateNewCode() {
-    create
+  @Override
+  public ContactCode generate() {
+    return ContactCode.of(create
       .insertInto(CONTACTS)
       .columns(CONTACTS.ID, CONTACTS.CODE)
       .values(defaultValue(CONTACTS.ID), defaultValue(CONTACTS.CODE))
       .returning(CONTACTS.CODE)
       .fetchOne()
-      .getCode();
+      .getCode());
   }
 
-  public void create(String code, ContactCreate contact) {
+  @Override
+  public void create(Contact contact) {
     Long contactId = create
       .select(CONTACTS.ID)
       .from(CONTACTS)
-      .where(CONTACTS.CODE.eq(code))
+      .where(CONTACTS.CODE.eq(contact.getCode().getCode()))
+      .forUpdate()
       .fetchOne()
       .value1();
 
-    create
+    OffsetDateTime version = create
       .insertInto(CONTACT_DATA)
       .columns(
+        CONTACT_DATA.CONTACT,
         CONTACT_DATA.FULL_NAME,
         CONTACT_DATA.DESCRIPTION)
       .values(
+        contactId,
         contact.getFullName(),
-        contact.getDescription());
+        contact.getDescription())
+      .returning(CONTACT_DATA.VALID_FROM)
+      .fetchOne()
+      .getValidFrom();
 
     contact.getEmails().forEach(email -> {
-      assignEmail(contactId, email);
+      long emailId = emailAndPhoneNumberRepository.email(email.getValue());
+      assignEmail(contactId, email.getType(), emailId, value(version));
     });
 
-    contact.getPhones().forEach(phone -> {
-      assignPhone(contactId, phone);
+    contact.getPhoneNumbers().forEach(phone -> {
+      long phoneId = emailAndPhoneNumberRepository.phone(phone.getValue());
+      assignPhone(contactId, phone.getType(), phoneId, value(version));
     });
   }
 
-  public void update(String code, Contact contact) {
+  @Override
+  public void update(Contact contact) {
     Long contactId = create
       .select(CONTACTS.ID)
       .from(CONTACTS)
-      .where(CONTACTS.CODE.eq(code))
-      .fetchOne()
-      .value1();
+      .where(CONTACTS.CODE.eq(contact.getCode().getCode()))
+      .forUpdate()
+      .fetchOne(0, Long.class);
 
-    int updated = create
-      .update(CONTACT_DATA)
-      .set(CONTACT_DATA.VALID_TO, currentOffsetDateTime())
-      .where(
-        CONTACT_DATA.CONTACT.eq(contactId),
-        CONTACT_DATA.VALID_FROM.eq(contact.getVersion()),
-        CONTACT_DATA.VALID_TO.isNull())
-      .execute();
-
-    if (updated == 0) {
-      //throw exception concurent modification
+    if (contactId == null) {
+      // throw exception unknown contact
+      throw new RuntimeException();
     }
 
-    create
-    .insertInto(CONTACT_DATA)
-    .columns(
-      CONTACT_DATA.FULL_NAME,
-      CONTACT_DATA.DESCRIPTION)
-    .values(
-      contact.getFullName(),
-      contact.getDescription());
-
-    Set<Long> assignedEmails = new HashSet<>();
-    contact.getEmails().forEach(email -> {
-      Long id = assignedEmail(contactId, email);
-      if (id == null) {
-        id = assignEmail(contactId, email);
-      }
-      assignedEmails.add(id);
-    });
-    removeEmailsExcept(contactId, assignedEmails);
-
-    Set<Long> assignedPhones = new HashSet<>();
-    contact.getPhones().forEach(phone -> {
-      Long id = assignedPhone(contactId, phone);
-      if (id == null) {
-        id = assignPhone(contactId, phone);
-      }
-      assignedPhones.add(id);
-    });
-    removePhoneNumbersExcept(contactId, assignedPhones);
-  }
-
-  private long assignEmail(long contactId, Email email) {
-    return create
-      .insertInto(CONTACT_EMAILS)
-      .columns(
-        Tables.CONTACT_EMAILS.CONTACT,
-        Tables.CONTACT_EMAILS.EMAIL,
-        Tables.CONTACT_EMAILS.EMAIL_TYPE,
-        Tables.CONTACT_EMAILS.PRIM)
-      .values(
-        DSL.value(contactId),
-        DSL.value(email.getValue()),
-        create
-          .select(Tables.EMAIL_TYPES.ID)
-          .from(Tables.EMAIL_TYPES)
-          .where(Tables.EMAIL_TYPES.SLUG.eq(email.getType()))
-          .asField(),
-        DSL.value(email.getPrimary() != null ? email.getPrimary() : false))
-      .returning(Tables.CONTACT_EMAILS.ID)
+    OffsetDateTime currentVersion = create
+      .select(CONTACT_DATA.VALID_FROM)
+      .from(CONTACT_DATA)
+      .where(
+        CONTACT_DATA.CONTACT.eq(contactId),
+        containes(tstzrange(CONTACT_DATA.VALID_FROM, CONTACT_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
       .fetchOne()
-      .get(Tables.CONTACT_EMAILS.ID);
-  }
+      .get(CONTACT_DATA.VALID_FROM);
 
-  private Long assignedEmail(long contactId, Email email) {
-    return create
-      .select(Tables.CONTACT_EMAILS.ID)
-      .from(Tables.CONTACT_EMAILS)
+    boolean update = !create.fetchExists(create
+      .selectOne()
+      .from(CONTACT_DATA)
       .where(
-        Tables.CONTACT_EMAILS.CONTACT.eq(contactId),
-        Tables.CONTACT_EMAILS.EMAIL_TYPE.eq(
-          create
-            .select(Tables.EMAIL_TYPES.ID)
-            .from(Tables.EMAIL_TYPES)
-            .where(Tables.EMAIL_TYPES.SLUG.eq(email.getType()))
-            .asField()),
-        Tables.CONTACT_EMAILS.EMAIL.likeIgnoreCase(email.getValue()))
-      .forUpdate()
-      .fetchOne(Tables.CONTACT_EMAILS.ID);
+        CONTACT_DATA.FULL_NAME.eq(contact.getFullName()),
+        contact.getDescription() != null ? CONTACT_DATA.DESCRIPTION.eq(contact.getDescription()) : CONTACT_DATA.DESCRIPTION.isNull(),
+        CONTACT_DATA.CONTACT.eq(contactId),
+        containes(tstzrange(CONTACT_DATA.VALID_FROM, CONTACT_DATA.VALID_TO, value("[)")), currentOffsetDateTime())));
+
+    Set<Email> oldEmails = listEmails(contactId, value(currentVersion), Collectors.toSet());
+    Set<PhoneNumber> oldPhoneNumbers = listPhoneNumbers(contactId, value(currentVersion), Collectors.toSet());
+    Set<Email> newEmails = contact.getEmails().stream().collect(Collectors.toSet());
+    Set<PhoneNumber> newPhoneNumbers = contact.getPhoneNumbers().stream().collect(Collectors.toSet());
+
+    if (update || !oldEmails.equals(newEmails) || !oldPhoneNumbers.equals(newPhoneNumbers)) {
+      int updated = create
+        .update(CONTACT_DATA)
+        .set(CONTACT_DATA.VALID_TO, currentOffsetDateTime())
+        .where(
+          CONTACT_DATA.CONTACT.eq(contactId),
+          CONTACT_DATA.VALID_FROM.eq(contact.getVersion()),
+          CONTACT_DATA.VALID_TO.isNull())
+        .execute();
+
+      if (updated != 1) {
+        // throw exception concurent modification
+        throw new RuntimeException();
+      }
+
+      removeEmails(contactId, value(contact.getVersion()));
+      removePhoneNumbers(contactId, value(contact.getVersion()));
+
+      create(contact);
+    }
   }
 
-  private ImmutableList<EmailFullDisplay> assignedEmail(long contact) {
-    return create
-      .select(
-        Tables.EMAIL_TYPES.SLUG,
-        Tables.CONTACT_EMAILS.EMAIL,
-        Tables.CONTACT_EMAILS.PRIM)
-      .from(Tables.CONTACT_EMAILS)
-      .innerJoin(Tables.EMAIL_TYPES).on(Tables.EMAIL_TYPES.ID.eq(Tables.CONTACT_EMAILS.EMAIL_TYPE))
-      .where(Tables.CONTACT_EMAILS.CONTACT.eq(contact))
-      .fetch()
-      .stream()
-      .map(record -> EmailFullDisplay.builder()
-        .type(record.get(Tables.EMAIL_TYPES.SLUG))
-        .value(record.get(Tables.CONTACT_EMAILS.EMAIL))
-        .primary(record.get(Tables.CONTACT_EMAILS.PRIM))
-        .build())
-      .collect(ImmutableList.toImmutableList());
-  }
-
-  public void removeEmailsExcept(long contactId, Set<Long> emailIds) {
-    create
-      .deleteFrom(Tables.CONTACT_EMAILS)
-      .where(
-        Tables.CONTACT_EMAILS.CONTACT.eq(contactId),
-        Tables.CONTACT_EMAILS.ID.notIn(emailIds))
-      .execute();
-  }
-
-  private long assignPhone(long contactId, PhoneNumberCreate phone) {
-    return create
-      .insertInto(Tables.CONTACT_PHONE_NUMBERS)
-      .columns(
-        Tables.CONTACT_PHONE_NUMBERS.CONTACT,
-        Tables.CONTACT_PHONE_NUMBERS.PHONE,
-        Tables.CONTACT_PHONE_NUMBERS.PHONE_NUMBER_TYPE,
-        Tables.CONTACT_PHONE_NUMBERS.PRIM)
-      .values(
-        DSL.value(contactId),
-        DSL.value(phone.getValue()),
-        create
-          .select(Tables.PHONE_NUMBER_TYPES.ID)
-          .from(Tables.PHONE_NUMBER_TYPES)
-          .where(Tables.PHONE_NUMBER_TYPES.SLUG.eq(phone.getType()))
-          .asField(),
-        DSL.value(phone.getPrimary() != null ? phone.getPrimary() : false))
-      .returning(Tables.CONTACT_PHONE_NUMBERS.ID)
-      .fetchOne()
-      .get(Tables.CONTACT_PHONE_NUMBERS.ID);
-  }
-
-  private Long assignedPhone(long contactId, PhoneNumberCreate phone) {
-    return create
-      .select(Tables.CONTACT_PHONE_NUMBERS.ID)
-      .from(Tables.CONTACT_PHONE_NUMBERS)
-      .where(
-        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(contactId),
-        Tables.CONTACT_PHONE_NUMBERS.PHONE_NUMBER_TYPE.eq(
-          create
-            .select(Tables.PHONE_NUMBER_TYPES.ID)
-            .from(Tables.PHONE_NUMBER_TYPES)
-            .where(Tables.PHONE_NUMBER_TYPES.SLUG.eq(phone.getType()))
-            .asField()),
-        Tables.CONTACT_PHONE_NUMBERS.PHONE.likeIgnoreCase(phone.getValue()))
-      .forUpdate()
-      .fetchOne(Tables.CONTACT_PHONE_NUMBERS.ID);
-  }
-
-  private ImmutableList<PhoneNumber> assignedPhone(long contact) {
-    return create
-      .select(
-        Tables.PHONE_NUMBER_TYPES.SLUG,
-        Tables.CONTACT_PHONE_NUMBERS.PHONE,
-        Tables.CONTACT_PHONE_NUMBERS.PRIM)
-      .from(Tables.CONTACT_PHONE_NUMBERS)
-      .innerJoin(Tables.PHONE_NUMBER_TYPES).on(Tables.PHONE_NUMBER_TYPES.ID.eq(Tables.CONTACT_PHONE_NUMBERS.PHONE_NUMBER_TYPE))
-      .where(Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(contact))
-      .fetch()
-      .stream()
-      .map(record -> PhoneNumber.builder()
-        .type(record.get(Tables.PHONE_NUMBER_TYPES.SLUG))
-        .value(record.get(Tables.CONTACT_PHONE_NUMBERS.PHONE))
-        .primary(record.get(Tables.CONTACT_PHONE_NUMBERS.PRIM))
-        .build())
-      .collect(ImmutableList.toImmutableList());
-  }
-
-  private void removePhoneNumbersExcept(long contactId, Set<Long> phoneIds) {
-    create
-      .deleteFrom(Tables.CONTACT_PHONE_NUMBERS)
-      .where(
-        Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(contactId),
-        Tables.CONTACT_PHONE_NUMBERS.ID.notIn(phoneIds))
-      .execute();
-  }
-
+  @Override
   public ImmutableList<ContactPreview> list(Pagination pagination) {
     int limit = pagination.getSize();
     int offset = pagination.getPage() * pagination.getSize();
     Condition searchCondition = buildSearchCondition(pagination);
 
     Field<String> primaryEmail = create
-      .select(Tables.CONTACT_EMAILS.EMAIL)
-      .from(Tables.CONTACT_EMAILS)
-      .where(Tables.CONTACT_EMAILS.CONTACT.eq(Tables.CONTACTS.ID))
-      .orderBy(Tables.CONTACT_EMAILS.PRIM.desc())
+      .select(CONTACT_EMAILS.EMAIL)
+      .from(CONTACT_EMAILS)
+      .where(CONTACT_EMAILS.CONTACT.eq(CONTACTS.ID))
+      .orderBy(CONTACT_EMAILS.VALID_FROM)
       .limit(1)
       .<String>asField("primaryEmail");
 
     Field<String> primaryPhone = create
-      .select(Tables.CONTACT_PHONE_NUMBERS.PHONE)
-      .from(Tables.CONTACT_PHONE_NUMBERS)
-      .where(Tables.CONTACT_PHONE_NUMBERS.CONTACT.eq(Tables.CONTACTS.ID))
-      .orderBy(Tables.CONTACT_PHONE_NUMBERS.PRIM.desc())
+      .select(CONTACT_PHONE_NUMBERS.PHONE_NUMBER)
+      .from(CONTACT_PHONE_NUMBERS)
+      .where(CONTACT_PHONE_NUMBERS.CONTACT.eq(CONTACTS.ID))
+      .orderBy(CONTACT_PHONE_NUMBERS.VALID_FROM)
       .limit(1)
       .<String>asField("primaryPhone");
 
     return create
       .select(
-        Tables.CONTACTS.CODE,
-        Tables.CONTACTS.FULL_NAME,
+        CONTACTS.CODE,
         primaryEmail,
         primaryPhone)
-      .from(Tables.CONTACTS)
+      .from(CONTACTS)
+      .innerJoin(CONTACT_DATA).on(
+        CONTACT_DATA.CONTACT.eq(CONTACTS.ID),
+        containes(tstzrange(CONTACT_DATA.VALID_FROM, CONTACT_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
       .where(searchCondition)
       .limit(limit)
       .offset(offset)
       .fetch()
       .stream()
       .map(record -> ContactPreview.builder()
-        .code(record.get(Tables.CONTACTS.CODE))
-        .fullName(record.get(Tables.CONTACTS.FULL_NAME))
+        .code(record.get(CONTACTS.CODE))
+        .fullName(record.get(CONTACT_DATA.FULL_NAME))
         .primaryEmail(record.get(primaryEmail))
         .primaryPhone(record.get(primaryPhone))
         .build())
       .collect(ImmutableList.toImmutableList());
   }
 
+  @Override
   public long count(Pagination pagination) {
 
     Condition searchCondition = buildSearchCondition(pagination);
 
     return create
       .selectCount()
-      .from(Tables.CONTACTS)
+      .from(CONTACTS)
       .where(searchCondition)
       .fetchOne()
       .value1();
@@ -321,22 +221,24 @@ public class ContactRepositoryImpl implements ContactRepository {
   private Condition buildSearchCondition(Pagination pagination) {
     Select<Record1<Integer>> hasEmail = create
       .selectOne()
-      .from(Tables.CONTACT_EMAILS)
+      .from(CONTACT_EMAILS)
+      .innerJoin(EMAILS).on(EMAILS.ID.eq(CONTACT_EMAILS.EMAIL))
       .where(
-        JooqUtil.search(pagination.getQuery(), Tables.CONTACT_EMAILS.EMAIL),
-        Tables.CONTACTS.ID.eq(Tables.CONTACT_EMAILS.CONTACT));
+        search(value(pagination.getQuery()), EMAILS.EMAIL),
+        CONTACTS.ID.eq(CONTACT_EMAILS.CONTACT));
 
     Select<Record1<Integer>> hasPhone = create
       .selectOne()
-      .from(Tables.CONTACT_PHONE_NUMBERS)
+      .from(CONTACT_PHONE_NUMBERS)
+      .innerJoin(PHONE_NUMBERS).on(PHONE_NUMBERS.ID.eq(CONTACT_PHONE_NUMBERS.PHONE_NUMBER))
       .where(
-        JooqUtil.search(pagination.getQuery(), Tables.CONTACT_PHONE_NUMBERS.PHONE),
-        Tables.CONTACTS.ID.eq(Tables.CONTACT_PHONE_NUMBERS.CONTACT));
+        search(value(pagination.getQuery()), PHONE_NUMBERS.PHONE_NUMBER),
+        CONTACTS.ID.eq(CONTACT_PHONE_NUMBERS.CONTACT));
 
     List<Condition> conditions = JooqUtil.search(
       pagination.getQuery(),
-      Tables.CONTACTS.CODE,
-      Tables.CONTACTS.FULL_NAME);
+      CONTACTS.CODE,
+      CONTACT_DATA.FULL_NAME);
     conditions.add(DSL.exists(hasEmail));
     conditions.add(DSL.exists(hasPhone));
 
@@ -344,42 +246,132 @@ public class ContactRepositoryImpl implements ContactRepository {
     return searchCondition;
   }
 
-  public ContactFullDisplay get(String code) {
+  @Override
+  public Contact get(ContactCode code) {
     Long contactId = create
       .select(Tables.CONTACTS.ID)
       .from(Tables.CONTACTS)
-      .where(Tables.CONTACTS.CODE.eq(code))
+      .where(Tables.CONTACTS.CODE.eq(code.getCode()))
       .fetchOne(Tables.CONTACTS.ID);
 
     return create
       .select(
-        Tables.CONTACTS.CODE,
-        Tables.CONTACTS.FULL_NAME,
-        Tables.CONTACTS.DESCRIPTION)
-      .from(Tables.CONTACTS)
-      .where(Tables.CONTACTS.CODE.eq(code))
-      .fetchOne()
-      .map(record -> ContactFullDisplay.builder()
-        .code(record.get(Tables.CONTACTS.CODE))
-        .fullName(record.get(Tables.CONTACTS.FULL_NAME))
-        .description(record.get(Tables.CONTACTS.DESCRIPTION))
-        .version(record.get(Tables.CONTACTS.MODIFIED_AT))
-        .emails(assignedEmail(contactId))
-        .phones(assignedPhone(contactId))
+        CONTACTS.CODE,
+        CONTACT_DATA.FULL_NAME,
+        CONTACT_DATA.DESCRIPTION,
+        CONTACT_DATA.VALID_FROM)
+      .from(CONTACTS)
+      .innerJoin(CONTACT_DATA).on(
+        CONTACT_DATA.CONTACT.eq(CONTACTS.ID),
+        containes(tstzrange(CONTACT_DATA.VALID_FROM, CONTACT_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
+      .where(CONTACTS.CODE.eq(code.getCode()))
+      .fetchOne(record -> Contact.builder()
+        .code(ContactCode.of(record.get(CONTACTS.CODE)))
+        .fullName(record.get(CONTACT_DATA.FULL_NAME))
+        .description(record.get(CONTACT_DATA.DESCRIPTION))
+        .version(record.get(CONTACT_DATA.VALID_FROM))
+        .emails(listEmails(contactId, value(record.get(CONTACT_DATA.VALID_FROM)), ImmutableList.toImmutableList()))
+        .phoneNumbers(listPhoneNumbers(contactId, value(record.get(CONTACT_DATA.VALID_FROM)), ImmutableList.toImmutableList()))
         .build());
   }
 
-  public void delete(String code) {
+  private <C> C listEmails(long contactId, Field<OffsetDateTime> version, Collector<Email, ?, C> collector) {
+    return create
+      .select(
+        EMAIL_TYPES.CODE,
+        EMAILS.EMAIL)
+      .from(CONTACT_EMAILS)
+      .innerJoin(EMAILS).on(EMAILS.ID.eq(CONTACT_EMAILS.EMAIL))
+      .innerJoin(EMAIL_TYPES).on(EMAIL_TYPES.ID.eq(CONTACT_EMAILS.EMAIL_TYPE))
+      .where(
+        CONTACT_EMAILS.CONTACT.eq(contactId),
+        CONTACT_EMAILS.VALID_FROM.eq(version))
+      .fetch()
+      .stream()
+      .map(record -> Email.builder()
+        .type(record.get(EMAIL_TYPES.CODE))
+        .value(record.get(EMAILS.EMAIL))
+        .build())
+      .collect(collector);
+  }
+
+  private <C> C listPhoneNumbers(long contactId, Field<OffsetDateTime> version, Collector<PhoneNumber, ?, C> collector) {
+    return create
+      .select(
+        PHONE_NUMBER_TYPES.CODE,
+        PHONE_NUMBERS.PHONE_NUMBER)
+      .from(CONTACT_PHONE_NUMBERS)
+      .innerJoin(PHONE_NUMBERS).on(PHONE_NUMBERS.ID.eq(CONTACT_PHONE_NUMBERS.PHONE_NUMBER))
+      .innerJoin(PHONE_NUMBER_TYPES).on(PHONE_NUMBER_TYPES.ID.eq(CONTACT_PHONE_NUMBERS.PHONE_NUMBER_TYPE))
+      .where(
+        CONTACT_PHONE_NUMBERS.CONTACT.eq(contactId),
+        CONTACT_PHONE_NUMBERS.VALID_FROM.eq(version))
+      .fetch()
+      .stream()
+      .map(record -> PhoneNumber.builder()
+        .type(record.get(PHONE_NUMBER_TYPES.CODE))
+        .value(record.get(PHONE_NUMBERS.PHONE_NUMBER))
+        .build())
+      .collect(collector);
+  }
+
+  private void assignEmail(Long contactId, String type, long emailId, Field<OffsetDateTime> version) {
     create
-      .deleteFrom(Tables.CONTACTS)
-      .where(Tables.CONTACTS.CODE.eq(code))
+      .insertInto(CONTACT_EMAILS)
+      .columns(
+        CONTACT_EMAILS.CONTACT,
+        CONTACT_EMAILS.EMAIL_TYPE,
+        CONTACT_EMAILS.EMAIL,
+        CONTACT_EMAILS.VALID_FROM)
+      .values(
+        value(contactId),
+        create
+          .select(EMAIL_TYPES.ID)
+          .from(EMAIL_TYPES)
+          .where(EMAIL_TYPES.CODE.eq(type))
+          .asField(),
+        value(emailId),
+        version)
       .execute();
   }
 
-  public void delete(Set<String> codes) {
+  private void assignPhone(Long contactId, String type, long phoneId, Field<OffsetDateTime> version) {
     create
-      .deleteFrom(Tables.CONTACTS)
-      .where(Tables.CONTACTS.CODE.in(codes))
+      .insertInto(CONTACT_PHONE_NUMBERS)
+      .columns(
+        CONTACT_PHONE_NUMBERS.CONTACT,
+        CONTACT_PHONE_NUMBERS.PHONE_NUMBER_TYPE,
+        CONTACT_PHONE_NUMBERS.PHONE_NUMBER,
+        CONTACT_PHONE_NUMBERS.VALID_FROM)
+      .values(
+        value(contactId),
+        create
+          .select(PHONE_NUMBER_TYPES.ID)
+          .from(PHONE_NUMBER_TYPES)
+          .where(PHONE_NUMBER_TYPES.CODE.eq(type))
+          .asField(),
+        value(phoneId),
+        version)
+      .execute();
+  }
+
+  private void removeEmails(long contactId, Field<OffsetDateTime> version) {
+    create
+      .update(CONTACT_EMAILS)
+      .set(CONTACT_EMAILS.VALID_TO, version)
+      .where(
+        CONTACT_EMAILS.CONTACT.eq(contactId),
+        CONTACT_EMAILS.VALID_FROM.eq(version))
+      .execute();
+  }
+
+  private void removePhoneNumbers(Long contactId, Field<OffsetDateTime> version) {
+    create
+      .update(CONTACT_PHONE_NUMBERS)
+      .set(CONTACT_EMAILS.VALID_TO, currentOffsetDateTime())
+      .where(
+        CONTACT_PHONE_NUMBERS.CONTACT.eq(contactId),
+        CONTACT_PHONE_NUMBERS.VALID_FROM.eq(version))
       .execute();
   }
 }

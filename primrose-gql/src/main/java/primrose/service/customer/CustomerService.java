@@ -19,8 +19,4 @@ public interface CustomerService {
   void add(ContactCode contactCode);
 
   void add(Set<ContactCode> contactCodes);
-
-  void remove(ContactCode contactCode);
-
-  void remove(Set<ContactCode> contactCodes);
 }

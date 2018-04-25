@@ -1,29 +1,22 @@
 package primrose.rpcservices;
 
-import java.util.Set;
-
 import com.googlecode.jsonrpc4j.JsonRpcParam;
 import com.googlecode.jsonrpc4j.JsonRpcService;
 
 import primrose.service.ListResult;
 import primrose.service.Pagination;
-import primrose.service.contact.ContactCreate;
 import primrose.service.contact.Contact;
-import primrose.service.contact.ContactFullDisplay;
+import primrose.service.contact.ContactCode;
 import primrose.service.contact.ContactPreview;
 
 @JsonRpcService("/contacts")
 public interface ContactsRpc {
 
-  String create(@JsonRpcParam("contact") ContactCreate contact);
+  ContactCode create(@JsonRpcParam("contact") Contact contact);
 
-  String update(@JsonRpcParam("contactCode") String contactCode, @JsonRpcParam("contact") Contact contact);
+  ContactCode update(@JsonRpcParam("contact") Contact contact);
 
   ListResult<ContactPreview> list(@JsonRpcParam("pagination") Pagination pagination);
 
-  ContactFullDisplay get(@JsonRpcParam("contactCode") String contactCode);
-
-  String delete(@JsonRpcParam("contactCode") String contactCode);
-
-  Set<String> delete(@JsonRpcParam("contactCodes") Set<String> contactCodes);
+  Contact get(@JsonRpcParam("contactCode") ContactCode contactCode);
 }

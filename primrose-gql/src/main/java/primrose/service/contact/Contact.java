@@ -21,14 +21,14 @@ import primrose.service.PhoneNumber;
 import primrose.service.UpdateValidationGroup;
 
 @Value
-@Builder
+@Builder(toBuilder=true)
 @Wither
 @JsonDeserialize(builder = Contact.ContactBuilder.class)
 public class Contact {
 
-  @NotBlank(groups=UpdateValidationGroup.class)
+  @NotBlank(groups = UpdateValidationGroup.class)
   @Null(groups = CreateValidationGroup.class)
-  private final String                     code;
+  private final ContactCode                code;
   @NotBlank
   private final String                     fullName;
   private final String                     description;
@@ -38,7 +38,7 @@ public class Contact {
   @Valid
   @Singular
   private final ImmutableList<PhoneNumber> phoneNumbers;
-  @NotNull(groups=UpdateValidationGroup.class)
+  @NotNull(groups = UpdateValidationGroup.class)
   @Null(groups = CreateValidationGroup.class)
   private final OffsetDateTime             version;
 
