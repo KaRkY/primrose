@@ -11,7 +11,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 @Wither
 @JsonDeserialize(builder = Sort.SortBuilder.class)
 public class Sort {

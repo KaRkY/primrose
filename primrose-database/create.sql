@@ -1,6 +1,8 @@
 drop schema if exists primrose cascade;
 create schema primrose;
 
+-- TODO remove validity and create history tables
+
 /*
  * 
  * ENUM TABLES

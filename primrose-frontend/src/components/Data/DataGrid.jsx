@@ -287,7 +287,7 @@ ComposedDataGrid.propTypes = {
     children: PropTypes.func.isRequired,
   }),
 
-  rowActions: PropTypes.func.isRequired,
+  rowActions: PropTypes.func,
 };
 
 export default ComposedDataGrid;

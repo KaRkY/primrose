@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import compose from "recompose/compose";
 import { withStyles } from "material-ui/styles";
+import withProps from "recompose/withProps";
 import withHandlers from "recompose/withHandlers";
 import defaultProps from "recompose/defaultProps";
 
@@ -43,6 +44,8 @@ const enhance = compose(
     totalSize: 0,
     onPaged: identity,
     newTooltip: "New",
+    sendSingleTooltip: "Send",
+    sendMultiTooltip: "Send",
     deactivateMultiTooltip: "Deactivate",
     deactivateSingleTooltip: "Deactivate",
     editTooltip: "Edit",
@@ -50,6 +53,13 @@ const enhance = compose(
     selectMultiTooltip: "Select",
     selectSingleTooltip: "Select",
   }),
+  withProps(({onNew, onOpen, onEdit, onDeactivate, onSend }) => ({
+    hasNew: !!onNew,
+    hasOpen: !!onOpen,
+    hasEdit: !!onEdit,
+    hasDeactivate: !!onDeactivate,
+    hasSend: !!onSend,
+  })),
   withHandlers({
     onPageChange: ({ pagination, onPaged }) => (event, page) => onPaged({
       ...pagination,
@@ -88,10 +98,13 @@ const SelectSearchList = ({
   columns,
   getRowId,
   select,
+  search,
   pagination,
   rowsPerPage,
   totalSize,
   newTooltip,
+  sendSingleTooltip,
+  sendMultiTooltip,
   deactivateMultiTooltip,
   deactivateSingleTooltip,
   editTooltip,
@@ -109,19 +122,24 @@ const SelectSearchList = ({
   onEdit,
   onDeactivate,
   onSend,
+  hasOpen,
+  hasNew,
+  hasEdit,
+  hasDeactivate,
+  hasSend,
 }) => {
   const { page = 5, size = 5, query = "", selected = [], sort } = pagination;
   return (
     <React.Fragment>
-      <Search
+      {search && <Search
         onSearch={onQueryChange}
         value={query}
-      />
+      />}
       <Paper className={classes.root}>
-        <Toolbar>
+        {(hasNew || hasSend || hasDeactivate) && <Toolbar>
           <div className={classes.grow} />
 
-          {onNew &&
+          {hasNew &&
             <Tooltip
               title={newTooltip}
               enterDelay={300}
@@ -132,9 +150,9 @@ const SelectSearchList = ({
             </Tooltip>
           }
 
-          {onSend && selected.length > 0 &&
+          {hasSend && selected.length > 0 &&
             <Tooltip
-              title="Deactivate Customers"
+              title={sendMultiTooltip}
               enterDelay={300}
             >
               <IconButton onClick={event => onSend(event, rows.filter(row => selected.find(sel => getRowId(row) === sel) !== undefined))}>
@@ -143,9 +161,9 @@ const SelectSearchList = ({
             </Tooltip>
           }
 
-          {onDeactivate && selected.length > 0 &&
+          {hasDeactivate && selected.length > 0 &&
             <Tooltip
-              title="Deactivate Customers"
+              title={deactivateMultiTooltip}
               enterDelay={300}
             >
               <IconButton disabled={isDeleting} onClick={event => onDeactivate(event, selected)}>
@@ -153,7 +171,7 @@ const SelectSearchList = ({
               </IconButton>
             </Tooltip>
           }
-        </Toolbar>
+        </Toolbar>}
         <DataGrid
           getRowId={getRowId}
           rows={rows}
@@ -167,15 +185,15 @@ const SelectSearchList = ({
             rowsPerPageOptions: rowsPerPage,
           }}
           sorting={sort}
-          selecting={{
+          selecting={(hasSend || hasDeactivate) ? {
             rowIds: selected,
             onSelectRowsChange,
-          }}
-          rowActions={row => (
+          } : undefined}
+          rowActions={(hasSend || hasOpen || hasEdit || hasDeactivate) ? row => (
             <React.Fragment>
-              {onSend &&
+              {hasSend &&
                 <Tooltip
-                  title={openTooltip}
+                  title={sendSingleTooltip}
                   enterDelay={300}
                 >
                   <IconButton onClick={event => onSend(event, row)}>
@@ -183,38 +201,38 @@ const SelectSearchList = ({
                   </IconButton>
                 </Tooltip>
               }
-              {onOpen &&
+              {hasOpen &&
                 <Tooltip
                   title={openTooltip}
                   enterDelay={300}
                 >
-                  <IconButton onClick={event => onOpen(event, row.code)}>
+                  <IconButton onClick={event => onOpen(event, getRowId(row))}>
                     <ZoomInIcon />
                   </IconButton>
                 </Tooltip>
               }
-              {onEdit &&
+              {hasEdit &&
                 <Tooltip
                   title={editTooltip}
                   enterDelay={300}
                 >
-                  <IconButton onClick={event => onEdit(event, row.code)}>
+                  <IconButton onClick={event => onEdit(event, getRowId(row))}>
                     <EditIcon />
                   </IconButton>
                 </Tooltip>
               }
-              {onDeactivate &&
+              {hasDeactivate &&
                 <Tooltip
                   title={deactivateSingleTooltip}
                   enterDelay={300}
                 >
-                  <IconButton onClick={event => onDeactivate(event, row.code)}>
+                  <IconButton onClick={event => onDeactivate(event, getRowId(row))}>
                     <DeleteIcon />
                   </IconButton>
                 </Tooltip>
               }
             </React.Fragment>
-          )} />
+          ) : undefined} />
       </Paper>
     </React.Fragment>
   );
@@ -223,6 +241,7 @@ const SelectSearchList = ({
 const ComposedSelectSearchList = enhance(SelectSearchList);
 ComposedSelectSearchList.propTypes = {
   rows: PropTypes.array.isRequired,
+  search: PropTypes.bool,
 
   columns: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,

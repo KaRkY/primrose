@@ -21,7 +21,7 @@ import primrose.service.PhoneNumber;
 import primrose.service.UpdateValidationGroup;
 
 @Value
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 @Wither
 @JsonDeserialize(builder = Contact.ContactBuilder.class)
 public class Contact {

@@ -25,7 +25,7 @@ public class EmailAndPhoneNumberRepositoryImpl implements EmailAndPhoneNumberRep
       .where(EMAILS.EMAIL.eq(value))
       .fetchOne(0, Long.class);
 
-    if(emailId == null) {
+    if (emailId == null) {
       emailId = create
         .insertInto(EMAILS)
         .columns(EMAILS.EMAIL)
@@ -46,7 +46,7 @@ public class EmailAndPhoneNumberRepositoryImpl implements EmailAndPhoneNumberRep
       .where(PHONE_NUMBERS.PHONE_NUMBER.eq(value))
       .fetchOne(0, Long.class);
 
-    if(emailId == null) {
+    if (emailId == null) {
       emailId = create
         .insertInto(PHONE_NUMBERS)
         .columns(PHONE_NUMBERS.PHONE_NUMBER)

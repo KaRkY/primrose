@@ -12,7 +12,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 @Wither
 @JsonDeserialize(builder = Pagination.PaginationBuilder.class)
 public class Pagination {

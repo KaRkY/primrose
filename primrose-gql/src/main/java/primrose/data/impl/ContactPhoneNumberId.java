@@ -5,6 +5,6 @@ import lombok.Value;
 @Value(staticConstructor = "of")
 public class ContactPhoneNumberId {
 
-  private final Long           contact;
-  private final Long           phoneNumber;
+  private final Long contact;
+  private final Long phoneNumber;
 }

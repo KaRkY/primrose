@@ -10,7 +10,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 @Wither
 @JsonDeserialize(builder = AccountPreview.AccountPreviewBuilder.class)
 public class AccountPreview {

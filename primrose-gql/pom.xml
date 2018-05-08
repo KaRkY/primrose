@@ -1,11 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>primrose</groupId>
   <artifactId>primrose-gql</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>war</packaging>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -32,6 +32,7 @@
     <graphql.jtools.version>4.3.0</graphql.jtools.version>
     <graphql.boot.version>4.0.0.M1</graphql.boot.version>
     <reactivestreams.version>1.0.2</reactivestreams.version>
+    <kotlin.version>1.2.20</kotlin.version>
   </properties>
 
   <build>
@@ -70,8 +71,10 @@
       <plugin>
 
         <!-- Specify the maven code generator plugin -->
-        <!-- Use org.jooq for the Open Source Edition org.jooq.pro for commercial editions, org.jooq.pro-java-6 for commercial editions with Java 6 support, org.jooq.trial
-          for the free trial edition Note: Only the Open Source Edition is hosted on Maven Central. Import the others manually from your distribution -->
+        <!-- Use org.jooq for the Open Source Edition org.jooq.pro for commercial
+          editions, org.jooq.pro-java-6 for commercial editions with Java 6 support,
+          org.jooq.trial for the free trial edition Note: Only the Open Source Edition
+          is hosted on Maven Central. Import the others manually from your distribution -->
         <groupId>org.jooq</groupId>
         <artifactId>jooq-codegen-maven</artifactId>
 
@@ -84,7 +87,8 @@
           </execution>
         </executions>
 
-        <!-- Manage the plugin's dependency. In this example, we'll use a PostgreSQL database -->
+        <!-- Manage the plugin's dependency. In this example, we'll use a
+          PostgreSQL database -->
         <dependencies>
           <dependency>
             <groupId>org.postgresql</groupId>
@@ -93,7 +97,8 @@
           </dependency>
         </dependencies>
 
-        <!-- Specify the plugin configuration. The configuration format is the same as for the standalone code generator -->
+        <!-- Specify the plugin configuration. The configuration format is
+          the same as for the standalone code generator -->
         <configuration>
 
           <!-- JDBC connection parameters -->
@@ -175,7 +180,6 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.16.20</version>
       <scope>provided</scope>
     </dependency>
 

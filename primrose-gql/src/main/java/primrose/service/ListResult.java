@@ -13,7 +13,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 @Wither
 @JsonDeserialize(builder = ListResult.ListResultBuilder.class)
 public class ListResult<T> {
