@@ -9,12 +9,12 @@ import * as location from "./store/location";
 import * as page from "./store/page";
 import * as title from "./store/title";
 
-import App from "./components/ChildConfigApp";
+import App from "./components/App";
 import IconButton from "material-ui/IconButton";
 import MoreVert from "@material-ui/icons/MoreVert";
 import Tooltip from "material-ui/Tooltip";
-import Nav from "./components/nav/ChildConfigNav"
-import Switcher from "./components/Switcher";
+import Nav from "./components/Nav"
+import Switcher from "./pages/Switcher";
 
 const mapState = state => ({
   title: title.getTitle(state),
@@ -30,30 +30,35 @@ const enhance = compose(
 );
 
 const Main = props => (
-  <App>
-    <App.Toolbar position="fixed" title={props.title}>
-      <Tooltip title="Actions" enterDelay={300}>
-        <IconButton
-          variant="raised"
-          color="inherit">
-          <MoreVert />
-        </IconButton>
-      </Tooltip>
-    </App.Toolbar>
+  <App
+    toolbar={{
+      title: props.title,
+      actions: (
+        <Tooltip title="Actions" enterDelay={300}>
+          <IconButton
+            variant="raised"
+            color="inherit">
+            <MoreVert />
+          </IconButton>
+        </Tooltip>
+      )
+    }}
 
-    <App.Navigation>
-      <Nav>
-        <Nav.Item exact to={actions.dashboardPage()} name="Dashboard" />
-        <Nav.Item to={actions.customersPage({ force: true })} name="Customers" />
-        <Nav.Item to={actions.contactsPage()} name="Contacts" />
-        <Nav.Item exact to={actions.errorPage()} name="Error" />
-      </Nav>
-    </App.Navigation>
+    navigation={
+      <Nav
+        items={[
+          { exact: true, to: actions.dashboardPage(), name: "Dashboard" },
+          { to: actions.customersPage({ force: true }), name: "Customers" },
+          { to: actions.contactsPage({ force: true }), name: "Contacts" },
+          { exact: true, to: actions.errorPage(), name: "Error" },
+        ]}
+      />
+    }
 
-    <App.Content>
+    content={
       <Switcher {...props} />
-    </App.Content>
-  </App>
+    }
+  />
 );
 
 const EnhancedMain = enhance(Main);

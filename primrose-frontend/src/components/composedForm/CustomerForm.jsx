@@ -19,7 +19,6 @@ import TextField from "../Form/TextField";
 import RenderField from "../Form/RenderField";
 import MenuItem from "material-ui/Menu/MenuItem";
 import arrayMutators from "final-form-arrays";
-import SelectSearchList from "../Data/SelectSearchList";
 import Table, {
   TableBody,
   TableCell,

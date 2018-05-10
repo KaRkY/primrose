@@ -1,6 +1,6 @@
 import * as location from "../store/location";
 
-export default (state, action, isLoading) => {
+export default (state, action) => {
   const cur = location.getCurrentPagination(state);
   const prev = location.getPreviousPagination(state);
   const currentPathname = location.getCurrentPathname(state);
@@ -27,7 +27,6 @@ export default (state, action, isLoading) => {
           }
         }
       };
-    if (isLoading(state)) return false;
   }
 
   return true;

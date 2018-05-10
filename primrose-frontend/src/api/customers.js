@@ -5,7 +5,6 @@ import convertError from "../util/convertError";
 import shouldReloadPageData from "../util/shouldReloadPageData";
 
 const customersApiURL = "/customers";
-const contactsApiURL = "/contacts";
 
 export const create = props => {
   const { dispatch, action } = props;

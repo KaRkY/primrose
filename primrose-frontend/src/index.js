@@ -2,9 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import createHistory from "history/createBrowserHistory";
 import configureStore from "./configureStore";
-import timeago from "timeago.js";
-import enLocale from "timeago.js/locales/en";
-import registerServiceWorker from "./registerServiceWorker";
 
 import defaultTheme, * as other from "./themes";
 
@@ -14,7 +11,6 @@ import { MuiThemeProvider } from "material-ui/styles";
 import MomentUtils from "material-ui-pickers/utils/moment-utils";
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
 
-timeago.register("en", enLocale);
 const root = document.getElementById("root");
 const history = createHistory();
 const store = configureStore(history);
@@ -37,4 +33,4 @@ const render = (Main) => {
 };
 
 render(Main);
-registerServiceWorker();
+//registerServiceWorker(); // Lahko povzro�a probleme zaenkrat onemogo�eni
