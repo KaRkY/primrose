@@ -25,11 +25,11 @@ public class MetaRepositoryImpl implements MetaRepository {
   @Override
   public List<MetaType> list(MetaTypes type) {
     Name tableName = mapTable(type);
-    Field<String> slug = DSL.field("slug", String.class);
-    Field<String> name = DSL.field("name", String.class);
+    Field<String> code = DSL.field("code", String.class);
+    Field<String> name = DSL.field("default_name", String.class);
     Field<String> sort = DSL.field("sort", String.class);
     return create
-      .select(slug, name)
+      .select(code, name)
       .from(tableName)
       .orderBy(sort.asc())
       .fetch()
@@ -39,12 +39,12 @@ public class MetaRepositoryImpl implements MetaRepository {
   @Override
   public boolean contains(MetaTypes type, String value) {
     Name tableName = mapTable(type);
-    Field<String> slug = DSL.field("slug", String.class);
+    Field<String> code = DSL.field("code", String.class);
 
     return create
       .selectOne()
       .from(tableName)
-      .where(slug.eq(value))
+      .where(code.eq(value))
       .fetchOne(0) != null;
   }
 

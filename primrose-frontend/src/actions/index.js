@@ -97,7 +97,7 @@ export const customerPage = createAction("CUSTOMER_PAGE", customer => ({ custome
 export const customerPageNew = createAction("CUSTOMER_PAGE_NEW");
 export const customerPageEdit = createAction("CUSTOMER_PAGE_EDIT", customer => ({ customer }));
 export const [customerCreate, customerCreateFinished, customerCreateError, customerCreatePromise] = createCreateActions("CUSTOMER");
-export const [customersLoad, customersLoadFinished, customersLoadError, customersLoadPromise] = createLoadActions("CUSTOMERS");
+export const [customerListLoad, customerListFinished, customerListError] = createLoadActions("CUSTOMER_LIST");
 export const [customerCreateContactsLoad, customerCreateContactsFinished, customerCreateContactsError, customerCreateContactsPromise] = createLoadActions("CUSTOMER_CREATE_CONTACTS");
 export const [customerLoad, customerLoadFinished, customerLoadError, customerLoadPromise] = createLoadActions("CUSTOMER");
 export const [customerEdit, customerEditFinished, customerEditError, customerEditPromise] = createEditActions("CUSTOMER");
@@ -125,8 +125,8 @@ export const [accountEdit, accountEditFinished, accountEditError, accountEditPro
 export const [accountsDeactivate, accountsDeactivateFinished, accountsDeactivateError, accountDeactivatePromise] = createDeactivateActions("ACCOUNT", "accounts");
 
 
-export const [customerTypesLoad, customerTypesLoadFinished, customerTypesLoadError] = createLoadActions("CUSTOMER_TYPES");
-export const [customerRelationTypesLoad, customerRelationTypesLoadFinished, customerRelationTypesLoadError] = createLoadActions("CUSTOMER_RELATION_TYPES");
+export const [customerTypesLoad, customerTypesFinished, customerTypesError] = createLoadActions("CUSTOMER_TYPES");
+export const [customerRelationTypesLoad, customerRelationTypesFinished, customerRelationTypesError] = createLoadActions("CUSTOMER_RELATION_TYPES");
 export const [emailTypesLoad, emailTypesLoadFinished, emailTypesLoadError] = createLoadActions("EMAIL_TYPES");
 export const [phoneNumberTypesLoad, phoneNumberTypesLoadFinished, phoneNumberTypesLoadError] = createLoadActions("PHONE_NUMBER_TYPES");
 

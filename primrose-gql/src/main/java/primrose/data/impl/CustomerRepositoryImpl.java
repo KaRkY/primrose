@@ -202,16 +202,18 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     Condition searchCondition = buildSearchCondition(pagination);
 
     Field<String> primaryEmail = create
-      .select(CUSTOMER_EMAILS.EMAIL)
+      .select(EMAILS.EMAIL)
       .from(CUSTOMER_EMAILS)
+      .innerJoin(EMAILS).on(EMAILS.ID.eq(CUSTOMER_EMAILS.EMAIL))
       .where(CUSTOMER_EMAILS.CUSTOMER.eq(Tables.CUSTOMERS.ID))
       .orderBy(CUSTOMER_EMAILS.VALID_FROM)
       .limit(1)
       .<String>asField("primaryEmail");
 
     Field<String> primaryPhone = create
-      .select(CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER)
+      .select(PHONE_NUMBERS.PHONE_NUMBER)
       .from(CUSTOMER_PHONE_NUMBERS)
+      .innerJoin(PHONE_NUMBERS).on(PHONE_NUMBERS.ID.eq(CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER))
       .where(CUSTOMER_PHONE_NUMBERS.CUSTOMER.eq(Tables.CUSTOMERS.ID))
       .orderBy(CUSTOMER_PHONE_NUMBERS.VALID_FROM)
       .limit(1)
@@ -227,11 +229,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         primaryEmail,
         primaryPhone)
       .from(CUSTOMERS)
-      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
-      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
       .innerJoin(CUSTOMER_DATA).on(
         CUSTOMER_DATA.CUSTOMER.eq(CUSTOMERS.ID),
         containes(tstzrange(CUSTOMER_DATA.VALID_FROM, CUSTOMER_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
+      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
+      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
       .where(searchCondition)
       .limit(limit)
       .offset(offset)
@@ -257,11 +259,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     return create
       .selectCount()
       .from(CUSTOMERS)
-      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
-      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
       .innerJoin(CUSTOMER_DATA).on(
         CUSTOMER_DATA.CUSTOMER.eq(CUSTOMERS.ID),
         containes(tstzrange(CUSTOMER_DATA.VALID_FROM, CUSTOMER_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
+      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
+      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
       .where(searchCondition)
       .fetchOne()
       .value1();

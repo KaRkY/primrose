@@ -1,4 +1,5 @@
 import * as actions from "./actions";
+import * as location from "./store/location";
 
 import customers from "./store/customers";
 import * as customersApi from "./api/customers";
@@ -6,6 +7,9 @@ import contacts from "./store/contacts";
 import * as contactsApi from "./api/contacts";
 import meta from "./store/meta";
 import * as metaApi from "./api/meta";
+
+import convertError from "./util/convertError";
+import shouldReloadPageData from "./util/shouldReloadPageData";
 
 export default {
   [actions.dashboardPage]: {
@@ -16,11 +20,30 @@ export default {
   },
   [actions.customersPage]: {
     path: "/customers",
-    thunk: (dispatch, getState, { action }) => Promise.all([
-      customersApi.paged({ dispatch, state: getState(), action, isLoading: customers.paged.isLoading }),
-      metaApi.customerTypes({ dispatch, state: getState(), action, ...meta.customerTypes }),
-      metaApi.customerRelationTypes({ dispatch, state: getState(), action, ...meta.customerRelationTypes }),
-    ]),
+    thunk: (dispatch, getState, { action }) => {
+      const state = getState();
+
+      if (shouldReloadPageData(state, action)) {
+        dispatch(actions.customerListLoad());
+        customersApi.list(location.getCurrentPagination(state))
+          .then(result => dispatch(actions.customerListFinished(result.data.result)))
+          .catch(error => dispatch(actions.customerListError(convertError(error))));
+      }
+
+      if (!meta.customerTypes.getData(state) || meta.customerTypes.getError(state)) {
+        dispatch(actions.customerTypesLoad());
+        metaApi.customerTypes()
+          .then(result => dispatch(actions.customerTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.customerTypesError(convertError(error))));
+      }
+
+      if (!meta.customerRelationTypes.getData(state) || meta.customerRelationTypes.getError(state)) {
+        dispatch(actions.customerRelationTypesLoad());
+        metaApi.customerRelationTypes()
+          .then(result => dispatch(actions.customerRelationTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.customerRelationTypesError(convertError(error))));
+      }
+    },
   },
   [actions.customerPageNew]: {
     path: "/customers/new",

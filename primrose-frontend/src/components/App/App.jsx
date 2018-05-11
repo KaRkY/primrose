@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { withStyles } from "material-ui/styles";
 import compose from "recompose/compose";
 import withStateHandlers from "recompose/withStateHandlers";
+import withHandlers from "recompose/withHandlers";
 import withWidth, { isWidthDown } from "material-ui/utils/withWidth";
 import mapProps from "recompose/mapProps";
 import classNames from "classnames";
@@ -12,11 +13,15 @@ import Typography from "material-ui/Typography";
 import Drawer from "material-ui/Drawer";
 import Divider from "material-ui/Divider";
 import IconButton from "material-ui/IconButton";
+import Button from "material-ui/Button";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import AppBar from "material-ui/AppBar";
 import AppToolbar from "material-ui/Toolbar";
 import MenuIcon from "@material-ui/icons/Menu";
+import NotificationContext from "./NotificationContext";
+import Snackbar from "material-ui/Snackbar";
+import CloseIcon from "@material-ui/icons/Close";
 
 const styles = theme => ({
   root: {
@@ -113,10 +118,32 @@ const enhance = compose(
   withStateHandlers(
     ({ mobile }) => ({ drawerOpen: !mobile }),
     {
-      onDrawerOpen: ({ updateDrawerOpen }) => () => ({ drawerOpen: true }),
-      onDrawerClose: ({ updateDrawerOpen }) => () => ({ drawerOpen: false }),
+      onDrawerOpen: ({ drawerOpen, ...props }) => () => ({ drawerOpen: true, ...props }),
+      onDrawerClose: ({ drawerOpen, ...props }) => () => ({ drawerOpen: false, ...props }),
     }
   ),
+  withStateHandlers(
+    () => ({ open: false, current: {}, key: null, queue: [] }),
+    {
+      push: ({ queue, ...props }) => item => ({ ...props, queue: [...queue, { ...item, key: new Date().getTime() }] }),
+      process: ({ queue, ...props }) => () => {
+        if (queue.length > 0) {
+          const [first, ...rest] = queue;
+          return ({ ...props, open: true, current: first, queue: rest });
+        } else {
+          return ({ ...props, open: false, current: {}, queue });
+        }
+      },
+      close: ({ open, ...props }) => (event, reason) => ({ ...props, open: reason === "clickaway" ? open : false }),
+    }),
+  withHandlers({
+    push: ({ push, open, process }) => item => {
+      push(item);
+      if (!open) {
+        process();
+      }
+    },
+  }),
   withStyles(styles, { withTheme: true }),
 );
 
@@ -131,7 +158,12 @@ const App = (props) => {
     onDrawerClose,
     toolbar,
     navigation,
-    content
+    content,
+    push,
+    close,
+    open,
+    current,
+    process
   } = props;
 
   const anchor = theme.direction === "rtl" ? "right" : "left";
@@ -146,8 +178,35 @@ const App = (props) => {
     [classes[`app-content-shift-${anchor}`]]: !!navigation && drawerOpen && !mobile,
   });
 
+  const snackbarActions = [];
+  if(current.undo) {
+    snackbarActions.push(<Button 
+      key="undo" 
+      color="secondary" 
+      size="small" 
+      onClick={current.undo}>UNDO</Button>);
+  }
+  snackbarActions.push(<IconButton
+    key="close"
+    aria-label="Close"
+    color="inherit"
+    className={classes.close}
+    onClick={close}
+  >
+    <CloseIcon />
+  </IconButton>);
+
   return (
-    <React.Fragment>
+    <NotificationContext.Provider
+      value={{
+        push,
+        close,
+        open,
+        message: current.message,
+        key: current.key,
+        exit: process,
+      }}
+    >
       <CssBaseline />
       <div className={classes.root}>
         {toolbar && (
@@ -204,7 +263,24 @@ const App = (props) => {
           </main>
         )}
       </div>
-    </React.Fragment>
+
+      <Snackbar
+        key={current.key}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        open={open}
+        autoHideDuration={4000}
+        onClose={close}
+        onExited={process}
+        ContentProps={{
+          "aria-describedby": "message-id",
+        }}
+        message={<span id="message-id">{current.text}</span>}
+        action={snackbarActions}
+      />
+    </NotificationContext.Provider>
   );
 };
 

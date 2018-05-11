@@ -4,15 +4,15 @@ import createMetaEntity from "./creators/createMetaEntity";
 
 const customerRelationTypes = createMetaEntity({
   loadingAction: actions.customerRelationTypesLoad,
-  fetchedAction: actions.customerRelationTypesLoadFinished,
-  errorAction: actions.customerRelationTypesLoadError,
+  fetchedAction: actions.customerRelationTypesFinished,
+  errorAction: actions.customerRelationTypesError,
   rootSelector: state => state.meta.customerRelationTypes,
 });
 
 const customerTypes = createMetaEntity({
   loadingAction: actions.customerTypesLoad,
-  fetchedAction: actions.customerTypesLoadFinished,
-  errorAction: actions.customerTypesLoadError,
+  fetchedAction: actions.customerTypesFinished,
+  errorAction: actions.customerTypesError,
   rootSelector: state => state.meta.customerTypes,
 });
 

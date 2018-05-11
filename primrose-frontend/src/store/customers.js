@@ -21,9 +21,9 @@ const { reducers, selectors, async } = createFullEntity({
   loadSingleFinishedAction: actions.customerLoadFinished,
   loadSingleErrorAction: actions.customerLoadError,
 
-  loadPagedAction: actions.customersLoad,
-  loadPagedFinishedAction: actions.customersLoadFinished,
-  loadPagedErrorAction: actions.customersLoadError,
+  loadPagedAction: actions.customerListLoad,
+  loadPagedFinishedAction: actions.customerListFinished,
+  loadPagedErrorAction: actions.customerListError,
 });
 
 export const reducer = combineReducers({

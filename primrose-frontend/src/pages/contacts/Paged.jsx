@@ -58,7 +58,6 @@ const Content = ({
       onNew={handleNew}
       onEdit={handleEdit}
       onDeactivate={actions.contactDeactivatePromise}
-      onSend={console.log}
     />
   );
 

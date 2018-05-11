@@ -167,16 +167,18 @@ public class ContactRepositoryImpl implements ContactRepository {
     Condition searchCondition = buildSearchCondition(pagination);
 
     Field<String> primaryEmail = create
-      .select(CONTACT_EMAILS.EMAIL)
+      .select(EMAILS.EMAIL)
       .from(CONTACT_EMAILS)
+      .innerJoin(EMAILS).on(EMAILS.ID.eq(CONTACT_EMAILS.EMAIL))
       .where(CONTACT_EMAILS.CONTACT.eq(CONTACTS.ID))
       .orderBy(CONTACT_EMAILS.VALID_FROM)
       .limit(1)
       .<String>asField("primaryEmail");
 
     Field<String> primaryPhone = create
-      .select(CONTACT_PHONE_NUMBERS.PHONE_NUMBER)
+      .select(PHONE_NUMBERS.PHONE_NUMBER)
       .from(CONTACT_PHONE_NUMBERS)
+      .innerJoin(PHONE_NUMBERS).on(PHONE_NUMBERS.ID.eq(CONTACT_PHONE_NUMBERS.PHONE_NUMBER))
       .where(CONTACT_PHONE_NUMBERS.CONTACT.eq(CONTACTS.ID))
       .orderBy(CONTACT_PHONE_NUMBERS.VALID_FROM)
       .limit(1)
@@ -185,6 +187,7 @@ public class ContactRepositoryImpl implements ContactRepository {
     return create
       .select(
         CONTACTS.CODE,
+        CONTACT_DATA.FULL_NAME,
         primaryEmail,
         primaryPhone)
       .from(CONTACTS)
@@ -213,6 +216,9 @@ public class ContactRepositoryImpl implements ContactRepository {
     return create
       .selectCount()
       .from(CONTACTS)
+      .innerJoin(CONTACT_DATA).on(
+        CONTACT_DATA.CONTACT.eq(CONTACTS.ID),
+        containes(tstzrange(CONTACT_DATA.VALID_FROM, CONTACT_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
       .where(searchCondition)
       .fetchOne()
       .value1();

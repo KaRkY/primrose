@@ -4,19 +4,19 @@ import { connect } from "react-redux";
 import { withStyles } from "material-ui/styles";
 
 import CustomerForm from "../../components/composedForm/CustomerForm";
+import NotificationConsumer from "../../components/App/NotificationConsumer";
 
 import { FORM_ERROR } from "final-form";
 
 import * as actions from "../../actions";
+import * as customers from "../../api/customers";
 import meta from "../../store/meta";
 
 const contentStyle = theme => ({
 
 });
 
-// Use state for contacts and accounts.
-// Load customer contacts on edit nad save them in state
-// 
+
 
 const mapState = (state, props) => ({
   customerTypes: meta.customerTypes.getData(state),
@@ -26,7 +26,7 @@ const mapState = (state, props) => ({
 });
 
 const mapDispatchTo = dispatch => ({
-  handleSingle: payload => dispatch(actions.customerPage(payload)),
+  goToCustomer: payload => dispatch(actions.customerPage({ id: payload })),
 });
 
 const enhance = compose(
@@ -36,26 +36,33 @@ const enhance = compose(
 
 const Content = ({
   classes,
-  handleSingle,
+  goToCustomer,
   customerTypes,
   customerRelationTypes,
   emailTypes,
   phoneNumberTypes,
 }) => (
-    <CustomerForm
-      onSubmit={values => {
-        return actions.customerCreatePromise(values)
-          .then(result => {
-            handleSingle(result);
-            return {};
-          })
-          .catch(error => console.error(error) || ({ [FORM_ERROR]: error }));
-      }}
-      customerTypes={customerTypes}
-      customerRelationTypes={customerRelationTypes}
-      emailTypes={emailTypes}
-      phoneNumberTypes={phoneNumberTypes}
-    />
+    <NotificationConsumer>{
+      ({ push }) => (
+        <CustomerForm
+          onSubmit={values => {
+            return customers.create(values)
+              .then(result => {
+                goToCustomer(result);
+                return {};
+              })
+              .catch(error => {
+                push({ text: error });
+                return {};
+              });
+          }}
+          customerTypes={customerTypes}
+          customerRelationTypes={customerRelationTypes}
+          emailTypes={emailTypes}
+          phoneNumberTypes={phoneNumberTypes}
+        />
+      )
+    }</NotificationConsumer>
   );
 
 export default enhance(Content);
