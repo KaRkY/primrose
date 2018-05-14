@@ -1,20 +1,22 @@
 import React from "react";
-import compose from "recompose/compose";
-import { withStyles } from "material-ui/styles";
-import withStateHandlers from "recompose/withStateHandlers";
-import withHandlers from "recompose/withHandlers";
 
-import Paper from "material-ui/Paper";
-import Toolbar from "material-ui/Toolbar";
-import SearchIcon from "@material-ui/icons/Search";
+import compose from "recompose/compose";
+import withHandlers from "recompose/withHandlers";
+import withStateHandlers from "recompose/withStateHandlers";
+
+import Collapse from "@material-ui/core/Collapse";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Paper from "@material-ui/core/Paper";
+import TextField from "@material-ui/core/TextField";
+import Toolbar from "@material-ui/core/Toolbar";
+import Tooltip from "@material-ui/core/Tooltip";
+import withStyles from "@material-ui/core/styles/withStyles";
+
 import ClearIcon from "@material-ui/icons/Clear";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import IconButton from "material-ui/IconButton";
-import Tooltip from "material-ui/Tooltip";
-import TextField from "material-ui/TextField";
-import InputAdornment from "material-ui/Input/InputAdornment";
-import Collapse from "material-ui/transitions/Collapse";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import SearchIcon from "@material-ui/icons/Search";
 
 
 export const style = theme => ({
@@ -111,7 +113,7 @@ const Search = ({
             ),
           }}
           onKeyPress={event => {
-            if (event.key === 'Enter') {
+            if (event.key === "Enter") {
               event.preventDefault();
               onSearch(event);
             }

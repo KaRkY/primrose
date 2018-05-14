@@ -1,7 +1,6 @@
 import * as actions from "./actions";
 import * as location from "./store/location";
 
-import customers from "./store/customers";
 import * as customersApi from "./api/customers";
 import contacts from "./store/contacts";
 import * as contactsApi from "./api/contacts";

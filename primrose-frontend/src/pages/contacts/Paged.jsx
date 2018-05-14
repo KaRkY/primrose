@@ -1,13 +1,15 @@
 import React from "react";
-import compose from "recompose/compose";
 import { connect } from "react-redux";
-import { withStyles } from "material-ui/styles";
 
 import * as actions from "../../actions";
 import * as location from "../../store/location";
 import contacts from "../../store/contacts";
 
+import compose from "recompose/compose";
+
 import SelectSearchList from "../../components/SelectSearchList";
+
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const contentStyle = theme => ({
 

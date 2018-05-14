@@ -1,6 +1,5 @@
 import React from "react";
 import { connect } from "react-redux";
-import compose from "recompose/compose";
 import * as actions from "./actions";
 
 import isLoading from "./store/isLoading";
@@ -10,11 +9,15 @@ import * as page from "./store/page";
 import * as title from "./store/title";
 
 import App from "./components/App";
-import IconButton from "material-ui/IconButton";
-import MoreVert from "@material-ui/icons/MoreVert";
-import Tooltip from "material-ui/Tooltip";
 import Nav from "./components/Nav"
 import Switcher from "./pages/Switcher";
+
+import compose from "recompose/compose";
+
+import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
+
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 
 const mapState = state => ({
   title: title.getTitle(state),
@@ -38,7 +41,7 @@ const Main = props => (
           <IconButton
             variant="raised"
             color="inherit">
-            <MoreVert />
+            <MoreVertIcon />
           </IconButton>
         </Tooltip>
       )

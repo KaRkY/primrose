@@ -1,10 +1,12 @@
 import React from "react";
-import compose from "recompose/compose";
-import { withStyles } from "material-ui/styles";
 
-import Typography from "material-ui/Typography";
-import Button from "material-ui/Button";
-import NotificationConsumer from "../components/App/NotificationConsumer";
+import NotificationConsumer from "../components/NotificationConsumer";
+
+import compose from "recompose/compose";
+
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const contentStyle = theme => console.log(theme) || ({
 

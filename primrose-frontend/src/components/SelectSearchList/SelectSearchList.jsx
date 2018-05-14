@@ -1,10 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import compose from "recompose/compose";
-import { withStyles } from "material-ui/styles";
-import withProps from "recompose/withProps";
-import withHandlers from "recompose/withHandlers";
-import defaultProps from "recompose/defaultProps";
 
 import normalizeArray from "../../util/normalizeArray";
 import difference from "lodash/difference";
@@ -12,16 +7,24 @@ import union from "lodash/union";
 import identity from "lodash/identity";
 
 import DataGrid from "../DataGrid";
-import Paper from "material-ui/Paper";
-import Toolbar from "material-ui/Toolbar";
+import Search from "../Search";
+
+import compose from "recompose/compose";
+import defaultProps from "recompose/defaultProps";
+import withHandlers from "recompose/withHandlers";
+import withProps from "recompose/withProps";
+
+import Paper from "@material-ui/core/Paper";
+import IconButton from "@material-ui/core/IconButton";
+import Toolbar from "@material-ui/core/Toolbar";
+import Tooltip from "@material-ui/core/Tooltip";
+import withStyles from "@material-ui/core/styles/withStyles";
+
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import SendIcon from "@material-ui/icons/Send";
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
-import IconButton from "material-ui/IconButton";
-import Tooltip from "material-ui/Tooltip";
-import Search from "../Search";
 
 const styles = theme => ({
   root: {
@@ -53,7 +56,7 @@ const enhance = compose(
     selectMultiTooltip: "Select",
     selectSingleTooltip: "Select",
   }),
-  withProps(({onNew, onOpen, onEdit, onDeactivate, onSend }) => ({
+  withProps(({ onNew, onOpen, onEdit, onDeactivate, onSend }) => ({
     hasNew: !!onNew,
     hasOpen: !!onOpen,
     hasEdit: !!onEdit,

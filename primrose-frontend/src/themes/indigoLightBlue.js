@@ -1,6 +1,6 @@
-import { createMuiTheme } from "material-ui/styles";
-import indigo from "material-ui/colors/indigo";
-import lightBlue from "material-ui/colors/lightBlue";
+import { createMuiTheme } from "@material-ui/core/styles";
+import indigo from "@material-ui/core/colors/indigo";
+import lightBlue from "@material-ui/core/colors/lightBlue";
 import defaultTheme from "./default";
 
 export default createMuiTheme({

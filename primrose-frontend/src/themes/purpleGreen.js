@@ -1,6 +1,6 @@
-import { createMuiTheme } from "material-ui/styles";
-import purple from "material-ui/colors/purple";
-import green from "material-ui/colors/green";
+import { createMuiTheme } from "@material-ui/core/styles";
+import purple from "@material-ui/core/colors/purple";
+import green from "@material-ui/core/colors/green";
 import defaultTheme from "./default";
 
 export default createMuiTheme({

@@ -1,13 +1,19 @@
 import React from "react";
 import PropTypes from "prop-types";
-import compose from "recompose/compose";
-import { withStyles } from "material-ui/styles";
-import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
 import { NavLink } from "redux-first-router-link";
-import { CircularProgress } from "material-ui/Progress";
-import Collapse from "material-ui/transitions/Collapse";
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
+import compose from "recompose/compose";
+
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Collapse from "@material-ui/core/Collapse";
+import withStyles from "@material-ui/core/styles/withStyles";
+
+import ExpandLessIcon from "@material-ui/icons/ExpandLess";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 export const style = theme => ({
   activeMenuItem: {
@@ -105,7 +111,7 @@ EnhancedNav.propTypes = {
       }).isRequired,
       PropTypes.shape({
         name: PropTypes.string.isRequired,
-    
+
         children: PropTypes.arrayOf(PropTypes.shape({
           name: PropTypes.string.isRequired,
           to: PropTypes.shape({

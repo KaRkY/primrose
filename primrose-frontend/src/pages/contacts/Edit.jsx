@@ -1,15 +1,17 @@
 import React from "react";
-import compose from "recompose/compose";
 import { connect } from "react-redux";
-import { withStyles } from "material-ui/styles";
-
-import ContactForm from "../../components/composedForm/ContactForm";
 
 import { FORM_ERROR } from "final-form";
 
 import * as actions from "../../actions";
 import contacts from "../../store/contacts";
 import meta from "../../store/meta";
+
+import compose from "recompose/compose";
+
+import ContactForm from "../../components/ContactForm";
+
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const contentStyle = theme => ({
 

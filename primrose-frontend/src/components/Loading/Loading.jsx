@@ -1,8 +1,9 @@
 import React from "react";
-import compose from "recompose/compose";
-import { withStyles } from "material-ui/styles";
 
-import { CircularProgress } from "material-ui/Progress";
+import compose from "recompose/compose";
+
+import CircularProgress from "@material-ui/core/CircularProgress";
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const styles = theme => ({
   root: {

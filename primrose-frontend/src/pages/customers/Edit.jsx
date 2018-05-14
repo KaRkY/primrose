@@ -1,9 +1,5 @@
 import React from "react";
-import compose from "recompose/compose";
 import { connect } from "react-redux";
-import { withStyles } from "material-ui/styles";
-
-import CustomerForm from "../../components/composedForm/CustomerForm";
 
 import { FORM_ERROR } from "final-form";
 
@@ -11,6 +7,12 @@ import * as actions from "../../actions";
 import * as location from "../../store/location";
 import customers from "../../store/customers";
 import meta from "../../store/meta";
+
+import compose from "recompose/compose";
+
+import CustomerForm from "../../components/CustomerForm";
+
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const contentStyle = theme => ({
 

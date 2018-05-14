@@ -1,26 +1,31 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "material-ui/styles";
-import compose from "recompose/compose";
-import withStateHandlers from "recompose/withStateHandlers";
-import withHandlers from "recompose/withHandlers";
-import withWidth, { isWidthDown } from "material-ui/utils/withWidth";
-import mapProps from "recompose/mapProps";
 import classNames from "classnames";
 
-import CssBaseline from "material-ui/CssBaseline";
-import Typography from "material-ui/Typography";
-import Drawer from "material-ui/Drawer";
-import Divider from "material-ui/Divider";
-import IconButton from "material-ui/IconButton";
-import Button from "material-ui/Button";
+import {
+  NotificationContext
+} from "../../contexts";
+
+import compose from "recompose/compose";
+import mapProps from "recompose/mapProps";
+import withHandlers from "recompose/withHandlers";
+import withStateHandlers from "recompose/withStateHandlers";
+
+import AppBar from "@material-ui/core/AppBar";
+import Button from "@material-ui/core/Button";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Divider from "@material-ui/core/Divider";
+import Drawer from "@material-ui/core/Drawer";
+import IconButton from "@material-ui/core/IconButton";
+import Snackbar from "@material-ui/core/Snackbar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import withStyles from "@material-ui/core/styles/withStyles";
+import withWidth, { isWidthDown } from "@material-ui/core/withWidth";
+
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import AppBar from "material-ui/AppBar";
-import AppToolbar from "material-ui/Toolbar";
 import MenuIcon from "@material-ui/icons/Menu";
-import NotificationContext from "./NotificationContext";
-import Snackbar from "material-ui/Snackbar";
 import CloseIcon from "@material-ui/icons/Close";
 
 const styles = theme => ({
@@ -179,11 +184,11 @@ const App = (props) => {
   });
 
   const snackbarActions = [];
-  if(current.undo) {
-    snackbarActions.push(<Button 
-      key="undo" 
-      color="secondary" 
-      size="small" 
+  if (current.undo) {
+    snackbarActions.push(<Button
+      key="undo"
+      color="secondary"
+      size="small"
       onClick={current.undo}>UNDO</Button>);
   }
   snackbarActions.push(<IconButton
@@ -213,7 +218,7 @@ const App = (props) => {
           <AppBar
             position={toolbar.position}
             className={toolbarClasses}>
-            <AppToolbar>
+            <Toolbar>
 
               {navigation && !drawerOpen && <IconButton
                 color="default"
@@ -226,7 +231,7 @@ const App = (props) => {
               <Typography variant="title" color="inherit">{toolbar.title}</Typography>
               <div className={classes.grow} />
               {toolbar.actions}
-            </AppToolbar>
+            </Toolbar>
           </AppBar>
         )}
 

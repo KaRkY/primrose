@@ -1,10 +1,11 @@
 import React from "react";
-import compose from "recompose/compose";
-import { withStyles } from "material-ui/styles";
 import { NOT_FOUND } from "redux-first-router";
 import isError from "lodash/isError";
 
-import Typography from "material-ui/Typography";
+import compose from "recompose/compose";
+
+import Typography from "@material-ui/core/Typography";
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const contentStyle = theme => ({
   root: {

@@ -1,25 +1,27 @@
 import React from "react";
 import PropTypes from "prop-types";
-import compose from "recompose/compose";
-import { withStyles } from "material-ui/styles";
 import difference from "lodash/difference";
 import nextDirection from "../../util/nextDirection";
 
-import Tooltip from "material-ui/Tooltip";
-import Fade from "material-ui/transitions/Fade";
-import Checkbox from "material-ui/Checkbox";
-import IconButton from "material-ui/IconButton";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
-import KeyboardArrowDown from "@material-ui/icons/KeyboardArrowDown";
-import Table, {
-  TableBody,
-  TableCell,
-  TableRow,
-  TableFooter,
-  TablePagination,
-  TableHead,
-  TableSortLabel,
-} from "material-ui/Table";
+import compose from "recompose/compose";
+
+import Checkbox from "@material-ui/core/Checkbox";
+import Fade from "@material-ui/core/Fade";
+import IconButton from "@material-ui/core/IconButton";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableFooter from "@material-ui/core/TableFooter";
+import TableHead from "@material-ui/core/TableHead";
+import TablePagination from "@material-ui/core/TablePagination";
+import TableRow from "@material-ui/core/TableRow";
+import TableSortLabel from "@material-ui/core/TableSortLabel";
+import Tooltip from "@material-ui/core/Tooltip";
+import withStyles from "@material-ui/core/styles/withStyles";
+
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
+
 
 const styles = theme => ({
   "data-grid-table": {
@@ -119,7 +121,7 @@ const DataGrid = ({
               className={column.grow ? classes["data-grid-cell-max"] : classes["data-grid-cell"]}
               numeric={column.numeric}
               padding={column.disablePadding ? "none" : "default"}
-              style={column.width && { width: column.width}}
+              style={column.width && { width: column.width }}
               sortDirection={(sorting && sorting.sort) ? (sorting.sort.property === column.name ? sorting.sort.direction : false) : undefined}>
               {sorting && column.sortable
                 ? (
@@ -150,7 +152,7 @@ const DataGrid = ({
           const selectedRowIds = (selecting && selecting.rowIds) || [];
           const detailedRowIds = (detailed && detailed.rowIds) || [];
           const isSelected = selectedRowIds.find(el => el.toString() === currentRowId) !== undefined ? true : false;
-          const isPanelOpen = detailedRowIds.find(el => el.toString() === currentRowId)  !== undefined ? true : false;
+          const isPanelOpen = detailedRowIds.find(el => el.toString() === currentRowId) !== undefined ? true : false;
 
           return (
             <React.Fragment key={currentRowId}>
@@ -158,7 +160,7 @@ const DataGrid = ({
                 {detailed && (
                   <TableCell className={classes["data-grid-open-panel"]} padding="checkbox">
                     <IconButton onClick={event => detailed.onOpenRowsChange(event, [currentRowId], !isPanelOpen)}>
-                      {isPanelOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+                      {isPanelOpen ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
                     </IconButton>
                   </TableCell>
                 )}
@@ -179,7 +181,7 @@ const DataGrid = ({
                       className={column.grow ? classes["data-grid-cell-max"] : classes["data-grid-cell"]}
                       numeric={column.numeric}
                       padding={column.disablePadding ? "none" : "default"}
-                      style={column.width && { width: column.width}}
+                      style={column.width && { width: column.width }}
                       data-header={column.title || column.name}>
                       <Tooltip
                         title={value || ""}

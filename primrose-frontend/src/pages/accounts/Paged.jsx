@@ -1,8 +1,5 @@
 import React from "react";
-import compose from "recompose/compose";
-import withHandlers from "recompose/withHandlers";
 import { connect } from "react-redux";
-import { withStyles } from "material-ui/styles";
 import normalizeArray from "../../util/normalizeArray";
 import difference from "lodash/difference";
 import union from "lodash/union";
@@ -11,14 +8,19 @@ import * as location from "../../store/location";
 import customers from "../../store/customers";
 import meta from "../../store/meta";
 
-import Paper from "material-ui/Paper";
-import Toolbar from "material-ui/Toolbar";
-import PersonAddIcon from "@material-ui/icons/PersonAdd";
-import DeleteIcon from "@material-ui/icons/Delete";
-import IconButton from "material-ui/IconButton";
-import Tooltip from "material-ui/Tooltip";
+import compose from "recompose/compose";
+import withHandlers from "recompose/withHandlers";
+
 import Search from "../../components/Search";
 
+import IconButton from "@material-ui/core/IconButton";
+import Paper from "@material-ui/core/Paper";
+import Toolbar from "@material-ui/core/Toolbar";
+import Tooltip from "@material-ui/core/Tooltip";
+import withStyles from "@material-ui/core/styles/withStyles";
+
+import DeleteIcon from "@material-ui/icons/Delete";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
 
 const contentStyle = theme => ({
   root: {
@@ -152,7 +154,7 @@ const Content = ({
             </Tooltip>
           )}
         </Toolbar>
-        
+
       </Paper>
     </React.Fragment>
   );

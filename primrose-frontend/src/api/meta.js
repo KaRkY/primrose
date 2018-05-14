@@ -1,6 +1,4 @@
 import axios from "../axios";
-import * as actions from "../actions";
-import convertError from "../util/convertError";
 
 const apiUrl = "/meta";
 

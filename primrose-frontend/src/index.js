@@ -7,9 +7,10 @@ import defaultTheme, * as other from "./themes";
 
 import Main from "./Main";
 import { Provider } from "react-redux";
-import { MuiThemeProvider } from "material-ui/styles";
 import MomentUtils from "material-ui-pickers/utils/moment-utils";
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
+
+import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 
 const root = document.getElementById("root");
 const history = createHistory();

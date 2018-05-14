@@ -1,16 +1,15 @@
 import React from "react";
-import compose from "recompose/compose";
 import { connect } from "react-redux";
-import { withStyles } from "material-ui/styles";
-
-import CustomerForm from "../../components/composedForm/CustomerForm";
-import NotificationConsumer from "../../components/App/NotificationConsumer";
-
-import { FORM_ERROR } from "final-form";
 
 import * as actions from "../../actions";
-import customers from "../../api/customers";
 import meta from "../../store/meta";
+
+import compose from "recompose/compose";
+
+import CustomerForm from "../../components/CustomerForm";
+import NotificationConsumer from "../../components/NotificationConsumer";
+
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const contentStyle = theme => ({
 
@@ -50,7 +49,7 @@ const Content = ({
             return customerTypes.create(values)
               .then(result => {
                 //goToCustomer(result);
-                push({ text: "haha"});
+                push({ text: "haha" });
                 return {};
               })
               .catch(error => {
