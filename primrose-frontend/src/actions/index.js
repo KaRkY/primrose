@@ -127,8 +127,8 @@ export const [accountsDeactivate, accountsDeactivateFinished, accountsDeactivate
 
 export const [customerTypesLoad, customerTypesFinished, customerTypesError] = createLoadActions("CUSTOMER_TYPES");
 export const [customerRelationTypesLoad, customerRelationTypesFinished, customerRelationTypesError] = createLoadActions("CUSTOMER_RELATION_TYPES");
-export const [emailTypesLoad, emailTypesLoadFinished, emailTypesLoadError] = createLoadActions("EMAIL_TYPES");
-export const [phoneNumberTypesLoad, phoneNumberTypesLoadFinished, phoneNumberTypesLoadError] = createLoadActions("PHONE_NUMBER_TYPES");
+export const [emailTypesLoad, emailTypesFinished, emailTypesError] = createLoadActions("EMAIL_TYPES");
+export const [phoneNumberTypesLoad, phoneNumberTypesFinished, phoneNumberTypesError] = createLoadActions("PHONE_NUMBER_TYPES");
 
 export const errorPage = createAction("ERROR_PAGE");
 

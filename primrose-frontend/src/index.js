@@ -11,6 +11,7 @@ import MomentUtils from "material-ui-pickers/utils/moment-utils";
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
 
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 const root = document.getElementById("root");
 const history = createHistory();
@@ -26,7 +27,10 @@ const render = (Main) => {
     <MuiThemeProvider theme={themes[/*"indigoLightBlue"*/ "purpleTeal"]}>
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <Provider store={store}>
-          <Main />
+          <React.Fragment>
+            <CssBaseline />
+            <Main />
+          </React.Fragment>
         </Provider>
       </MuiPickersUtilsProvider>
     </MuiThemeProvider>

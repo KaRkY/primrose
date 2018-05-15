@@ -18,15 +18,15 @@ const customerTypes = createMetaEntity({
 
 const emailTypes = createMetaEntity({
   loadingAction: actions.emailTypesLoad,
-  fetchedAction: actions.emailTypesLoadFinished,
-  errorAction: actions.emailTypesLoadError,
+  fetchedAction: actions.emailTypesFinished,
+  errorAction: actions.emailTypesError,
   rootSelector: state => state.meta.emailTypes,
 });
 
 const phoneNumberTypes = createMetaEntity({
   loadingAction: actions.phoneNumberTypesLoad,
-  fetchedAction: actions.phoneNumberTypesLoadFinished,
-  errorAction: actions.phoneNumberTypesLoadError,
+  fetchedAction: actions.phoneNumberTypesFinished,
+  errorAction: actions.phoneNumberTypesError,
   rootSelector: state => state.meta.phoneNumberTypes,
 });
 

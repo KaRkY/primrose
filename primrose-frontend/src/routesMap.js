@@ -46,12 +46,37 @@ export default {
   },
   [actions.customerPageNew]: {
     path: "/customers/new",
-    thunk: (dispatch, getState, { action }) => Promise.all([
-      metaApi.customerTypes({ dispatch, state: getState(), action, ...meta.customerTypes }),
-      metaApi.customerRelationTypes({ dispatch, state: getState(), action, ...meta.customerRelationTypes }),
-      metaApi.emailTypes({ dispatch, state: getState(), action, ...meta.emailTypes }),
-      metaApi.phoneNumberTypes({ dispatch, state: getState(), action, ...meta.phoneNumberTypes }),
-    ]),
+    thunk: (dispatch, getState, { action }) => {
+      const state = getState();
+
+      if (!meta.customerTypes.getData(state) || meta.customerTypes.getError(state)) {
+        dispatch(actions.customerTypesLoad());
+        metaApi.customerTypes()
+          .then(result => dispatch(actions.customerTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.customerTypesError(convertError(error))));
+      }
+
+      if (!meta.customerRelationTypes.getData(state) || meta.customerRelationTypes.getError(state)) {
+        dispatch(actions.customerRelationTypesLoad());
+        metaApi.customerRelationTypes()
+          .then(result => dispatch(actions.customerRelationTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.customerRelationTypesError(convertError(error))));
+      }
+
+      if (!meta.emailTypes.getData(state) || meta.emailTypes.getError(state)) {
+        dispatch(actions.emailTypesLoad());
+        metaApi.emailTypes()
+          .then(result => dispatch(actions.emailTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.emailTypesError(convertError(error))));
+      }
+
+      if (!meta.phoneNumberTypes.getData(state) || meta.phoneNumberTypes.getError(state)) {
+        dispatch(actions.phoneNumberTypesLoad());
+        metaApi.phoneNumberTypes()
+          .then(result => dispatch(actions.phoneNumberTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.phoneNumberTypesError(convertError(error))));
+      }
+    },
   },
   [actions.customerPage]: {
     path: "/customers/:customer",

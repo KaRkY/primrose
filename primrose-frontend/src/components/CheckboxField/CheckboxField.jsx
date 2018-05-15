@@ -3,12 +3,6 @@ import { Field } from "react-final-form";
 
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import withStyles from "@material-ui/core/styles/withStyles";
-
-
-export const style = theme => ({
-
-});
 
 const CheckboxField = props => (
   <Field {...props} type="checkbox">{
@@ -48,4 +42,4 @@ const CheckboxField = props => (
   }</Field>
 );
 
-export default withStyles(style)(CheckboxField);
+export default CheckboxField;
