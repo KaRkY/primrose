@@ -1,57 +1,61 @@
 import * as actions from "../actions";
 
-import customers from "./customers";
-import contacts from "./contacts";
+import * as customerList from "./customerList";
+import * as customerUpdate from "./customerUpdate";
+import * as customerView from "./customerView";
+import * as contactList from "./contactList";
+import * as contactUpdate from "./contactUpdate";
+import * as contactView from "./contactView";
 import meta from "./meta";
 
 import * as location from "./location";
 
 const components = {
-   [actions.customersPage]: state =>
-      customers.paged.isLoading(state) ||
-      meta.customerTypes.isLoading(state) ||
-      meta.customerRelationTypes.isLoading(state),
+      [actions.customerListPage]: state =>
+            customerList.isLoading(state) ||
+            meta.customerTypes.isLoading(state) ||
+            meta.customerRelationTypes.isLoading(state),
 
-   [actions.customerPageNew]: state =>
-      meta.customerTypes.isLoading(state) ||
-      meta.customerRelationTypes.isLoading(state) ||
-      meta.emailTypes.isLoading(state) ||
-      meta.phoneNumberTypes.isLoading(state),
+      [actions.customerNewPage]: state =>
+            meta.customerTypes.isLoading(state) ||
+            meta.customerRelationTypes.isLoading(state) ||
+            meta.emailTypes.isLoading(state) ||
+            meta.phoneNumberTypes.isLoading(state),
 
-   [actions.contactPageNew]: state =>
-      meta.emailTypes.isLoading(state) ||
-      meta.phoneNumberTypes.isLoading(state),
+      [actions.customerUpdatePage]: state =>
+            customerUpdate.isLoading(state) ||
+            meta.customerTypes.isLoading(state) ||
+            meta.customerRelationTypes.isLoading(state) ||
+            meta.emailTypes.isLoading(state) ||
+            meta.phoneNumberTypes.isLoading(state),
 
-   [actions.customerPage]: state =>
-      customers.single.isLoading(state) ||
-      meta.customerTypes.isLoading(state) ||
-      meta.customerRelationTypes.isLoading(state) ||
-      meta.emailTypes.isLoading(state) ||
-      meta.phoneNumberTypes.isLoading(state),
+      [actions.customerViewPage]: state =>
+            customerView.isLoading(state) ||
+            meta.customerTypes.isLoading(state) ||
+            meta.customerRelationTypes.isLoading(state) ||
+            meta.emailTypes.isLoading(state) ||
+            meta.phoneNumberTypes.isLoading(state),
 
-   [actions.customerPageEdit]: state =>
-      customers.single.isLoading(state) ||
-      meta.customerTypes.isLoading(state) ||
-      meta.customerRelationTypes.isLoading(state) ||
-      meta.emailTypes.isLoading(state) ||
-      meta.phoneNumberTypes.isLoading(state),
+      [actions.contactListPage]: state =>
+            contactList.isLoading(state),
 
-   [actions.contactsPage]: state =>
-      contacts.paged.isLoading(state),
+      [actions.contactViewPage]: state =>
+            contactView.isLoading(state) ||
+            meta.emailTypes.isLoading(state) ||
+            meta.phoneNumberTypes.isLoading(state),
 
-   [actions.contactPage]: state =>
-      contacts.single.isLoading(state) ||
-      meta.emailTypes.isLoading(state) ||
-      meta.phoneNumberTypes.isLoading(state),
+      [actions.contactNewPage]: state =>
+            meta.emailTypes.isLoading(state) ||
+            meta.phoneNumberTypes.isLoading(state),
 
-   [actions.contactPageEdit]: state =>
-      contacts.single.isLoading(state) ||
-      meta.emailTypes.isLoading(state) ||
-      meta.phoneNumberTypes.isLoading(state),
+      [actions.contactUpdatePage]: state =>
+            contactUpdate.isLoading(state) ||
+            meta.emailTypes.isLoading(state) ||
+            meta.phoneNumberTypes.isLoading(state),
 
 }
 
 export default state => {
-   const fun = components[location.getPageType(state)];
-   return fun ? fun(state) : false;
+      const fun = components[location.getPageType(state)];
+      return fun && fun(state);
 };

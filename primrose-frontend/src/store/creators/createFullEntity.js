@@ -1,6 +1,6 @@
 import createCreateEntity from "../creators/createCreateEntity";
 import createDeactivateEntity from "../creators/createDeactivateEntity";
-import createEditEntity from "../creators/createEditEntity";
+import createUpdateEntity from "../creators/createUpdateEntity";
 import createPagedEntity from "../creators/createPagedEntity";
 import createEntity from "../creators/createEntity";
 import { combineReducers } from "redux";
@@ -31,7 +31,7 @@ export default ({
     rootSelector: createSelector(rootSelector, root => root.create),
   });
 
-  const edit = createEditEntity({
+  const edit = createUpdateEntity({
     baseAction: editAction,
     editedAction: editFinishedAction,
     errorAction: editErrorAction,

@@ -5,13 +5,14 @@ import configureStore from "./configureStore";
 
 import defaultTheme, * as other from "./themes";
 
-import Main from "./Main";
+import Main from "./pages/Main";
 import { Provider } from "react-redux";
 import MomentUtils from "material-ui-pickers/utils/moment-utils";
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
 
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import NotificationProvider from "./components/NotificationProvider";
 
 const root = document.getElementById("root");
 const history = createHistory();
@@ -29,7 +30,9 @@ const render = (Main) => {
         <Provider store={store}>
           <React.Fragment>
             <CssBaseline />
-            <Main />
+            <NotificationProvider>
+              <Main />
+            </NotificationProvider>
           </React.Fragment>
         </Provider>
       </MuiPickersUtilsProvider>

@@ -2,9 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 
-import {
-  NotificationContext
-} from "../../contexts";
+import NotificationConsumer from "../NotificationConsumer";
 
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
@@ -38,7 +36,7 @@ const propTypes = {
     appContentShiftRight: PropTypes.string.isRequired,
     appContentCenter: PropTypes.string.isRequired,
     grow: PropTypes.string.isRequired,
-  }),
+  }).isRequired,
   theme: PropTypes.object.isRequired,
   mobile: PropTypes.bool.isRequired,
   drawerOpen: PropTypes.bool.isRequired,
@@ -52,14 +50,6 @@ const propTypes = {
   }),
   navigation: PropTypes.element,
   content: PropTypes.element,
-  push: PropTypes.func.isRequired,
-  close: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  current: PropTypes.shape({
-    text: PropTypes.string,
-    key: PropTypes.number,
-  }).isRequired,
-  process: PropTypes.func.isRequired,
   onDrawerOpen: PropTypes.func.isRequired,
   onDrawerClose: PropTypes.func.isRequired,
 };
@@ -74,11 +64,6 @@ const App = (props) => {
     toolbar,
     navigation,
     content,
-    push,
-    close,
-    open,
-    current,
-    process,
     onDrawerOpen,
     onDrawerClose,
   } = props;
@@ -94,35 +79,8 @@ const App = (props) => {
     [classes[`appContentShift${anchor}`]]: !!navigation && drawerOpen && !mobile,
   });
 
-  const snackbarActions = [];
-  if (current.undo) {
-    snackbarActions.push(<Button
-      key="undo"
-      color="secondary"
-      size="small"
-      onClick={current.undo}>UNDO</Button>);
-  }
-  snackbarActions.push(<IconButton
-    key="close"
-    aria-label="Close"
-    color="inherit"
-    className={classes.close}
-    onClick={close}
-  >
-    <CloseIcon />
-  </IconButton>);
-  // Move provide up the chain
   return (
-    <NotificationContext.Provider
-      value={{
-        push,
-        close,
-        open,
-        message: current.message,
-        key: current.key,
-        exit: process,
-      }}
-    >
+    <React.Fragment>
       <div className={classes.root}>
         {toolbar && (
           <AppBar
@@ -179,23 +137,53 @@ const App = (props) => {
         )}
       </div>
 
-      <Snackbar
-        key={current.key}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={open}
-        autoHideDuration={4000}
-        onClose={close}
-        onExited={process}
-        ContentProps={{
-          "aria-describedby": "message-id",
-        }}
-        message={<span id="message-id">{current.text}</span>}
-        action={snackbarActions}
-      />
-    </NotificationContext.Provider>
+
+      <NotificationConsumer>{({
+        push,
+        close,
+        open,
+        current,
+        key,
+        exit,
+      }) => {
+        const snackbarActions = [];
+        if (current && current.undo) {
+          snackbarActions.push(<Button
+            key="undo"
+            color="secondary"
+            size="small"
+            onClick={current.undo}>UNDO</Button>);
+        }
+        snackbarActions.push(<IconButton
+          key="close"
+          aria-label="Close"
+          color="inherit"
+          className={classes.close}
+          onClick={close}
+        >
+          <CloseIcon />
+        </IconButton>);
+
+        return (
+          <Snackbar
+            key={key}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={open}
+            autoHideDuration={4000}
+            onClose={close}
+            onExited={exit}
+            ContentProps={{
+              "aria-describedby": "message-id",
+            }}
+            message={<span id="message-id">{current.text}</span>}
+            action={snackbarActions}
+          />
+        );
+      }}</NotificationConsumer>
+    </React.Fragment>
   );
 };
 

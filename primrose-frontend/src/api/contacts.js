@@ -1,88 +1,51 @@
 import axios from "../axios";
-import * as actions from "../actions";
-import * as location from "../store/location";
-import convertError from "../util/convertError";
-import shouldReloadPageData from "../util/shouldReloadPageData";
 
 const apiUrl = "/contacts";
 
-export const create = props => {
-  const { dispatch, action } = props;
-
+export const create = contact =>
   axios.post(apiUrl, {
     jsonrpc: "2.0",
     method: "create",
     params: {
-      contact: action.payload
+      contact,
     },
     id: Date.now(),
-  })
-    .then(result => dispatch(actions.contactCreateFinished(result.data.result)))
-    .catch(error => dispatch(actions.contactCreateError(convertError(error))));
-};
+  });
 
-export const deactivate = props => {
-  const { dispatch, action } = props;
-
-  axios.post(apiUrl, {
-    jsonrpc: "2.0",
-    method: "delete",
-    params: Array.isArray(action.payload) ? {
-      contactCodes: action.payload
-    } : {
-        contactCode: action.payload
-      },
-    id: Date.now(),
-  })
-    .then(result => dispatch(actions.contactsDeactivateFinished(result.data.result)))
-    .catch(error => dispatch(actions.contactsDeactivateError(convertError(error))));
-};
-
-export const edit = props => {
-  const { dispatch, state, action } = props;
-  axios.post(apiUrl, {
-    jsonrpc: "2.0",
-    method: "update",
-    params: {
-      contactCode: location.getCurrentData(state).contact,
-      contact: action.payload,
+export const deactivate = contactCodes => axios.post(apiUrl, {
+  jsonrpc: "2.0",
+  method: "delete",
+  params: Array.isArray(contactCodes) ? {
+    contactCodes
+  } : {
+      contactCode: contactCodes
     },
-    id: Date.now(),
-  })
-    .then(result => dispatch(actions.contactEditFinished(result.data.result)))
-    .catch(error => dispatch(actions.contactEditError(convertError(error))));
-};
+  id: Date.now(),
+});
 
-export const paged = props => {
-  const { dispatch, state, action, isLoading, } = props;
+export const update = contact => axios.post(apiUrl, {
+  jsonrpc: "2.0",
+  method: "update",
+  params: {
+    contact,
+  },
+  id: Date.now(),
+});
 
-  if (shouldReloadPageData(state, action, isLoading)) {
-    dispatch(actions.contactsLoad());
-    axios.post(apiUrl, {
-      jsonrpc: "2.0",
-      method: "list",
-      params: {
-        pagination: location.getCurrentPagination(state),
-      },
-      id: Date.now(),
-    })
-      .then(result => dispatch(actions.contactsLoadFinished(result.data.result)))
-      .catch(error => dispatch(actions.contactsLoadError(convertError(error))));
-  }
-};
+export const list = pagination => axios.post(apiUrl, {
+  jsonrpc: "2.0",
+  method: "list",
+  params: {
+    pagination,
+  },
+  id: Date.now(),
+});
 
-export const single = props => {
-  const { dispatch, state } = props;
-
-  dispatch(actions.contactLoad());
-  axios.post(apiUrl, {
-    jsonrpc: "2.0",
-    method: "get",
-    params: {
-      contactCode: location.getCurrentData(state).contact,
-    },
-    id: Date.now(),
-  })
-    .then(result => dispatch(actions.contactLoadFinished(result.data.result)))
-    .catch(error => dispatch(actions.contactLoadError(convertError(error))));
-};
+export const view = contactCode => axios.post(apiUrl, {
+  jsonrpc: "2.0",
+  method: "get",
+  params: {
+    contactCode,
+  },
+  id: Date.now(),
+});

@@ -15,15 +15,12 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Toolbar from "@material-ui/core/Toolbar";
-import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 import withStyles from "@material-ui/core/styles/withStyles";
 
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
-import PersonAddIcon from "@material-ui/icons/PersonAdd";
-import SearchIcon from "@material-ui/icons/Search";
 
 import DialogForm from "../DialogForm";
 import EmailForm from "../EmailForm";
@@ -96,7 +93,6 @@ const CustomerForm = ({
       render={({
         handleSubmit,
         submitError,
-        reset,
         form: { mutators },
         submitting,
         pristine,
@@ -249,31 +245,6 @@ const CustomerForm = ({
                     </Paper>
                   </Grid>
                 </Grid>
-              </Grid>
-
-              <Grid item xs={12}>
-                <Paper>
-                  <Toolbar>
-                    <Typography variant="title">Contacts</Typography>
-                    <div className={classes.grow} />
-                    <Tooltip
-                      title={"New contact"}
-                      enterDelay={300}
-                    >
-                      <IconButton>
-                        <PersonAddIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip
-                      title={"Find Contact"}
-                      enterDelay={300}
-                    >
-                      <IconButton>
-                        <SearchIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Toolbar>
-                </Paper>
               </Grid>
             </Grid>
 

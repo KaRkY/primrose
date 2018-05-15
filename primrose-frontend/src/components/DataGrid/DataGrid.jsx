@@ -243,6 +243,7 @@ const DataGrid = ({
 const ComposedDataGrid = enhance(DataGrid);
 ComposedDataGrid.propTypes = {
   rows: PropTypes.array.isRequired,
+  getRowId: PropTypes.func,
 
   columns: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
@@ -255,7 +256,6 @@ ComposedDataGrid.propTypes = {
     width: PropTypes.string,
   })).isRequired,
 
-  getRowId: PropTypes.func,
 
   pagination: PropTypes.shape({
     page: PropTypes.number.isRequired,
@@ -275,7 +275,14 @@ ComposedDataGrid.propTypes = {
   }),
 
   filtering: PropTypes.shape({
-    onFilterChange: PropTypes.func.isRequired
+    filterPanel: PropTypes.element.isRequired,
+    filterValue: PropTypes.any,
+    onFilterChange: PropTypes.func.isRequired,
+  }),
+
+  searching: PropTypes.shape({
+    searchTerm: PropTypes.string,
+    onSearchChange: PropTypes.func.isRequired,
   }),
 
   selecting: PropTypes.shape({

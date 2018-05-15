@@ -22,7 +22,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
+import UpdateIcon from "@material-ui/icons/Edit";
 import SendIcon from "@material-ui/icons/Send";
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
 
@@ -51,15 +51,15 @@ const enhance = compose(
     sendMultiTooltip: "Send",
     deactivateMultiTooltip: "Deactivate",
     deactivateSingleTooltip: "Deactivate",
-    editTooltip: "Edit",
+    editTooltip: "Update",
     openTooltip: "Open",
     selectMultiTooltip: "Select",
     selectSingleTooltip: "Select",
   }),
-  withProps(({ onNew, onOpen, onEdit, onDeactivate, onSend }) => ({
+  withProps(({ onNew, onOpen, onUpdate, onDeactivate, onSend }) => ({
     hasNew: !!onNew,
     hasOpen: !!onOpen,
-    hasEdit: !!onEdit,
+    hasUpdate: !!onUpdate,
     hasDeactivate: !!onDeactivate,
     hasSend: !!onSend,
   })),
@@ -87,7 +87,7 @@ const enhance = compose(
     }),
     onNew: ({ onNew }) => (event) => onNew && onNew(),
     onOpen: ({ onOpen }) => (event, value) => onOpen && onOpen(value),
-    onEdit: ({ onEdit }) => (event, value) => onEdit && onEdit(value),
+    onUpdate: ({ onUpdate }) => (event, value) => onUpdate && onUpdate(value),
     onDeactivate: ({ pagination, onPaged, onDeactivate }) => (event, values) => onDeactivate && Promise.all([onDeactivate(values)])
       .then(result => onPaged({ ...pagination, selected: undefined, force: true }))
       .catch(console.log)
@@ -122,12 +122,12 @@ const SelectSearchList = ({
   onSortChange,
   onOpen,
   onNew,
-  onEdit,
+  onUpdate,
   onDeactivate,
   onSend,
   hasOpen,
   hasNew,
-  hasEdit,
+  hasUpdate,
   hasDeactivate,
   hasSend,
 }) => {
@@ -192,7 +192,7 @@ const SelectSearchList = ({
             rowIds: selected,
             onSelectRowsChange,
           } : undefined}
-          rowActions={(hasSend || hasOpen || hasEdit || hasDeactivate) ? row => (
+          rowActions={(hasSend || hasOpen || hasUpdate || hasDeactivate) ? row => (
             <React.Fragment>
               {hasSend &&
                 <Tooltip
@@ -214,13 +214,13 @@ const SelectSearchList = ({
                   </IconButton>
                 </Tooltip>
               }
-              {hasEdit &&
+              {hasUpdate &&
                 <Tooltip
                   title={editTooltip}
                   enterDelay={300}
                 >
-                  <IconButton onClick={event => onEdit(event, getRowId(row))}>
-                    <EditIcon />
+                  <IconButton onClick={event => onUpdate(event, getRowId(row))}>
+                    <UpdateIcon />
                   </IconButton>
                 </Tooltip>
               }
@@ -271,7 +271,7 @@ ComposedSelectSearchList.propTypes = {
   onPaged: PropTypes.func.isRequired,
   onOpen: PropTypes.func,
   onNew: PropTypes.func,
-  onEdit: PropTypes.func,
+  onUpdate: PropTypes.func,
   onDeactivate: PropTypes.func,
   onSend: PropTypes.func,
 

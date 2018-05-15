@@ -4,7 +4,6 @@ import { connectRoutes } from "redux-first-router";
 
 import routesMap from "./routesMap";
 import options from "./options";
-import { listener } from "./store/promiseListener";
 import * as reducers from "./store";
 import * as actionCreators from "./actions";
 
@@ -16,7 +15,7 @@ export default history => {
   } = connectRoutes(routesMap, options)
 
   const rootReducer = combineReducers({ ...reducers, location: reducer });
-  const middlewares = applyMiddleware(middleware, listener.middleware);
+  const middlewares = applyMiddleware(middleware);
   const enhancers = composeEnhancers(enhancer, middlewares);
 
   return createStore(rootReducer, enhancers);

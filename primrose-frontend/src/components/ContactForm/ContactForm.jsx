@@ -2,9 +2,6 @@ import React from "react";
 import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
 
-import compose from "recompose/compose";
-import withStateHandlers from "recompose/withStateHandlers";
-
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
@@ -15,7 +12,6 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import withStyles from "@material-ui/core/styles/withStyles";
 
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -27,38 +23,6 @@ import PhoneForm from "../PhoneForm";
 import RenderField from "../RenderField";
 import SimpleForm from "../SimpleForm";
 import TextField from "../TextField";
-
-
-export const style = theme => ({
-  root: theme.mixins.gutters({
-  }),
-
-  buttons: {
-    paddingTop: 3 * theme.spacing.unit,
-  },
-
-  grid: {
-    padding: 3 * theme.spacing.unit,
-  },
-
-  grow: {
-    flex: "1 1 auto",
-  },
-});
-
-const enhance = compose(
-  withStateHandlers(
-    { emailInitialValue: {}, emailDialogOpen: false, phoneInitialValue: {}, phoneDialogOpen: false },
-    {
-      onOpenEmailForm: (state) => event => ({ ...state, emailDialogOpen: true }),
-      onCloseEmailForm: (state) => event => ({ ...state, emailDialogOpen: false }),
-      onOpenPhoneForm: (state) => event => ({ ...state, phoneDialogOpen: true }),
-      onClosePhoneForm: (state) => event => ({ ...state, phoneDialogOpen: false }),
-      setEmailInitialValue: state => value => ({ ...state, emailInitialValue: value }),
-      setPhoneInitialValue: state => value => ({ ...state, phoneInitialValue: value }),
-    }),
-  withStyles(style),
-);
 
 const ContactForm = ({
   classes,
@@ -259,4 +223,4 @@ const ContactForm = ({
         )} />
   );
 
-export default enhance(ContactForm);
+export default ContactForm;

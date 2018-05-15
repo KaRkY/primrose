@@ -1,57 +1,61 @@
 import * as actions from "../actions";
 
-import customers from "./customers";
-import contacts from "./contacts";
+import * as customerList from "./customerList";
+import * as customerUpdate from "./customerUpdate";
+import * as customerView from "./customerView";
+import * as contactList from "./contactList";
+import * as contactUpdate from "./contactUpdate";
+import * as contactView from "./contactView";
 import meta from "./meta";
 
 import * as location from "./location";
 
 const components = {
-   [actions.customersPage]: state =>
-      customers.paged.getError(state) ||
-      meta.customerTypes.getError(state) ||
-      meta.customerRelationTypes.getError(state),
+      [actions.customerListPage]: state =>
+            customerList.getError(state) ||
+            meta.customerTypes.getError(state) ||
+            meta.customerRelationTypes.getError(state),
 
-   [actions.customerPageNew]: state =>
-      meta.customerTypes.getError(state) ||
-      meta.customerRelationTypes.getError(state) ||
-      meta.emailTypes.getError(state) ||
-      meta.phoneNumberTypes.getError(state),
+      [actions.customerNewPage]: state =>
+            meta.customerTypes.getError(state) ||
+            meta.customerRelationTypes.getError(state) ||
+            meta.emailTypes.getError(state) ||
+            meta.phoneNumberTypes.getError(state),
 
-   [actions.contactPageNew]: state =>
-      meta.emailTypes.getError(state) ||
-      meta.phoneNumberTypes.getError(state),
+      [actions.customerUpdatePage]: state =>
+            customerUpdate.getError(state) ||
+            meta.customerTypes.getError(state) ||
+            meta.customerRelationTypes.getError(state) ||
+            meta.emailTypes.getError(state) ||
+            meta.phoneNumberTypes.getError(state),
 
-   [actions.customerPage]: state =>
-      customers.single.getError(state) ||
-      meta.customerTypes.getError(state) ||
-      meta.customerRelationTypes.getError(state) ||
-      meta.emailTypes.getError(state) ||
-      meta.phoneNumberTypes.getError(state),
+      [actions.customerViewPage]: state =>
+            customerView.getError(state) ||
+            meta.customerTypes.getError(state) ||
+            meta.customerRelationTypes.getError(state) ||
+            meta.emailTypes.getError(state) ||
+            meta.phoneNumberTypes.getError(state),
 
-   [actions.customerPageEdit]: state =>
-      customers.single.getError(state) ||
-      meta.customerTypes.getError(state) ||
-      meta.customerRelationTypes.getError(state) ||
-      meta.emailTypes.getError(state) ||
-      meta.phoneNumberTypes.getError(state),
+      [actions.contactListPage]: state =>
+            contactList.getError(state),
 
-   [actions.contactsPage]: state =>
-      contacts.paged.getError(state),
+      [actions.contactViewPage]: state =>
+            contactView.getError(state) ||
+            meta.emailTypes.getError(state) ||
+            meta.phoneNumberTypes.getError(state),
 
-   [actions.contactPage]: state =>
-      contacts.single.getError(state) ||
-      meta.emailTypes.getError(state) ||
-      meta.phoneNumberTypes.getError(state),
+      [actions.contactNewPage]: state =>
+            meta.emailTypes.getError(state) ||
+            meta.phoneNumberTypes.getError(state),
 
-   [actions.contactPageEdit]: state =>
-      contacts.single.getError(state) ||
-      meta.emailTypes.getError(state) ||
-      meta.phoneNumberTypes.getError(state),
+      [actions.contactUpdatePage]: state =>
+            contactUpdate.getError(state) ||
+            meta.emailTypes.getError(state) ||
+            meta.phoneNumberTypes.getError(state),
 
 }
 
 export default state => {
-   const fun = components[location.getPageType(state)];
-   return fun && fun(state);
+      const fun = components[location.getPageType(state)];
+      return fun && fun(state);
 };

@@ -2,15 +2,17 @@ import * as actions from "../actions";
 
 const components = {
   [actions.dashboardPage]: "Dashboard",
-  [actions.errorPage]: "Sample error page",
-  [actions.customersPage]: "Customers",
-  [actions.customerPage]: "Customer",
-  [actions.customerPageNew]: "New Customer",
-  [actions.customerPageEdit]: "Edit Customer",
-  [actions.contactsPage]: "Contacts",
-  [actions.contactPage]: "Contact",
-  [actions.contactPageNew]: "New Contact",
-  [actions.contactPageEdit]: "Edit Contact",
+
+  [actions.customerListPage]: "Customers",
+  [actions.customerViewPage]: "Customer",
+  [actions.customerUpdatePage]: "Update Customer",
+  [actions.customerNewPage]: "New Customer",
+
+  [actions.contactListPage]: "Contacts",
+  [actions.contactViewPage]: "Contact",
+  [actions.contactUpdatePage]: "Update Contact",
+  [actions.contactNewPage]: "New Contact",
+
   [actions.notFound]: "404 Not found"
 }
 

@@ -1,106 +1,19 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { NavLink } from "redux-first-router-link";
-
-import compose from "recompose/compose";
 
 import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Collapse from "@material-ui/core/Collapse";
-import withStyles from "@material-ui/core/styles/withStyles";
 
-import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import NavItem from "../NavItem";
+import NavItemPanel from "../NavItemPanel";
 
-export const style = theme => ({
-  activeMenuItem: {
-    backgroundColor: theme.palette.primary.main,
-    "& $activeMenuItemText, & $activeMenuItemIcon, & + * $activeMenuItemLoading": {
-      color: theme.palette.primary.contrastText,
-    },
-    "&:hover": {
-      backgroundColor: theme.palette.primary.light,
-    },
-  },
-  activeMenuItemText: {},
-  activeMenuItemIcon: {},
-  activeMenuItemLoading: {
-    color: theme.palette.text.primary,
-  },
-  nested: {
-    paddingLeft: theme.spacing.unit * 4,
-  },
-});
-
-const enhance = compose(
-  withStyles(style),
-);
-
-const NavItem = ({ classes, name, to, loading, nested, ...rest }) => (
-  <ListItem
-    component={(props) => (
-      <NavLink to={to} activeClassName={classes.activeMenuItem} {...props} {...rest} />
-    )}
-    button={true}
-    className={nested && classes.nested}>
-    <ListItemText classes={{ primary: classes.activeMenuItemText }} primary={name} />
-    {loading && <ListItemSecondaryAction>
-      <CircularProgress
-        className={classes.activeMenuItemLoading}
-        size={28}
-        thickness={4} />
-    </ListItemSecondaryAction>}
-  </ListItem>
-);
-
-class NavItemPanel extends React.Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      open: false,
-    };
-  }
-
-  toggleOpen = () => {
-    this.setState(state => ({ open: !state.open }));
-  };
-
-  render() {
-    const { classes, name, items } = this.props;
-    return (
-      <React.Fragment>
-        <ListItem button={true} onClick={this.toggleOpen}>
-          <ListItemText classes={{ primary: classes.activeMenuItemText }} primary={name} />
-          {this.state.open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        </ListItem>
-        <Collapse in={this.state.open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {items.map(item => (
-              <NavItem key={item.name} classes={classes} nested {...item} />
-            ))}
-          </List>
-        </Collapse>
-      </React.Fragment>
-    );
-  }
-}
-
-const Nav = ({ classes, items = [] }) => (
-  <List component="nav">
-    {items.map(({ children, ...item }) => children ?
-      <NavItemPanel key={item.name} items={children} classes={classes} {...item} /> :
-      <NavItem key={item.name} classes={classes} {...item} />)}
-  </List>
-);
-
-const EnhancedNav = enhance(Nav);
-
-EnhancedNav.propTypes = {
+const propTypes = {
+  classes: PropTypes.shape({
+    activeMenuItem: PropTypes.string.isRequired,
+    activeMenuItemText: PropTypes.string.isRequired,
+    activeMenuItemIcon: PropTypes.string.isRequired,
+    activeMenuItemLoading: PropTypes.string.isRequired,
+    nested: PropTypes.string.isRequired,
+  }).isRequired,
   items: PropTypes.arrayOf(
     PropTypes.oneOfType([
       PropTypes.shape({
@@ -111,8 +24,9 @@ EnhancedNav.propTypes = {
       }).isRequired,
       PropTypes.shape({
         name: PropTypes.string.isRequired,
+        open: PropTypes.bool,
 
-        children: PropTypes.arrayOf(PropTypes.shape({
+        items: PropTypes.arrayOf(PropTypes.shape({
           name: PropTypes.string.isRequired,
           to: PropTypes.shape({
             type: PropTypes.string.isRequired
@@ -123,4 +37,20 @@ EnhancedNav.propTypes = {
   ).isRequired,
 };
 
-export default EnhancedNav;
+const Nav = ({
+  classes,
+  items = []
+}) => {
+  const hasIcon = items.reduce((acc, item) => item.icon ? true : acc, false);
+  return (
+    <List component="nav">
+      {items.map(item => item.items ?
+        <NavItemPanel key={item.name} inset={hasIcon} classes={classes} {...item} /> :
+        <NavItem key={item.name} inset={hasIcon} classes={classes} {...item} />)}
+    </List>
+  );
+};
+
+Nav.propTypes = propTypes;
+
+export default Nav;

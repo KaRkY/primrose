@@ -26,11 +26,11 @@ const SimpleForm = ({
   <Form
     {...props}
     render={formProps => (
-      <form onSubmit={formProps.handleSubmit} onReset={formProps.form.reset}>
+      <form onSubmit={formProps.handleSubmit} onReset={() => formProps.form.reset()}>
         {extractRenderMethod(props)(formProps)}
         <Grid className={props.classes.buttons} container spacing={16}>
           <Grid item>
-            <Button variant="raised" type="reset" disabled={formProps.submitting}>{resetButtonText}</Button>
+            <Button variant="raised" type="reset" disabled={formProps.submitting || formProps.pristine}>{resetButtonText}</Button>
           </Grid>
           <Grid item>
             <Button variant="raised" color="secondary" type="submit" disabled={formProps.submitting || formProps.pristine}>{submitButtonText}</Button>

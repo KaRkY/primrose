@@ -321,11 +321,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         CUSTOMER_DATA.DESCRIPTION,
         CUSTOMER_DATA.VALID_FROM)
       .from(Tables.CUSTOMERS)
-      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
-      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
       .innerJoin(CUSTOMER_DATA).on(
         CUSTOMER_DATA.CUSTOMER.eq(CUSTOMERS.ID),
         containes(tstzrange(CUSTOMER_DATA.VALID_FROM, CUSTOMER_DATA.VALID_TO, value("[)")), currentOffsetDateTime()))
+      .innerJoin(CUSTOMER_TYPES).on(CUSTOMER_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_TYPE))
+      .innerJoin(CUSTOMER_RELATION_TYPES).on(CUSTOMER_RELATION_TYPES.ID.eq(CUSTOMER_DATA.CUSTOMER_RELATION_TYPE))
       .where(CUSTOMERS.CODE.eq(code.getCode()))
       .fetchOne()
       .map(record -> Customer.builder()

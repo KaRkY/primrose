@@ -22,12 +22,11 @@ export const deactivate = customerCodes =>
     id: Date.now(),
   });
 
-export const edit = (customerCode, customer) =>
+export const update = (customer) =>
   axios.post(customersApiURL, {
     jsonrpc: "2.0",
     method: "update",
     params: {
-      customerCode,
       customer,
     },
     id: Date.now(),
@@ -43,7 +42,7 @@ export const list = pagination =>
     id: Date.now(),
   });
 
-export const single = customerCode =>
+export const view = customerCode =>
   axios.post(customersApiURL, {
     jsonrpc: "2.0",
     method: "get",
