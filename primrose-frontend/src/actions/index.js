@@ -36,10 +36,6 @@ const handlePaginated = ({
     query.search = search;
   }
 
-  if("searchOpen" in rest) {
-    query.searchOpen = null;
-  }
-
   return {
     force,
     query,

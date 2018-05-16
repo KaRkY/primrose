@@ -9,28 +9,24 @@ const CustomersList = ({
   customerRelationTypes,
   pagination,
   totalSize,
-  searchTerm,
-  onChangeSearchTerm,
-  onClearSearchTerm,
   onPaged,
   handleView,
   handleNew,
   handleUpdate,
 }) => {
-  const { page = 5, size = 5, selected = [], sort } = pagination;
-  console.log(pagination);
+  const { page = 5, size = 5, selected = [], sort, search } = pagination;
 
   return (
     <DataGrid
       getRowId="code"
-      
+
       rows={customers}
 
       columns={[
-        { name: "code", title: "Code", sortable: true },
-        { name: "relationType", title: "Relation type", getCellValue: row => customerRelationTypes[row.relationType] },
-        { name: "type", title: "Type", getCellValue: row => customerTypes[row.type] },
-        { name: "name", title: "Name", getCellValue: row => row.displayName || row.fullName },
+        { name: "code", title: "Code" },
+        { name: "relationType", sortable: true, title: "Relation type", getCellValue: row => customerRelationTypes[row.relationType] },
+        { name: "type", sortable: true, title: "Type", getCellValue: row => customerTypes[row.type] },
+        { name: "name", sortable: true, title: "Name", getCellValue: row => row.displayName || row.fullName },
         { name: "primaryEmail", title: "Primary email" },
         { name: "primaryPhone", title: "Primary phone" },
       ]}
@@ -54,19 +50,9 @@ const CustomersList = ({
       }}
 
       searching={{
-        open: "searchOpen" in pagination,
-        term: searchTerm,
+        text: search,
         tooltip: "Search customers",
-        onChange: onChangeSearchTerm,
-        onClear: onClearSearchTerm,
-        onSearch: console.log,
-        onOpen: event => console.log("open") || onPaged("searchOpen")(event, null),
-        onClose: event => console.log("close") || onPaged("searchOpen")(event, undefined),
-      }}
-
-      sending={{
-        text: "Send customer",
-        onEvent: console.log,
+        onSearch: onPaged("search"),
       }}
 
       opening={{

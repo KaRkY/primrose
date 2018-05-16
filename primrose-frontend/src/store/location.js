@@ -34,10 +34,6 @@ const getPaginationFromQuery = (query = {}) => {
     result.search = query.search;
   }
 
-  if("searchOpen" in query) {
-    result.searchOpen = null;
-  }
-
   return result;
 };
 

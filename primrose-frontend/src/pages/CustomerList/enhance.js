@@ -1,5 +1,4 @@
 import withHandlers from "recompose/withHandlers";
-import withStateHandlers from "recompose/withStateHandlers";
 import compose from "recompose/compose";
 
 export default compose(
@@ -9,15 +8,10 @@ export default compose(
       if(value === undefined) {
         delete newValue[property];
       }
+      if(property === "search") {
+        newValue.page = 0;
+      }
       handleList(newValue);
     },
   }),
-
-  withStateHandlers(
-    ({ pagination }) => ({ searchTerm: pagination.search || "" }),
-    {
-      onChangeSearchTerm: () => event => ({ searchTerm: event.target.value}),
-      onClearSearchTerm: () => event => ({ searchTerm: ""}),
-    }
-  ),
 );

@@ -275,7 +275,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .from(CUSTOMER_EMAILS)
       .innerJoin(EMAILS).on(EMAILS.ID.eq(CUSTOMER_EMAILS.EMAIL))
       .where(
-        search(pagination.getQuery(), EMAILS.EMAIL),
+        search(pagination.getSearch(), EMAILS.EMAIL),
         CUSTOMERS.ID.eq(CUSTOMER_EMAILS.CUSTOMER));
 
     Select<Record1<Integer>> hasPhone = create
@@ -283,11 +283,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       .from(CUSTOMER_PHONE_NUMBERS)
       .innerJoin(PHONE_NUMBERS).on(PHONE_NUMBERS.ID.eq(CUSTOMER_PHONE_NUMBERS.PHONE_NUMBER))
       .where(
-        search(pagination.getQuery(), PHONE_NUMBERS.PHONE_NUMBER),
+        search(pagination.getSearch(), PHONE_NUMBERS.PHONE_NUMBER),
         CUSTOMERS.ID.eq(CUSTOMER_PHONE_NUMBERS.CUSTOMER));
 
     List<Condition> conditions = JooqUtil.search(
-      pagination.getQuery(),
+      pagination.getSearch(),
       CUSTOMERS.CODE,
       CUSTOMER_TYPES.CODE,
       CUSTOMER_TYPES.DEFAULT_NAME,

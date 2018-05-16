@@ -6,6 +6,8 @@ import * as contactsApi from "./api/contacts";
 
 import meta from "./store/meta";
 import * as metaApi from "./api/meta";
+import axios from "./axios";
+import text from "./pages/Dashboard/text.md";
 
 import convertError from "./util/convertError";
 import shouldReloadPageData from "./util/shouldReloadPageData";

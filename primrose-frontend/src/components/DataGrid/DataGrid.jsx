@@ -15,20 +15,16 @@ import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
-import Toolbar from "@material-ui/core/Toolbar";
 import Tooltip from "@material-ui/core/Tooltip";
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
+
+import DataGridHeader from "../DataGridHeader";
 
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import SendIcon from "@material-ui/icons/Send";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
-import SearchIcon from "@material-ui/icons/Search";
-import ClearIcon from "@material-ui/icons/Clear";
 
 const propTypes = {
   rows: PropTypes.array.isRequired,
@@ -74,15 +70,10 @@ const propTypes = {
   }),
 
   searching: PropTypes.shape({
-    term: PropTypes.string,
     icon: PropTypes.element,
+    text: PropTypes.string,
     tooltip: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onClear: PropTypes.func.isRequired,
     onSearch: PropTypes.func.isRequired,
-    open: PropTypes.bool.isRequired,
-    onOpen: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
   }),
 
@@ -187,91 +178,15 @@ const DataGrid = ({
 
   const result = (
     <Paper>
-      <Toolbar>
-        {searching && searching.open && <TextField
-          onChange={searching.onChange}
-          value={searching.term}
-          InputProps={{
-            disableUnderline: true,
-            placeholder: searching.placeholder || "Search",
-            endAdornment: (
-              <InputAdornment position="end">
-                <Tooltip
-                  title="Clear search"
-                  enterDelay={300}
-                >
-                  <IconButton onClick={searching.onClear}>
-                    <ClearIcon />
-                  </IconButton>
-                </Tooltip>
-              </InputAdornment>
-            ),
-            startAdornment: (
-              <InputAdornment position="start">
-                <Tooltip
-                  title="Search"
-                  enterDelay={300}
-                >
-                  <IconButton onClick={event => searching.onSearch(event, searching.term)}>
-                    <SearchIcon />
-                  </IconButton>
-                </Tooltip>
-              </InputAdornment>
-            ),
-          }}
-          onKeyPress={event => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              searching.onSearch(event, searching.term);
-            }
-          }}
-        />}
-        <div className={classes.grow} />
-        {searching &&
-          <Tooltip
-            title={searching.tooltip}
-            placement="bottom"
-            enterDelay={300}
-          >
-            <IconButton onClick={event => searching.open ? searching.onClose(event) : searching.onOpen(event)}>
-              {defaultIcon(searching.icon, <SearchIcon />)}
-            </IconButton>
-          </Tooltip>
-        }
-        {adding &&
-          <Tooltip
-            title={adding.text}
-            placement="bottom"
-            enterDelay={300}
-          >
-            <IconButton onClick={adding.onEvent}>
-              {defaultIcon(adding.icon, <AddIcon />)}
-            </IconButton>
-          </Tooltip>
-        }
-        {removing && hasSelectedRows &&
-          <Tooltip
-            title={removing.text}
-            placement="bottom"
-            enterDelay={300}
-          >
-            <IconButton onClick={event => removing.onEvent(event, selecting.rowIds)}>
-              {defaultIcon(removing.icon, <DeleteIcon />)}
-            </IconButton>
-          </Tooltip>
-        }
-        {sending && hasSelectedRows &&
-          <Tooltip
-            title={sending.text}
-            placement="bottom"
-            enterDelay={300}
-          >
-            <IconButton onClick={event => sending.onEvent(event, selecting.rowIds)}>
-              {defaultIcon(sending.icon, <SendIcon />)}
-            </IconButton>
-          </Tooltip>
-        }
-      </Toolbar>
+      <DataGridHeader
+        searchTerm={searching.text}
+        searching={searching}
+        selecting={selecting}
+        adding={adding}
+        sending={sending}
+        removing={removing}
+        hasSelected={hasSelectedRows}
+      />
       <Table className={classes.table}>
         <TableHead className={classes.head}>
           <TableRow>
@@ -357,12 +272,7 @@ const DataGrid = ({
                         padding={column.disablePadding ? "none" : "default"}
                         style={column.width && { width: column.width }}
                         data-header={column.title || column.name}>
-                        <Tooltip
-                          title={value || ""}
-                          enterDelay={300}
-                        >
-                          <span>{value}</span>
-                        </Tooltip>
+                        <span>{value}</span>
                       </TableCell>
                     );
                   })}

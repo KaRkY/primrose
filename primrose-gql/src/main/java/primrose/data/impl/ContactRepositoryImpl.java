@@ -230,7 +230,7 @@ public class ContactRepositoryImpl implements ContactRepository {
       .from(CONTACT_EMAILS)
       .innerJoin(EMAILS).on(EMAILS.ID.eq(CONTACT_EMAILS.EMAIL))
       .where(
-        search(value(pagination.getQuery()), EMAILS.EMAIL),
+        search(value(pagination.getSearch()), EMAILS.EMAIL),
         CONTACTS.ID.eq(CONTACT_EMAILS.CONTACT));
 
     Select<Record1<Integer>> hasPhone = create
@@ -238,11 +238,11 @@ public class ContactRepositoryImpl implements ContactRepository {
       .from(CONTACT_PHONE_NUMBERS)
       .innerJoin(PHONE_NUMBERS).on(PHONE_NUMBERS.ID.eq(CONTACT_PHONE_NUMBERS.PHONE_NUMBER))
       .where(
-        search(value(pagination.getQuery()), PHONE_NUMBERS.PHONE_NUMBER),
+        search(value(pagination.getSearch()), PHONE_NUMBERS.PHONE_NUMBER),
         CONTACTS.ID.eq(CONTACT_PHONE_NUMBERS.CONTACT));
 
     List<Condition> conditions = JooqUtil.search(
-      pagination.getQuery(),
+      pagination.getSearch(),
       CONTACTS.CODE,
       CONTACT_DATA.FULL_NAME);
     conditions.add(DSL.exists(hasEmail));

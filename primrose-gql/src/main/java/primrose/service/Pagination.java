@@ -26,7 +26,7 @@ public class Pagination {
   private final Integer size;
   @Valid
   private final Sort    sort;
-  private final String  query;
+  private final String  search;
 
   @JsonPOJOBuilder(withPrefix = "")
   public static class PaginationBuilder {
