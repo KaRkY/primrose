@@ -12,9 +12,43 @@ const createLoadActions = entity => {
   ];
 };
 
+const handlePaginated = ({
+  force,
+  page,
+  size,
+  sort,
+  search,
+  selected,
+  ...rest,
+}) => {
+  const query = {
+    page,
+    size,
+    selected,
+  };
+
+  if(sort) {
+    query.sortProperty = sort.property;
+    query.sortDirection = sort.direction;
+  }
+
+  if(search && search !== "") {
+    query.search = search;
+  }
+
+  if("searchOpen" in rest) {
+    query.searchOpen = null;
+  }
+
+  return {
+    force,
+    query,
+  };
+};
+
 export const dashboardPage = createAction("DASHBOARD_PAGE");
 
-export const customerListPage = createAction("CUSTOMER_LIST_PAGE", ({ force, ...query } = {}) => ({ query, force }));
+export const customerListPage = createAction("CUSTOMER_LIST_PAGE", handlePaginated);
 export const customerViewPage = createAction("CUSTOMER_VIEW_PAGE", customer => ({ customer }));
 export const customerNewPage = createAction("CUSTOMER_NEW_PAGE");
 export const customerUpdatePage = createAction("CUSTOMER_EDIT_PAGE", customer => ({ customer }));
@@ -22,7 +56,7 @@ export const [customerListLoad, customerListFinished, customerListError] = creat
 export const [customerViewLoad, customerViewFinished, customerViewError] = createLoadActions("CUSTOMER_VIEW");
 export const [customerUpdateLoad, customerUpdateFinished, customerUpdateError] = createLoadActions("CUSTOMER_EDIT");
 
-export const contactListPage = createAction("CONTACT_LIST_PAGE", ({ force, ...query } = {}) => ({ query, force }));
+export const contactListPage = createAction("CONTACT_LIST_PAGE", handlePaginated);
 export const contactViewPage = createAction("CONTACT_VIEW_PAGE", contact => ({ contact }));
 export const contactNewPage = createAction("CONTACT_NEW_PAGE");
 export const contactUpdatePage = createAction("CONTACT_EDIT_PAGE", contact => ({ contact }));

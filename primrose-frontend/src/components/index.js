@@ -18,7 +18,6 @@ export { default as PhoneForm } from "./PhoneForm";
 export { default as RadioField } from "./RadioField";
 export { default as RenderField } from "./RenderField";
 export { default as Search } from "./Search";
-export { default as SelectSearchList } from "./SelectSearchList";
 export { default as SimpleForm } from "./SimpleForm";
 export { default as SwitchField } from "./SwitchField";
 export { default as TextField } from "./TextField";

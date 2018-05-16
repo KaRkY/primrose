@@ -1,27 +1,44 @@
-import { createSelector } from "reselect";
+import {
+  createSelector
+} from "reselect";
 import normalizeArray from "../util/normalizeArray";
 
 const getPaginationFromQuery = (query = {}) => {
-  let sort;
+  const result = {};
+
+  if (query.page) {
+    result.page = parseInt(query.page, 10);
+  } else {
+    result.page = 0;
+  }
+
+  if (query.size) {
+    result.size = parseInt(query.size, 10);
+  } else {
+    result.size = 5;
+  }
+
+
   if (query.sortProperty) {
-    sort = {
+    result.sort = {
       property: query.sortProperty,
       direction: query.sortDirection,
     };
   }
 
-  let selected;
   if (query.selected) {
-    selected = normalizeArray(query.selected);
+    result.selected = normalizeArray(query.selected);
   }
 
-  return {
-    page: parseInt(query.page || 0, 10),
-    size: parseInt(query.size || 5, 10),
-    sort,
-    selected,
-    query: query.query,
-  };
+  if (query.search) {
+    result.search = query.search;
+  }
+
+  if("searchOpen" in query) {
+    result.searchOpen = null;
+  }
+
+  return result;
 };
 
 export const getLocation = state => state.location;

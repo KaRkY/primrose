@@ -6,11 +6,12 @@ export default (state, action) => {
   const currentPathname = location.getCurrentPathname(state);
   const previousPathname = location.getPreviousPathname(state);
 
+
   if (!(action.payload && action.payload.force)) {
     if (
       prev.page === cur.page && 
       prev.size === cur.size &&
-      prev.query === cur.query &&
+      prev.search === cur.search &&
       currentPathname === previousPathname) {
         if(prev.sort === undefined && cur.sort === undefined) {
           return false;

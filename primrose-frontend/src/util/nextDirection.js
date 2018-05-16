@@ -1,5 +1,5 @@
 export default (sort, column) => {
-  if (sort && sort.column === column) {
+  if (sort && sort.property === column) {
     switch (sort.direction) {
       case "asc": return "desc";
       case "desc": return undefined;

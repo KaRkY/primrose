@@ -1,8 +1,8 @@
 import * as actions from "../../actions";
 
 export default dispatch => ({
-  handlePaged: payload => dispatch(actions.customerListPage(payload)),
-  handleSingle: payload => dispatch(actions.customerViewPage(payload)),
-  handleNew: payload => dispatch(actions.customerNewPage(payload)),
-  handleUpdate: payload => dispatch(actions.customerUpdatePage(payload)),
+  handleList: payload => dispatch(actions.customerListPage(payload)),
+  handleView: (event, payload) => dispatch(actions.customerViewPage(payload)),
+  handleNew: () => dispatch(actions.customerNewPage()),
+  handleUpdate: (event, payload) => dispatch(actions.customerUpdatePage(payload)),
 });
