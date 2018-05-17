@@ -1,7 +1,6 @@
 package primrose.service.impl;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,41 +31,13 @@ public class CustomerServiceImpl implements CustomerService {
   // TODO implement duplicates email and phone numbers
   // TODO normalize emails and phoneNumbers
   public CustomerCode create(Customer customer) {
-    CustomerCode customerCode = customerRepository.generate();
-    customerRepository.create(customer
-      .toBuilder()
-      .code(customerCode)
-      .emails(customer
-        .getEmails()
-        .stream()
-        .map(email -> email.toBuilder().value(email.getValue().toLowerCase()).build())
-        .collect(Collectors.toList()))
-      .phoneNumbers(customer
-        .getPhoneNumbers()
-        .stream()
-        .map(phoneNumber -> phoneNumber.toBuilder().value(phoneNumber.getValue().toLowerCase()).build())
-        .collect(Collectors.toList()))
-      .build());
-    return customerCode;
+    return customerRepository.create(customer);
   }
 
   @Override
   @Transactional
   public CustomerCode update(Customer customer) {
-    customerRepository.update(customer
-      .toBuilder()
-      .emails(customer
-        .getEmails()
-        .stream()
-        .map(email -> email.toBuilder().value(email.getValue().toLowerCase()).build())
-        .collect(Collectors.toList()))
-      .phoneNumbers(customer
-        .getPhoneNumbers()
-        .stream()
-        .map(phoneNumber -> phoneNumber.toBuilder().value(phoneNumber.getValue().toLowerCase()).build())
-        .collect(Collectors.toList()))
-      .build());
-    return customer.getCode();
+    return customerRepository.update(customer);
   }
 
   @Override

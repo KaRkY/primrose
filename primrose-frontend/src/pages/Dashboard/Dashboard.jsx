@@ -5,7 +5,7 @@ import MarkdownElement from "../../components/MarkdownElement";
 const Dashboard = ({ classes, width, style, customer }) => (
   <React.Fragment>
     <MarkdownElement 
-    text={"# Live demo"} 
+    text={customer} 
     />
   </React.Fragment>
 );

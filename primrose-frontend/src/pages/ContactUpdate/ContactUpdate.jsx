@@ -21,7 +21,7 @@ const ContactUpdate = ({
               return {};
             })
             .catch(error => {
-              push({ text: error });
+              push({ text: error.message });
               return {};
             });
         }}

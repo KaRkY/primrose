@@ -15,6 +15,13 @@ import shouldReloadPageData from "./util/shouldReloadPageData";
 export default {
   [actions.dashboardPage]: {
     path: "/",
+    thunk: (dispatch, getState, { action }) => {
+      dispatch(actions.customerViewLoad());
+      axios
+      .get(text)
+      .then(result => dispatch(actions.customerViewFinished(result.data)))
+        .catch(error => dispatch(actions.customerViewError(convertError(error))));
+    }
   },
   [actions.customerListPage]: {
     path: "/customers",
@@ -40,6 +47,40 @@ export default {
         metaApi.customerRelationTypes()
           .then(result => dispatch(actions.customerRelationTypesFinished(result.data.result)))
           .catch(error => dispatch(actions.customerRelationTypesError(convertError(error))));
+      }
+    },
+  },
+  [actions.customerNewPage]: {
+    path: "/customers/new",
+    thunk: (dispatch, getState, { action }) => {
+      const state = getState();
+
+      if (!meta.customerTypes.getData(state) || meta.customerTypes.getError(state)) {
+        dispatch(actions.customerTypesLoad());
+        metaApi.customerTypes()
+          .then(result => dispatch(actions.customerTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.customerTypesError(convertError(error))));
+      }
+
+      if (!meta.customerRelationTypes.getData(state) || meta.customerRelationTypes.getError(state)) {
+        dispatch(actions.customerRelationTypesLoad());
+        metaApi.customerRelationTypes()
+          .then(result => dispatch(actions.customerRelationTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.customerRelationTypesError(convertError(error))));
+      }
+
+      if (!meta.emailTypes.getData(state) || meta.emailTypes.getError(state)) {
+        dispatch(actions.emailTypesLoad());
+        metaApi.emailTypes()
+          .then(result => dispatch(actions.emailTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.emailTypesError(convertError(error))));
+      }
+
+      if (!meta.phoneNumberTypes.getData(state) || meta.phoneNumberTypes.getError(state)) {
+        dispatch(actions.phoneNumberTypesLoad());
+        metaApi.phoneNumberTypes()
+          .then(result => dispatch(actions.phoneNumberTypesFinished(result.data.result)))
+          .catch(error => dispatch(actions.phoneNumberTypesError(convertError(error))));
       }
     },
   },
@@ -123,24 +164,24 @@ export default {
       }
     },
   },
-  [actions.customerNewPage]: {
-    path: "/customers/new",
+
+  [actions.contactListPage]: {
+    path: "/contacts",
     thunk: (dispatch, getState, { action }) => {
       const state = getState();
 
-      if (!meta.customerTypes.getData(state) || meta.customerTypes.getError(state)) {
-        dispatch(actions.customerTypesLoad());
-        metaApi.customerTypes()
-          .then(result => dispatch(actions.customerTypesFinished(result.data.result)))
-          .catch(error => dispatch(actions.customerTypesError(convertError(error))));
+      if (shouldReloadPageData(state, action)) {
+        dispatch(actions.contactListLoad());
+        contactsApi.list(location.getCurrentPagination(state))
+          .then(result => dispatch(actions.contactListFinished(result.data.result)))
+          .catch(error => dispatch(actions.contactListError(convertError(error))));
       }
-
-      if (!meta.customerRelationTypes.getData(state) || meta.customerRelationTypes.getError(state)) {
-        dispatch(actions.customerRelationTypesLoad());
-        metaApi.customerRelationTypes()
-          .then(result => dispatch(actions.customerRelationTypesFinished(result.data.result)))
-          .catch(error => dispatch(actions.customerRelationTypesError(convertError(error))));
-      }
+    },
+  },
+  [actions.contactNewPage]: {
+    path: "/contacts/new",
+    thunk: (dispatch, getState, { action }) => {
+      const state = getState();
 
       if (!meta.emailTypes.getData(state) || meta.emailTypes.getError(state)) {
         dispatch(actions.emailTypesLoad());
@@ -154,20 +195,6 @@ export default {
         metaApi.phoneNumberTypes()
           .then(result => dispatch(actions.phoneNumberTypesFinished(result.data.result)))
           .catch(error => dispatch(actions.phoneNumberTypesError(convertError(error))));
-      }
-    },
-  },
-
-  [actions.contactListPage]: {
-    path: "/contacts",
-    thunk: (dispatch, getState, { action }) => {
-      const state = getState();
-
-      if (shouldReloadPageData(state, action)) {
-        dispatch(actions.contactListLoad());
-        contactsApi.list(location.getCurrentPagination(state))
-          .then(result => dispatch(actions.contactListFinished(result.data.result)))
-          .catch(error => dispatch(actions.contactListError(convertError(error))));
       }
     },
   },
@@ -207,26 +234,6 @@ export default {
       contactsApi.view(location.getCurrentData(state).contact)
         .then(result => dispatch(actions.contactUpdateFinished(result.data.result)))
         .catch(error => dispatch(actions.contactUpdateError(convertError(error))));
-
-      if (!meta.emailTypes.getData(state) || meta.emailTypes.getError(state)) {
-        dispatch(actions.emailTypesLoad());
-        metaApi.emailTypes()
-          .then(result => dispatch(actions.emailTypesFinished(result.data.result)))
-          .catch(error => dispatch(actions.emailTypesError(convertError(error))));
-      }
-
-      if (!meta.phoneNumberTypes.getData(state) || meta.phoneNumberTypes.getError(state)) {
-        dispatch(actions.phoneNumberTypesLoad());
-        metaApi.phoneNumberTypes()
-          .then(result => dispatch(actions.phoneNumberTypesFinished(result.data.result)))
-          .catch(error => dispatch(actions.phoneNumberTypesError(convertError(error))));
-      }
-    },
-  },
-  [actions.contactNewPage]: {
-    path: "/contacts/new",
-    thunk: (dispatch, getState, { action }) => {
-      const state = getState();
 
       if (!meta.emailTypes.getData(state) || meta.emailTypes.getError(state)) {
         dispatch(actions.emailTypesLoad());

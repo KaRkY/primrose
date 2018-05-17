@@ -219,7 +219,7 @@ const CustomerForm = ({
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          <FieldArray name="phones">{({ fields }) => fields.map(((name, index) => (
+                          <FieldArray name="phoneNumbers">{({ fields }) => fields.map(((name, index) => (
                             <TableRow key={index}>
                               <TableCell>
                                 <RenderField name={`${name}.type`} mapValue={value => phoneNumberTypes[value]} />
@@ -234,7 +234,7 @@ const CustomerForm = ({
                                 }}>
                                   <OpenInNewIcon />
                                 </IconButton>
-                                <IconButton onClick={() => mutators.remove("phones", index)}>
+                                <IconButton onClick={() => mutators.remove("phoneNumbers", index)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </TableCell>
@@ -269,7 +269,7 @@ const CustomerForm = ({
             <DialogForm
               title="Add Phone"
               onSubmit={(values, { close }) => {
-                mutators.push("phones", values);
+                mutators.push("phoneNumbers", values);
                 close();
               }}
               open={phoneDialogOpen}

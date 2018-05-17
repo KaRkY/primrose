@@ -132,331 +132,86 @@ insert into meeting_types(code, default_name, sort) values
  * TABLES
  * 
  */
-
-create table addresses(
-  id            bigserial,
-  street        text      not null,
-  street_number text      not null,
-  city          text      not null,
-  postal_code   text      not null,
-  state         text,
-  country       text      not null,
-  deleted       boolean   not null default false,
-  
-  constraint pk_addresses primary key (id)
-);
-
-create table emails(
-  id    bigserial not null,
-  email text      not null,
-  
-  constraint pk_emails        primary key (id),
-  constraint uq_emails_email  exclude using gist (
-    lower(email) with =
-  )
-);
-
-create table phone_numbers(
-  id            bigserial not null,
-  phone_number  text      not null,
-  
-  constraint pk_phone_numbers               primary key (id),
-  constraint uq_phone_numbers_phone_number  exclude using gist (
-    lower(phone_number) with =
-  )
-);
-
 create table customers(
   id    bigserial not null,
   code  text      not null,
-  
-  constraint pk_customers       primary key (id),
-  constraint uq_customers_code  unique (code)
-);
-
-create table customer_data(
-  customer                bigint      not null,
   customer_type           bigint      not null,
   customer_relation_type  bigint      not null,
   full_name               text        not null,
   display_name            text,
   description             text,
-  valid_from              timestamptz not null default now(),
-  valid_to                timestamptz,
+  created_by              text        not null,
+  changed_by              text        not null,
+  created_at              timestamptz not null,
+  changed_at              timestamptz not null,
   
-  constraint pk_customer_data                         primary key (customer, valid_from),
-  constraint fk_customer_data_customer                foreign key (customer)                references customers(id),
+  constraint pk_customers                             primary key (id),
   constraint fk_customer_data_customer_type           foreign key (customer_type)           references customer_types(id),
   constraint fk_customer_data_customer_relation_type  foreign key (customer_relation_type)  references customer_relation_types(id),
-  constraint rg_customer_data_validity                exclude using gist (
-    customer with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
-create table customer_addresses(
-  address       bigint      not null,
-  customer      bigint      not null,
-  address_type  bigint      not null,
-  valid_from    timestamptz not null default now(),
-  valid_to      timestamptz,
-  
-  constraint pk_customer_addresses              primary key (address, customer, valid_from),
-  constraint fk_customer_addresses_address      foreign key (address)               references addresses(id),
-  constraint fk_customer_addresses_customer     foreign key (customer)              references customers(id),
-  constraint fk_customer_addresses_data         foreign key (customer, valid_from)  references customer_data(customer, valid_from),
-  constraint fk_customer_addresses_address_type foreign key (address_type)          references address_types(id),
-  constraint rg_customer_addresses_validity     exclude using gist (
-    address with =,
-    customer with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
+  constraint uq_customers_code                        unique (code)
 );
 
 create table customer_phone_numbers(
-  customer          bigint      not null,
-  phone_number      bigint      not null,
-  phone_number_type bigint      not null,
-  valid_from        timestamptz not null default now(),
-  valid_to          timestamptz,
+  customer          bigint  not null,
+  phone_number_type bigint  not null,
+  phone_number      text    not null,
   
-  constraint pk_customer_phone_numbers                    primary key (customer, phone_number, valid_from),
-  constraint fk_customer_phone_numbers_customer           foreign key (customer)              references customers(id),
-  constraint fk_customer_phone_numbers_phone_number       foreign key (phone_number)          references phone_numbers(id),
-  constraint fk_customer_phone_numbers_phone_number_type  foreign key (phone_number_type)     references phone_number_types(id),
-  constraint fk_customer_phone_numbers_data               foreign key (customer, valid_from)  references customer_data(customer, valid_from),
-  constraint rg_customer_phone_numbers_validity           exclude using gist (
-    customer with =,
-    phone_number with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
+  constraint pk_customer_phone_numbers                    primary key (customer, phone_number),
+  constraint fk_customer_phone_numbers_customer           foreign key (customer)          references customers(id),
+  constraint fk_customer_phone_numbers_phone_number_type  foreign key (phone_number_type) references phone_number_types(id)
 );
 
 create table customer_emails(
-  customer    bigint      not null,
-  email       bigint      not null,
-  email_type  bigint      not null,
-  valid_from  timestamptz not null default now(),
-  valid_to    timestamptz,
+  customer    bigint  not null,
+  email_type  bigint  not null,
+  email       text    not null,
   
-  constraint pk_customer_emails             primary key (customer, email, valid_from),
-  constraint fk_customer_emails_email       foreign key (email)                 references emails(id),
-  constraint fk_customer_emails_customer    foreign key (customer)              references customers(id),
-  constraint fk_customer_emails_email_type  foreign key (email_type)            references email_types(id),
-  constraint fk_customer_emails_data        foreign key (customer, valid_from)  references customer_data(customer, valid_from),
-  constraint rg_customer_emails_validity    exclude using gist (
-    customer with =,
-    email with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
-create table accounts(
-  id          bigserial not null,
-  code        text      not null,
-
-  constraint pk_accounts      primary key (id),
-  constraint uq_accounts_code unique(code)
-);
-
-create table account_data(
-  account     bigint      not null,
-  name        text        not null,
-  description text,
-  valid_from  timestamptz not null default now(),
-  valid_to    timestamptz,
-  
-  constraint pk_account_data          primary key (account, valid_from),
-  constraint pk_account_data_account  foreign key (account)  references accounts(id),
-  constraint rg_account_data_validity exclude using gist (
-    account with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
-create table customer_accounts(
-  customer    bigint      not null,
-  account     bigint      not null,
-  valid_from  timestamptz not null default now(),
-  valid_to    timestamptz,
-  
-  constraint pk_customer_accounts           primary key (customer, account, valid_from),
-  constraint fk_customer_accounts_account   foreign key (account)   references accounts(id),
-  constraint fk_customer_accounts_customer  foreign key (customer)  references customers(id),
-  constraint rg_customer_accounts_validity  exclude using gist (
-    account with =,
-    customer with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
-create table account_addresses(
-  address       bigint      not null,
-  account       bigint      not null,
-  address_type  bigint      not null,
-  valid_from    timestamptz not null default now(),
-  valid_to      timestamptz,
-  
-  constraint pk_account_addresses              primary key (address, account, valid_from),
-  constraint fk_account_addresses_address      foreign key (address)              references addresses(id),
-  constraint fk_account_addresses_account      foreign key (account)              references accounts(id),
-  constraint fk_account_addresses_address_type foreign key (address_type)         references address_types(id),
-  constraint fk_account_addresses_data         foreign key (account, valid_from)  references account_data(account, valid_from),
-  constraint rg_account_addresses_validity     exclude using gist (
-    address with =,
-    account with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
-create table account_phone_numbers(
-  account           bigint      not null,
-  phone_number      bigint      not null,
-  phone_number_type bigint      not null,
-  valid_from        timestamptz not null default now(),
-  valid_to          timestamptz,
-  
-  constraint pk_account_phone_numbers                   primary key (account, phone_number, valid_from),
-  constraint fk_account_phone_numbers_account           foreign key (account)               references accounts(id),
-  constraint fk_account_phone_numbers_phone_number      foreign key (phone_number)          references phone_numbers(id),
-  constraint fk_account_phone_numbers_phone_number_type foreign key (phone_number_type)     references phone_number_types(id),
-  constraint fk_account_phone_numbers_data              foreign key (account, valid_from)   references account_data(account, valid_from),
-  constraint rg_account_phone_numbers_validity          exclude using gist (
-    account with =,
-    phone_number with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
-create table account_emails(
-  account     bigint      not null,
-  email       bigint      not null,
-  email_type  bigint      not null,
-  valid_from  timestamptz not null default now(),
-  valid_to    timestamptz,
-  
-  constraint pk_account_emails              primary key (account, email, valid_from),
-  constraint fk_account_emails_email        foreign key (email)                 references emails(id),
-  constraint fk_account_emails_account      foreign key (account)               references accounts(id),
-  constraint fk_account_emails_email_type   foreign key (email_type)            references email_types(id),
-  constraint fk_account_emails_data         foreign key (account, valid_from)   references account_data(account, valid_from),
-  constraint rg_account_emails_validity     exclude using gist (
-    account with =,
-    email with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
+  constraint pk_customer_emails             primary key (customer, email),
+  constraint fk_customer_emails_customer    foreign key (customer)    references customers(id),
+  constraint fk_customer_emails_email_type  foreign key (email_type)  references email_types(id)
 );
 
 create table contacts(
-  id          bigserial not null,
-  code        text      not null,
+  id          bigserial   not null,
+  code        text        not null,
+  full_name   text        not null,
+  description text,
+  created_by  text        not null,
+  changed_by  text        not null,
+  created_at  timestamptz not null,
+  changed_at  timestamptz not null,
 
   constraint pk_contacts      primary key (id),
   constraint uq_contacts_code unique(code)
 );
 
-create table contact_data(
-  contact     bigint      not null,
-  full_name   text        not null,
-  description text,
-  valid_from  timestamptz not null default now(),
-  valid_to    timestamptz,
-  
-  constraint pk_contact_data          primary key (contact, valid_from),
-  constraint fk_contact_data_contact  foreign key (contact) references contacts(id),
-  constraint rg_contact_data_validity exclude using gist (
-    contact with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
-create table contact_addresses(
-  address       bigint      not null,
-  contact       bigint      not null,
-  address_type  bigint      not null,
-  valid_from    timestamptz not null default now(),
-  valid_to      timestamptz,
-  
-  constraint pk_contact_addresses              primary key (address, contact, valid_from),
-  constraint fk_contact_addresses_address      foreign key (address)              references addresses(id),
-  constraint fk_contact_addresses_contact      foreign key (contact)              references contacts(id),
-  constraint fk_contact_addresses_address_type foreign key (address_type)         references address_types(id),
-  constraint fk_contact_addresses_data         foreign key (contact, valid_from)  references contact_data(contact, valid_from),
-  constraint rg_contact_addresses_validity     exclude using gist (
-    address with =,
-    contact with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
 create table contact_phone_numbers(
-  contact           bigint      not null,
-  phone_number      bigint      not null,
-  phone_number_type bigint      not null,
-  valid_from        timestamptz not null default now(),
-  valid_to          timestamptz,
+  contact           bigint  not null,
+  phone_number_type bigint  not null,
+  phone_number      text    not null,
   
-  constraint pk_contact_phone_numbers                   primary key (contact, phone_number, valid_from),
-  constraint fk_contact_phone_numbers_contact           foreign key (contact)               references contacts(id),
-  constraint fk_contact_phone_numbers_phone_number      foreign key (phone_number)          references phone_numbers(id),
-  constraint fk_contact_phone_numbers_phone_number_type foreign key (phone_number_type)     references phone_number_types(id),
-  constraint fk_contact_phone_numbers_data              foreign key (contact, valid_from)   references contact_data(contact, valid_from),
-  constraint rg_contact_phone_numbers_validity          exclude using gist (
-    contact with =,
-    phone_number with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
+  constraint pk_contact_phone_numbers                   primary key (contact, phone_number),
+  constraint fk_contact_phone_numbers_contact           foreign key (contact)           references contacts(id),
+  constraint fk_contact_phone_numbers_phone_number_type foreign key (phone_number_type) references phone_number_types(id)
 );
 
 create table contact_emails(
-  contact     bigint      not null,
-  email       bigint      not null,
-  email_type  bigint      not null,
-  valid_from  timestamptz not null default now(),
-  valid_to    timestamptz,
+  contact     bigint  not null,
+  email_type  bigint  not null,
+  email       text    not null,
   
-  constraint pk_contact_emails              primary key (contact, email, valid_from),
-  constraint fk_contact_emails_email        foreign key (email)                 references emails(id),
-  constraint fk_contact_emails_contact      foreign key (contact)               references contacts(id),
-  constraint fk_contact_emails_email_type   foreign key (email_type)            references email_types(id),
-  constraint fk_contact_emails_data         foreign key (contact, valid_from)   references contact_data(contact, valid_from),
-  constraint rg_contact_emails_validity     exclude using gist (
-    contact with =,
-    email with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
+  constraint pk_contact_emails            primary key (contact, email),
+  constraint fk_contact_emails_contact    foreign key (contact)     references contacts(id),
+  constraint fk_contact_emails_email_type foreign key (email_type)  references email_types(id)
 );
 
 create table customer_contacts(
   customer    bigint      not null,
   contact     bigint      not null,
-  valid_from  timestamptz not null default now(),
-  valid_to    timestamptz,
   
-  constraint pk_customer_contacts           primary key (customer, contact, valid_from),
+  constraint pk_customer_contacts           primary key (customer, contact),
   constraint fk_customer_contacts_contact   foreign key (contact)   references contacts(id),
-  constraint fk_customer_contacts_customer  foreign key (customer)  references customers(id),
-  constraint rg_customer_contacts_validity  exclude using gist (
-    customer with =,
-    contact with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
-);
-
-create table account_contacts(
-  account     bigint      not null,
-  contact     bigint      not null,
-  valid_from  timestamptz not null default now(),
-  valid_to    timestamptz,
-  
-  constraint pk_account_contacts          primary key (account, contact, valid_from),
-  constraint fk_account_contacts_contact  foreign key (contact)   references contacts(id),
-  constraint fk_account_contacts_account  foreign key (account)  references accounts(id),
-  constraint rg_account_contacts_validity exclude using gist (
-    account with =,
-    contact with =,
-    tstzrange(valid_from, coalesce(valid_to, 'infinity'), '[)') with &&
-  )
+  constraint fk_customer_contacts_customer  foreign key (customer)  references customers(id)
 );
 
 create table meetings(
@@ -763,25 +518,6 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 create trigger generate_customer_codes before insert on customers for each row execute procedure customer_codes_gen();
-
-create function account_codes_gen() returns trigger as $$
-declare
-  chars char[];
-  finished bool;
-  customer_code text;
-  result text;
-begin
-  finished := false;
-  select code into customer_code from customers where id = new.customer;
-  while not finished loop
-    result := customer_code || '-' || generate_random_string(4, array['0','1','2','3','4','5','6','7','8','9']);
-    finished := not exists(select 1 from account_codes where code = result);
-  end loop;
-  new.code := result;
-  return NEW;
-end;
-$$ LANGUAGE plpgsql;
-create trigger generate_account_codes before insert on accounts for each row execute procedure account_codes_gen();
 
 create function contact_codes_gen() returns trigger as $$
 declare

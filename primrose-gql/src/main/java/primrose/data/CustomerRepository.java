@@ -15,10 +15,8 @@ public interface CustomerRepository {
 
   ImmutableList<CustomerPreview> list(Pagination pagination);
 
-  void update(Customer customer);
+  CustomerCode update(Customer customer);
 
-  void create(Customer customer);
-
-  CustomerCode generate();
+  CustomerCode create(Customer customer);
 
 }

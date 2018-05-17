@@ -23,7 +23,7 @@ const CustomerNew = ({
               return {};
             })
             .catch(error => {
-              push({ text: error });
+              push({ text: error.message });
               return {};
             });
         }}

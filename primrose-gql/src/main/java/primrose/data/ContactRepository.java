@@ -15,10 +15,8 @@ public interface ContactRepository {
 
   ImmutableList<ContactPreview> list(Pagination pagination);
 
-  void update(Contact contact);
+  ContactCode update(Contact contact);
 
-  void create(Contact contact);
-
-  ContactCode generate();
+  ContactCode create(Contact contact);
 
 }
