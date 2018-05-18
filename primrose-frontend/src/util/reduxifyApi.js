@@ -6,9 +6,23 @@ export default ({
   error,
   api,
   extractor = result => result.data,
-}) => (dispatch, ...props) => {
-  dispatch(load());
-  api(...props)
-    .then(result => dispatch(finished(extractor(result))))
-    .catch(error => dispatch(error(convertError(error))));
+  reload = () => true,
+  data = () => undefined,
+}) => thunk => {
+  if(reload(thunk.state, thunk.action)) {
+    thunk.dispatch(load());
+    return api(data(thunk.state, thunk.action))
+      .then(result => {
+        const transformed = extractor(result);
+        thunk.dispatch(finished(transformed));
+
+        return transformed;
+      })
+      .catch(error => {
+        thunk.dispatch(error(convertError(error)));
+        throw error;
+      });
+  } else {
+    return Promise.resolve();
+  }
 }

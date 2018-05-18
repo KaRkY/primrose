@@ -48,6 +48,8 @@ const Main = ({
             { to: actions.dashboardPage(), name: "Dashboard", exact: true, icon: <DashboardIcon />, },
             { to: actions.customerListPage({ force: true }), name: "Customers", icon: <AccountBoxIcon />, },
             { to: actions.contactListPage({ force: true }), name: "Contacts", icon: <ContactsIcon />, },
+            { separator: true },
+            { to: actions.markdownExamplePage({ force: true }), name: "Markdown example", },
           ]}
         />
       }

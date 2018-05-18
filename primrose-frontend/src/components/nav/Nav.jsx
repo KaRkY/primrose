@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import List from "@material-ui/core/List";
+import Divider from "@material-ui/core/Divider";
 
 import NavItem from "../NavItem";
 import NavItemPanel from "../NavItemPanel";
@@ -16,6 +17,9 @@ const propTypes = {
   }).isRequired,
   items: PropTypes.arrayOf(
     PropTypes.oneOfType([
+      PropTypes.shape({
+        separator: PropTypes.bool.isRequired,
+      }).isRequired,
       PropTypes.shape({
         name: PropTypes.string.isRequired,
         to: PropTypes.shape({
@@ -44,9 +48,19 @@ const Nav = ({
   const hasIcon = items.reduce((acc, item) => item.icon ? true : acc, false);
   return (
     <List component="nav">
-      {items.map(item => item.items ?
-        <NavItemPanel key={item.name} inset={hasIcon} classes={classes} {...item} /> :
-        <NavItem key={item.name} inset={hasIcon} classes={classes} {...item} />)}
+      {
+        items.map((item, index) => {
+          if(item.separator) {
+            return <Divider key={index} inset={hasIcon} />;
+          } else {
+            if(item.items) {
+              return <NavItemPanel key={item.name} inset={hasIcon} classes={classes} {...item} />
+            } else {
+              return <NavItem key={item.name} inset={hasIcon} classes={classes} {...item} />;
+            }
+          }
+        })
+      }
     </List>
   );
 };

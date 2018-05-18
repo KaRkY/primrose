@@ -1,3 +1,6 @@
+import { combineReducers } from "redux";
+import { createSelector } from "reselect";
+import { handleActions } from "redux-actions";
 import * as actions from "../actions";
 
 const components = {
@@ -12,9 +15,32 @@ const components = {
   [actions.contactViewPage]: "ContactView",
   [actions.contactUpdatePage]: "ContactUpdate",
   [actions.contactNewPage]: "ContactNew",
+
+  [actions.markdownExamplePage]: "MarkdownExample",
   
   [actions.notFound]: "Error"
 }
 
-export const getPage = state => state.page;
-export default (state = "", action = {}) => components[action.type] || state;
+const component = (state = "", action = {}) => components[action.type] || state;
+
+const loading = handleActions({
+  [actions.pageLoad]: (state, action) => !!!action.payload,
+  [actions.pageFinished]: () => false,
+  [actions.pageError]: () => false,
+}, false);
+
+const error = handleActions({
+  [actions.pageLoad]: () => null,
+  [actions.pageFinished]: () => null,
+  [actions.pageError]: (state, action) => action.payload,
+}, null);
+
+export const rootSelector = state => state.page;
+export const getComponent = createSelector(rootSelector, root => root.component);
+export const isLoading = createSelector(rootSelector, root => root.loading);
+export const getError = createSelector(rootSelector, root => root.error);
+export default combineReducers({
+  component,
+  loading,
+  error,
+});

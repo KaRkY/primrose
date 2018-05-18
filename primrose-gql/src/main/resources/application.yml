@@ -1,6 +1,8 @@
 ##Default settings
 server:
   port: 9080
+  servlet:
+    contextPath: /api
 spring:
   jooq:
     sql-dialect: Postgres

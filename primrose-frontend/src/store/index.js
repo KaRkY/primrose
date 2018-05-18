@@ -7,6 +7,8 @@ export { default as contactList } from "./contactList";
 export { default as contactView } from "./contactView";
 export { default as contactUpdate } from "./contactUpdate";
 
+export { default as markdownExample } from "./markdownExample";
+
 export { reducer as meta } from "./meta";
 
 export { default as page } from "./page";

@@ -186,7 +186,7 @@ function MarkdownElement(props) {
        <ReactMarkdown 
         source={text} 
         renderers={{
-          code: (obj, key) => console.log(obj, key) || <SyntaxHighlighter key={key} language={obj.language} showLineNumbers style={okaidia}>{obj.value}</SyntaxHighlighter>
+          code: (obj, key) => <SyntaxHighlighter key={key} language={obj.language} showLineNumbers style={okaidia}>{obj.value}</SyntaxHighlighter>
         }}
         />
      </div>

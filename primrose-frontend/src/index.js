@@ -7,7 +7,7 @@ import defaultTheme, * as other from "./themes";
 
 import Main from "./pages/Main";
 import { Provider } from "react-redux";
-import MomentUtils from "material-ui-pickers/utils/moment-utils";
+import PickersUtils from "material-ui-pickers/utils/date-fns-utils";
 import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
 
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
@@ -26,7 +26,7 @@ const themes = {
 const render = (Main) => {
   ReactDOM.render((
     <MuiThemeProvider theme={themes[/*"indigoLightBlue"*/ "purpleTeal"]}>
-      <MuiPickersUtilsProvider utils={MomentUtils}>
+      <MuiPickersUtilsProvider utils={PickersUtils}>
         <Provider store={store}>
           <React.Fragment>
             <CssBaseline />

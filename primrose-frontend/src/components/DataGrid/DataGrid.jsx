@@ -179,7 +179,7 @@ const DataGrid = ({
   const result = (
     <Paper>
       <DataGridHeader
-        searchTerm={searching.text}
+        searchTerm={searching && searching.text}
         searching={searching}
         selecting={selecting}
         adding={adding}

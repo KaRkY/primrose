@@ -32,7 +32,7 @@
     <graphql.jtools.version>4.3.0</graphql.jtools.version>
     <graphql.boot.version>4.0.0.M1</graphql.boot.version>
     <reactivestreams.version>1.0.2</reactivestreams.version>
-    <kotlin.version>1.2.20</kotlin.version>
+    <camunda.version>7.8.0</camunda.version>
   </properties>
 
   <build>
@@ -199,5 +199,11 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
+
+    <!-- <dependency> -->
+    <!-- <groupId>org.camunda.bpm.springboot</groupId> -->
+    <!-- <artifactId>camunda-bpm-spring-boot-starter</artifactId> -->
+    <!-- <version>3.0.0-alpha1</version> -->
+    <!-- </dependency> -->
   </dependencies>
 </project>

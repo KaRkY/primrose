@@ -3,7 +3,7 @@ import { createStore, applyMiddleware, combineReducers, compose } from "redux";
 import { connectRoutes } from "redux-first-router";
 
 import routesMap from "./routesMap";
-import options from "./options";
+import * as options from "./options";
 import * as reducers from "./store";
 import * as actionCreators from "./actions";
 
@@ -12,7 +12,10 @@ export default history => {
     reducer,
     middleware,
     enhancer
-  } = connectRoutes(routesMap, options)
+  } = connectRoutes(routesMap, {
+    basename: options.basename,
+    querySerializer: options.querySerializer,
+  })
 
   const rootReducer = combineReducers({ ...reducers, location: reducer });
   const middlewares = applyMiddleware(middleware);

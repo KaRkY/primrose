@@ -1,5 +1,6 @@
 import queryString from "query-string";
 
-export default {
-  querySerializer: queryString
-};
+export const basename = "/";
+export const querySerializer = queryString;
+export const apiBasename = "/api";
+export const apiTimeout = 20000;

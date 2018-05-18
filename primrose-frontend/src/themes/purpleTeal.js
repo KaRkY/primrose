@@ -23,6 +23,6 @@ export default createMuiTheme({
     },
   },
   drawer: {
-    width: 250,
+    width: 280,
   },
 });

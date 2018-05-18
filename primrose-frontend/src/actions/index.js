@@ -42,6 +42,8 @@ const handlePaginated = ({
   };
 };
 
+export const [pageLoad, pageFinished, pageError] = createLoadActions("PAGE");
+
 export const dashboardPage = createAction("DASHBOARD_PAGE");
 
 export const customerListPage = createAction("CUSTOMER_LIST_PAGE", handlePaginated);
@@ -59,6 +61,9 @@ export const contactUpdatePage = createAction("CONTACT_EDIT_PAGE", contact => ({
 export const [contactListLoad, contactListFinished, contactListError] = createLoadActions("CONTACT_LIST");
 export const [contactViewLoad, contactViewFinished, contactViewError] = createLoadActions("CONTACT_VIEW");
 export const [contactUpdateLoad, contactUpdateFinished, contactUpdateError] = createLoadActions("CONTACT_EDIT");
+
+export const markdownExamplePage = createAction("MARKDOWN_EXAMPLE_PAGE");
+export const [markdownExampleLoad, markdownExampleFinished, markdownExampleError] = createLoadActions("MARKDOWN_EXAMPLE");
 
 
 export const [customerTypesLoad, customerTypesFinished, customerTypesError] = createLoadActions("CUSTOMER_TYPES");
