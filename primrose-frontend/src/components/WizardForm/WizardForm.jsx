@@ -32,7 +32,7 @@ const enhance = compose(
   withStateHandlers(({ steps }) => ({
     activeStep: 0,
     skipped: new Set(),
-    formValues: [{}],
+    formValues: initialValues || [{}],
   }), {
       autoSave: (state) => (values) => {
         const newValues = [...state.formValues];
