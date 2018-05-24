@@ -39,6 +39,7 @@ export default theme => ({
   },
 
   appContent: {
+    boxSizing: "border-box",
     width: "100%",
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
@@ -69,9 +70,11 @@ export default theme => ({
   },
   appContentShiftLeft: {
     marginLeft: theme.drawer.width,
+    width: `calc(100% - ${theme.drawer.width}px)`,
   },
   appContentShiftRight: {
     marginRight: theme.drawer.width,
+    width: `calc(100% - ${theme.drawer.width}px)`,
   },
   appContentCenter: {
     [theme.breakpoints.up("sm")]: {

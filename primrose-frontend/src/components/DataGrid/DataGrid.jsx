@@ -88,28 +88,33 @@ const propTypes = {
     onEvent: PropTypes.func.isRequired,
   }),
 
+  // Popravi za multi
   sending: PropTypes.shape({
     icon: PropTypes.element,
     text: PropTypes.string.isRequired,
     onEvent: PropTypes.func.isRequired,
+    supports: PropTypes.func,
   }),
 
   opening: PropTypes.shape({
     icon: PropTypes.element,
     text: PropTypes.string.isRequired,
     onEvent: PropTypes.func.isRequired,
+    supports: PropTypes.func,
   }),
 
   editing: PropTypes.shape({
     icon: PropTypes.element,
     text: PropTypes.string.isRequired,
     onEvent: PropTypes.func.isRequired,
+    supports: PropTypes.func,
   }),
 
   removing: PropTypes.shape({
     icon: PropTypes.element,
     text: PropTypes.string.isRequired,
     onEvent: PropTypes.func.isRequired,
+    supports: PropTypes.func,
   }),
 
   detailed: PropTypes.shape({
@@ -277,7 +282,7 @@ const DataGrid = ({
                     );
                   })}
                   {rowActions && <TableCell padding="checkbox" numeric className={classes.rowActions}>
-                    {opening &&
+                    {opening && (opening.supports ? opening.supports(row) : true) &&
                       <Tooltip
                         title={opening.text}
                         placement="bottom"
@@ -288,7 +293,7 @@ const DataGrid = ({
                         </IconButton>
                       </Tooltip>
                     }
-                    {editing &&
+                    {editing && (editing.supports ? editing.supports(row) : true) &&
                       <Tooltip
                         title={editing.text}
                         placement="bottom"
@@ -299,7 +304,7 @@ const DataGrid = ({
                         </IconButton>
                       </Tooltip>
                     }
-                    {removing &&
+                    {removing && (removing.supports ? removing.supports(row) : true) &&
                       <Tooltip
                         title={removing.text}
                         placement="bottom"
@@ -310,7 +315,7 @@ const DataGrid = ({
                         </IconButton>
                       </Tooltip>
                     }
-                    {sending &&
+                    {sending && (sending.supports ? sending.supports(row) : true) &&
                       <Tooltip
                         title={sending.text}
                         placement="bottom"
