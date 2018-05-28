@@ -39,7 +39,7 @@ import primrose.service.customer.CustomerPreview;
 @Repository
 public class CustomerRepositoryImpl implements CustomerRepository {
 
-  private DSLContext                    create;
+  private DSLContext create;
 
   public CustomerRepositoryImpl(DSLContext create) {
     this.create = create;

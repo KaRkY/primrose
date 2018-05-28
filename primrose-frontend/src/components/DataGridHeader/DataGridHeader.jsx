@@ -4,7 +4,7 @@ import React from "react";
 import IconButton from "@material-ui/core/IconButton";
 import Toolbar from "@material-ui/core/Toolbar";
 import Tooltip from "@material-ui/core/Tooltip";
-import TextField from "@material-ui/core/TextField";
+import SearchBar from 'material-ui-search-bar';
 
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -32,34 +32,17 @@ const DataGridHeader = ({
 }) => (
     <Toolbar>
       {searching && searchOpen &&
-        <TextField
+        <SearchBar
           fullWidth
           onChange={onChangeSearchTerm}
           value={searchTerm}
-          InputProps={{
-            disableUnderline: true,
-            placeholder: searching.placeholder || "Search",
-          }}
-          onKeyPress={event => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              searching.onSearch(event, searchTerm);
-            }
+          onRequestSearch={value => searching.onSearch(null, value)}
+          style={{
+            width: "100%"
           }}
         />
       }
       <div className={classes.grow} />
-      {searching && searchOpen &&
-        <Tooltip
-          title={searching.tooltip}
-          placement="bottom"
-          enterDelay={300}
-        >
-          <IconButton onClick={event => searching.onSearch(event, searchTerm)}>
-            {defaultIcon(searching.icon, <SearchIcon />)}
-          </IconButton>
-        </Tooltip>
-      }
       {searching && searchOpen &&
         <Tooltip
           title={"Close search"}

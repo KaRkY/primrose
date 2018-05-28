@@ -282,17 +282,6 @@ const DataGrid = ({
                     );
                   })}
                   {rowActions && <TableCell padding="checkbox" numeric className={classes.rowActions}>
-                    {opening && (opening.supports ? opening.supports(row) : true) &&
-                      <Tooltip
-                        title={opening.text}
-                        placement="bottom"
-                        enterDelay={300}
-                      >
-                        <IconButton onClick={event => opening.onEvent(event, currentRowId)}>
-                          {defaultIcon(opening.icon, <OpenInNewIcon />)}
-                        </IconButton>
-                      </Tooltip>
-                    }
                     {editing && (editing.supports ? editing.supports(row) : true) &&
                       <Tooltip
                         title={editing.text}
@@ -312,6 +301,17 @@ const DataGrid = ({
                       >
                         <IconButton onClick={event => removing.onEvent(event, currentRowId)}>
                           {defaultIcon(removing.icon, <DeleteIcon />)}
+                        </IconButton>
+                      </Tooltip>
+                    }
+                    {opening && (opening.supports ? opening.supports(row) : true) &&
+                      <Tooltip
+                        title={opening.text}
+                        placement="bottom"
+                        enterDelay={300}
+                      >
+                        <IconButton onClick={event => opening.onEvent(event, currentRowId)}>
+                          {defaultIcon(opening.icon, <OpenInNewIcon />)}
                         </IconButton>
                       </Tooltip>
                     }

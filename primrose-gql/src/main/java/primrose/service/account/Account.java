@@ -40,7 +40,7 @@ public class Account {
   private final ImmutableList<PhoneNumber> phones;
   @NotNull(groups = UpdateValidationGroup.class)
   @Null(groups = CreateValidationGroup.class)
-  private final OffsetDateTime             versionm;
+  private final OffsetDateTime             version;
 
   @JsonPOJOBuilder(withPrefix = "")
   public static class AccountBuilder {

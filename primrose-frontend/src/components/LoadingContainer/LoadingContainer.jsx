@@ -1,4 +1,5 @@
 import React from "react";
+import classnames from "classnames";
 
 import CircularProgress from "@material-ui/core/CircularProgress";
 
@@ -39,18 +40,19 @@ class Loading extends React.Component {
   }
 
   render() {
-    const { classes, loading } = this.props;
-    if(this.state.loading || loading) {
-      return (
-        <div className={classes.root}>
-          <div className={classes.icon}>
-            <CircularProgress />
+    const { classes, loading, className, children } = this.props;
+    return (
+      <div className={classes.root}>
+        {children}
+        { (loading || this.state.loading) &&
+          <div className={classes.loading}>
+            <div className={classes.icon}>
+              <CircularProgress />
+            </div>
           </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
+        }
+      </div>
+    );
   }
 }
 
