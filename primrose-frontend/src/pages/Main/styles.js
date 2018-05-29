@@ -1,4 +1,4 @@
-export default theme => console.log(theme) || ({
+export default theme => ({
   profilePanel: theme.mixins.gutters({
 
   }),

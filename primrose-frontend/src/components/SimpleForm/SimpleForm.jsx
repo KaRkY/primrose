@@ -1,5 +1,5 @@
 import React from "react";
-import extractRenderMethod from "../../util/extractRenderMethod";
+import renderProp from "../../util/renderProp";
 import { Form } from "react-final-form";
 
 import compose from "recompose/compose";
@@ -27,7 +27,7 @@ const SimpleForm = ({
     {...props}
     render={formProps => (
       <form onSubmit={formProps.handleSubmit} onReset={() => formProps.form.reset()}>
-        {extractRenderMethod(props)(formProps)}
+        {renderProp(props, formProps)}
         <Grid className={props.classes.buttons} container spacing={16}>
           <Grid item>
             <Button variant="raised" type="reset" disabled={formProps.submitting || formProps.pristine}>{resetButtonText}</Button>

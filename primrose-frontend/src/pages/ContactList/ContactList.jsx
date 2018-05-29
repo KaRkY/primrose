@@ -1,75 +1,78 @@
 import React from "react";
 
 import DataGrid from "../../components/DataGrid";
+import Paged from "../../components/Paged";
 
 const ContactList = ({
   classes,
   contacts,
   pagination,
   totalSize,
-  onPaged,
+  handleList,
   handleView,
   handleNew,
   handleUpdate,
-}) => {
-  const { page = 5, size = 5, selected = [], sort } = pagination;
-  return (
-    <DataGrid
-      getRowId="code"
-      
-      rows={contacts}
+}) => (
+  <Paged pagination={pagination} onChange={handleList}>
+    {paged => (
+      <DataGrid
+        getRowId="code"
+        
+        rows={contacts}
 
-      columns={[
-        { name: "code", title: "Code" },
-        { name: "fullName", title: "Name" },
-        { name: "primaryEmail", title: "Primary email" },
-        { name: "primaryPhone", title: "Primary phone" },
-      ]}
+        columns={[
+          { name: "code", title: "Code" },
+          { name: "fullName", title: "Name" },
+          { name: "primaryEmail", title: "Primary email" },
+          { name: "primaryPhone", title: "Primary phone" },
+        ]}
 
-      pagination={{
-        totalSize,
-        page,
-        size,
-        onPageChange: onPaged("page"),
-        onPageSizeChange: onPaged("size"),
-      }}
+        pagination={{
+          totalSize,
+          page: paged.pagination.page,
+          size: paged.pagination.size,
+          onPageChange: paged.onPaged("page"),
+          onPageSizeChange: paged.onPaged("size"),
+        }}
 
-      sorting={{
-        sort,
-        onChange: onPaged("sort")
-      }}
+        sorting={{
+          sort: paged.pagination.sort,
+          onChange: paged.onPaged("sort")
+        }}
 
-      selecting={{
-        rowIds: selected,
-        onSelectRowsChange: onPaged("selected"),
-      }}
+        selecting={{
+          rowIds: paged.pagination.selected || [],
+          onSelectRowsChange: paged.onPaged("selected"),
+        }}
 
-      sending={{
-        text: "Send contact",
-        onEvent: console.log,
-      }}
+        sending={{
+          text: "Send contact",
+          onEvent: console.log,
+        }}
 
-      opening={{
-        text: "Open contact",
-        onEvent: handleView,
-      }}
+        opening={{
+          text: "Open contact",
+          onEvent: handleView,
+        }}
 
-      editing={{
-        text: "Update contact",
-        onEvent: handleUpdate,
-      }}
+        editing={{
+          text: "Update contact",
+          onEvent: handleUpdate,
+        }}
 
-      removing={{
-        text: "Remove contact",
-        onEvent: console.log,
-      }}
+        removing={{
+          text: "Remove contact",
+          onEvent: console.log,
+        }}
 
-      adding={{
-        text: "Add contact",
-        onEvent: handleNew,
-      }}
-    />
-  );
-};
+        adding={{
+          text: "Add contact",
+          onEvent: handleNew,
+        }}
+      />
+    )}
+  </Paged>
+);
+
 
 export default ContactList;

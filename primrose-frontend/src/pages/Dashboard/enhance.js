@@ -3,7 +3,7 @@ import compose from "recompose/compose";
 
 export default compose(
   withStateHandlers(
-    ({ }) => ({ loading: true }),
+    () => ({ loading: true }),
     {
       toggleLoading: state => event => ({ ...state, loading: !state.loading }),
     }

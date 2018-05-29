@@ -1,5 +1,5 @@
 import React from "react";
-import extractRenderMethod from "../../util/extractRenderMethod";
+import renderProp from "../../util/renderProp";
 
 import { Form } from "react-final-form";
 
@@ -35,7 +35,7 @@ const DialogForm = ({
             props.form.reset();
           }} open={open}>
             <DialogTitle>{title}</DialogTitle>
-            <DialogContent>{extractRenderMethod(rest)(props)}</DialogContent>
+            <DialogContent>{renderProp(rest, props)}</DialogContent>
             <DialogActions>
               <Button
                 onClick={() => {

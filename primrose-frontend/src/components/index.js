@@ -5,7 +5,7 @@ export { default as CheckboxField } from "./CheckboxField";
 export { default as ContactForm } from "./ContactForm";
 export { default as CustomerForm } from "./CustomerForm";
 export { default as DataGrid } from "./DataGrid";
-export { default as DataList } from "./DataList";
+//export { default as DataList } from "./DataList";
 //export { default as DateField } from "./DateField";
 //export { default as DateTimeField } from "./DateTimeField";
 export { default as DialogForm } from "./DialogForm";

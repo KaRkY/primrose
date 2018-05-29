@@ -6104,6 +6104,12 @@ react-popper@^0.10.0:
     popper.js "^1.14.1"
     prop-types "^15.6.1"
 
+react-powerplug@^1.0.0-alpha.4:
+  version "1.0.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/react-powerplug/-/react-powerplug-1.0.0-alpha.4.tgz#7f299a491cb62761c07df6a2327275274e99dbdf"
+  dependencies:
+    "@babel/runtime" "^7.0.0-beta.42"
+
 react-redux@5.0.7:
   version "5.0.7"
   resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-5.0.7.tgz#0dc1076d9afb4670f993ffaef44b8f8c1155a4c8"
