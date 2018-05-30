@@ -1,37 +1,66 @@
 import React from "react";
 
-import Typography from "@material-ui/core/Typography";
+import { Form, NestedField } from "react-form";
+
 import Button from "@material-ui/core/Button";
-import LoadingContainer from "../../components/LoadingContainer";
-import DataGrid from "../../components/DataGrid";
+import Grid from "@material-ui/core/Grid";
+
+import CustomerPersonalInformation from "../../components/forms/CustomerPersonalInformation";
+import Array from "../../components/fields/Array";
+import Email from "../../components/forms/Email";
+import PhoneNumber from "../../components/forms/PhoneNumber";
 
 const Dashboard = ({ classes, width, style, toggleLoading, loading }) => (
-  <React.Fragment>
-    <Button onClick={toggleLoading}>Toggle loading</Button>
-    <Typography>{loading.toString()}</Typography>
-    <LoadingContainer loading={loading}>
-      <DataGrid
-        rows={[]}
+  <Form 
+    defaultValues={{
+      emails: [
+        {type: "home", email: "asdfsdf"},
+        {type: "other", email: "123edaw"},
+      ]
+    }}
+  onSubmit={values => console.log(values)}>
+    {formApi => (
+      <form className={classes.root} onSubmit={formApi.submitForm} onReset={formApi.resetAll}>
+        <CustomerPersonalInformation
+          types={{
+            bla: "ble"
+          }}
 
-        columns={[
-          { name: "code", title: "Code" },
-          { name: "relationType", sortable: true, title: "Relation type" },
-          { name: "type", sortable: true, title: "Type" },
-          { name: "name", sortable: true, title: "Name" },
-          { name: "primaryEmail", title: "Primary email" },
-          { name: "primaryPhone", title: "Primary phone" },
-        ]}
+          relationTypes={{
+            bla: "ble"
+          }}
+        />
 
-        pagination={{
-          totalSize: 0,
-          page: 0,
-          size: 5,
-          onPageChange: console.log,
-          onPageSizeChange: console.log,
-        }}
-      />
-    </LoadingContainer>
-  </React.Fragment>
+        <div className={classes.horizontal}>
+          <Array field="emails" label="Emails">
+            <Email
+              types={{
+                home: "Home",
+                work: "Work",
+                other: "Other"
+              }}
+              defaultType="home"
+            />
+          </Array>
+          <Array field="phoneNumbers" label="Phone numbers">
+            <PhoneNumber
+              types={{
+                home: "Home",
+                work: "Work",
+                other: "Other"
+              }}
+              defaultType="home"
+            />
+          </Array>
+        </div>
+
+        <div className={classes.actions}>
+          <Button variant="raised" type="reset">Reset</Button>
+          <Button variant="raised" color="primary" type="submit">Submit</Button>
+        </div>
+      </form>
+    )}
+  </Form>
 );
 
 export default Dashboard;

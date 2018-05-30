@@ -5,22 +5,21 @@ export default theme => ({
     flexWrap: "nowrap",
 
     "& > *:not(:first-child)": {
-      marginTop: theme.spacing.unit * 4,
+      marginTop: theme.spacing.unit * 2,
     }
   },
 
-  horizontal: {
+  types: {
     display: "flex",
     flexDirection: "column",
-    flexWrap: "nowrap",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
 
     "& > *:not(:first-child)": {
       marginTop: theme.spacing.unit * 2,
     },
 
     "& > *": {
-      flex: "0 1 45%",
+      flex: "1 1 auto",
     },
 
     [theme.breakpoints.up("md")]: {
@@ -30,16 +29,6 @@ export default theme => ({
         marginTop: 0,
         marginLeft: theme.spacing.unit * 2,
       },
-    }
-  },
-
-  actions: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "nowrap",
-
-    "& > *:not(:first-child)": {
-      marginLeft: theme.spacing.unit * 2,
     }
   }
 });

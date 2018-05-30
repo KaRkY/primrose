@@ -1,6 +1,13 @@
-import { createStore, applyMiddleware, combineReducers, compose } from "redux";
+import {
+  createStore,
+  applyMiddleware,
+  combineReducers,
+  compose
+} from "redux";
 
-import { connectRoutes } from "redux-first-router";
+import {
+  connectRoutes
+} from "redux-first-router";
 
 import routesMap from "./routesMap";
 import * as options from "./options";
@@ -17,13 +24,17 @@ export default history => {
     querySerializer: options.querySerializer,
   })
 
-  const rootReducer = combineReducers({ ...reducers, location: reducer });
+  const rootReducer = combineReducers({ ...reducers,
+    location: reducer
+  });
   const middlewares = applyMiddleware(middleware);
   const enhancers = composeEnhancers(enhancer, middlewares);
 
   return createStore(rootReducer, enhancers);
 }
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-  ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ actionCreators })
-  : compose;
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+    actionCreators
+  }) :
+  compose;
