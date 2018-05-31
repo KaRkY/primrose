@@ -2,7 +2,7 @@ import React from "react";
 import classnames from "classnames";
 
 import MenuItem from "@material-ui/core/MenuItem";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@material-ui/core/MenuItem";
 
 import TextField from "../../fields/Text";
 import CheckboxField from "../../fields/Checkbox";
