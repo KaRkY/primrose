@@ -2,7 +2,6 @@ import React from "react";
 import classnames from "classnames";
 
 import MenuItem from "@material-ui/core/MenuItem";
-import Typography from "@material-ui/core/Typography";
 
 import TextField from "../../fields/Text";
 import { NestedField } from "react-form";
@@ -10,8 +9,6 @@ import { NestedField } from "react-form";
 const CustomerPersonalInformation = ({ classes, className, types, relationTypes, field }) => (
   <NestedField field={field}>
     <div className={classnames(classes.root, className)}>
-      <Typography variant="title">Personal information</Typography>
-
       <TextField field="fullName" label="Full name" />
 
       <TextField field="displayName" label="Display name" />

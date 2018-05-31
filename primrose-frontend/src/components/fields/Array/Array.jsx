@@ -10,7 +10,7 @@ import RemoveIcon from "@material-ui/icons/Remove";
 
 const Array = ({ classes, validate, field, onChange, label, children, ...props }) => (
   <NestedField field={field} defaultValues={[]}>
-    {fieldApi => (
+    {fieldApi => console.log(fieldApi) || (
       <div className={classes.root}>
         <Typography variant="title">{label}</Typography>
         <div className={classes.elements}>

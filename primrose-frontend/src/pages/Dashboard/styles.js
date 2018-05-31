@@ -1,4 +1,4 @@
-export default theme => ({
+export default theme => console.log(theme) || ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -41,5 +41,9 @@ export default theme => ({
     "& > *:not(:first-child)": {
       marginLeft: theme.spacing.unit * 2,
     }
-  }
+  },
+
+  panel: theme.mixins.gutters({
+    paddingBottom: theme.spacing.unit * 3,
+  })
 });
