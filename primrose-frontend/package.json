@@ -40,6 +40,7 @@
     "redux-devtools-extension": "2.13.2",
     "redux-first-router": "0.0.9-rudy",
     "redux-first-router-link": "0.0.3-rudy",
+    "redux-form": "^7.3.0",
     "redux-promise-listener": "1.0.0",
     "reselect": "3.0.1",
     "transition-group": "0.0.2",

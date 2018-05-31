@@ -8,6 +8,7 @@ import {
 import {
   connectRoutes
 } from "redux-first-router";
+import { reducer as formReducer } from "redux-form";
 
 import routesMap from "./routesMap";
 import * as options from "./options";
@@ -25,7 +26,8 @@ export default history => {
   })
 
   const rootReducer = combineReducers({ ...reducers,
-    location: reducer
+    location: reducer,
+    form: formReducer,
   });
   const middlewares = applyMiddleware(middleware);
   const enhancers = composeEnhancers(enhancer, middlewares);

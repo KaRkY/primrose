@@ -5,40 +5,40 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Typography from "@material-ui/core/Typography";
 
 import TextField from "../../fields/Text";
-import { NestedField } from "react-form";
+import CheckboxField from "../../fields/Checkbox";
 
-const CustomerPersonalInformation = ({ classes, className, types, relationTypes, field }) => (
-  <NestedField field={field}>
-    <div className={classnames(classes.root, className)}>
-      <Typography variant="title">Personal information</Typography>
+const CustomerPersonalInformation = ({ classes, className, types, relationTypes, name }) => (
+  <div className={classnames(classes.root, className)}>
+    <Typography variant="title">Personal information</Typography>
 
-      <TextField field="fullName" label="Full name" />
+    <TextField name="fullName" label="Full name" />
 
-      <TextField field="displayName" label="Display name" />
+    <TextField name="displayName" label="Display name" />
 
-      <div className={classes.types}>
-        <TextField select field="type" label="Customer type">
-          {Object.keys(types).map(key => (
-            <MenuItem key={key} value={key}>{types[key]}</MenuItem>
-          ))}
-        </TextField>
+    <CheckboxField name="test" label="Test name" />
 
-        <TextField select field="relationType" label="Customer relation type">
-          {Object.keys(relationTypes).map(key => (
-            <MenuItem key={key} value={key}>{relationTypes[key]}</MenuItem>
-          ))}
-        </TextField>
-      </div>
+    <div className={classes.types}>
+      <TextField select name="type" label="Customer type">
+        {Object.keys(types).map(key => (
+          <MenuItem key={key} value={key}>{types[key]}</MenuItem>
+        ))}
+      </TextField>
 
-      <TextField
-        multiline
-        rows={5}
-        rowsMax={5}
-        field="description"
-        label="Description"
-      />
+      <TextField select name="relationType" label="Customer relation type">
+        {Object.keys(relationTypes).map(key => (
+          <MenuItem key={key} value={key}>{relationTypes[key]}</MenuItem>
+        ))}
+      </TextField>
     </div>
-  </NestedField>
+
+    <TextField
+      multiline
+      rows={5}
+      rowsMax={5}
+      name="description"
+      label="Description"
+    />
+  </div>
 );
 
 export default CustomerPersonalInformation;

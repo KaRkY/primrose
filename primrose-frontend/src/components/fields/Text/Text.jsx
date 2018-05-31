@@ -1,31 +1,24 @@
 import React from "react";
-import { Field } from "react-form";
+import { Field } from "redux-form";
 
 import TextField from "@material-ui/core/TextField";
 
-const Text = ({ validate, field, onChange, onBlur, helperText, ...props }) => (
-  <Field validate={validate} field={field}>
-    {({ value, error, warning, success, setValue, setTouched }) => (
-      <TextField
-        error={!!error}
-        helperText={error || helperText}
-        value={value || ""}
-        onChange={e => {
-          setValue(e.target.value);
-          if (onChange) {
-            onChange(e, e.target.value);
-          }
-        }}
-        onBlur={e => {
-          setTouched();
-          if (onBlur) {
-            onBlur(e);
-          }
-        }}
-        {...props}
-      />
-    )}
-  </Field>
+const renderField = ({
+  input,
+  meta: { touched, error },
+  helperText,
+  ...custom
+}) => (
+    <TextField
+      error={touched && !!error}
+      helperText={(touched && error) || helperText}
+      {...input}
+      {...custom}
+    />
+  );
+
+const Text = props => (
+  <Field {...props} component={renderField} />
 );
 
 export default Text;

@@ -1,42 +1,30 @@
 import React from "react";
-import { Field } from "react-form";
+import { Field } from "redux-form";
 
 import MUICheckbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-const Checkbox = ({ validate, field, onChange, onBlur, label, ...props }) => (
-  <Field validate={validate} field={field}>{
-    ({ value, setValue, setTouched }) => {
-      const checkboxControl = (
-        <MUICheckbox
-          checked={!!value}
-          onChange={(e, checked) => {
-            setValue(checked);
-            if (onChange) {
-              onChange(e, checked);
-            }
-          }}
-          onBlur={e => {
-            setTouched();
-            if (onBlur) {
-              onBlur(e);
-            }
-          }}
-          {...props}
-        />
-      );
-      if (label) {
-        return (
-          <FormControlLabel
-            control={checkboxControl}
-            label={label}
-          />
-        );
-      } else {
-        return checkboxControl;
-      }
-    }
-  }</Field>
+const renderField = ({
+  input: { checked, value, ...input},
+  label,
+  meta: { touched, error },
+  ...custom
+}) => {
+  const checkbox = <MUICheckbox
+    checked={checked}
+    {...input}
+    {...custom}
+  />;
+
+  if(label) {
+    return <FormControlLabel control={checkbox} label={label} />
+  } else {
+    return checkbox;
+  }
+};
+
+const Checkbox = props => (
+  <Field {...props} component={renderField} />
 );
 
 export default Checkbox;
