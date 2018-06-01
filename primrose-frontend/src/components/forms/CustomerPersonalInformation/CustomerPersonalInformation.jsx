@@ -2,10 +2,9 @@ import React from "react";
 import classnames from "classnames";
 
 import MenuItem from "@material-ui/core/MenuItem";
-import Typography from "@material-ui/core/MenuItem";
+import Typography from "@material-ui/core/Typography";
 
 import TextField from "../../fields/Text";
-import CheckboxField from "../../fields/Checkbox";
 
 const CustomerPersonalInformation = ({ classes, className, types, relationTypes, name }) => (
   <div className={classnames(classes.root, className)}>
@@ -14,8 +13,6 @@ const CustomerPersonalInformation = ({ classes, className, types, relationTypes,
     <TextField name="fullName" label="Full name" />
 
     <TextField name="displayName" label="Display name" />
-
-    <CheckboxField name="test" label="Test name" />
 
     <div className={classes.types}>
       <TextField select name="type" label="Customer type">

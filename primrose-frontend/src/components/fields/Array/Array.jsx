@@ -7,7 +7,7 @@ import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 
-const renderSubFields = ({ classes, label, children, fields, meta, ...rest }) => (
+const renderSubFields = ({ classes, label, children, fields, meta, initialValues, ...rest }) => (
   <div className={classes.root}>
     <Typography variant="title">{label}</Typography>
     <div className={classes.elements}>
@@ -26,7 +26,7 @@ const renderSubFields = ({ classes, label, children, fields, meta, ...rest }) =>
       })}
     </div>
     <div>
-      <IconButton onClick={() => fields.push({})}>
+      <IconButton onClick={() => fields.push(initialValues || {})}>
         <AddIcon />
       </IconButton>
     </div>

@@ -1,7 +1,14 @@
 import React from "react";
 import * as customers from "../../api/customers";
-import CustomerForm from "../../components/CustomerForm";
+
+import Button from "@material-ui/core/Button";
+
+import Array from "../../components/fields/Array";
+import CustomerPersonalInformation from "../../components/forms/CustomerPersonalInformation";
+import Email from "../../components/forms/Email";
+import Form from "../../components//Form";
 import NotificationConsumer from "../../components/NotificationConsumer";
+import PhoneNumber from "../../components/forms/PhoneNumber";
 
 const CustomerUpdate = ({
   classes,
@@ -13,28 +20,50 @@ const CustomerUpdate = ({
   emailTypes,
   phoneNumberTypes,
 }) => (
-  <NotificationConsumer>{
-    ({ push }) => (
-      <CustomerForm
-        initialValues={customer}
-        onSubmit={values => {
-          return customers.update(values)
-            .then(response => {
-              handleView(response.data.result);
-              return {};
-            })
-            .catch(error => {
-              push({ text: error.message });
-              return {};
-            });
-        }}
-        customerTypes={customerTypes}
-        customerRelationTypes={customerRelationTypes}
-        emailTypes={emailTypes}
-        phoneNumberTypes={phoneNumberTypes}
-      />
-    )
-  }</NotificationConsumer>
+    <NotificationConsumer>
+      {({ push }) => (
+        <Form
+          form="customerUpdate"
+          onSubmit={values => {
+            return customers.update(values)
+              .then(response => {
+                handleView(response.data.result);
+              })
+              .catch(error => {
+                push({ text: error.message });
+              });
+          }}
+          initialValues={customer}
+        >
+          {({ handleSubmit, handleReset, pristine, submitting }) => (
+            <form className={classes.root} onSubmit={handleSubmit} onReset={handleReset}>
+              <CustomerPersonalInformation
+                types={customerTypes}
+                relationTypes={customerRelationTypes}
+              />
+
+              <div className={classes.horizontal}>
+                <Array name="emails" label="Emails" initialValues={{ type: "home" }}>
+                  <Email
+                    types={emailTypes}
+                  />
+                </Array>
+                <Array name="phoneNumbers" label="Phone numbers" initialValues={{ type: "home" }}>
+                  <PhoneNumber
+                    types={phoneNumberTypes}
+                  />
+                </Array>
+              </div>
+
+              <div className={classes.actions}>
+                <Button disabled={pristine || submitting} variant="raised" type="reset">Reset</Button>
+                <Button disabled={pristine || submitting} variant="raised" color="primary" type="submit">Submit</Button>
+              </div>
+            </form>
+          )}
+        </Form>
+      )}
+    </NotificationConsumer>
   );
 
 export default CustomerUpdate;

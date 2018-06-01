@@ -111,7 +111,7 @@ public class ContactRepositoryImpl implements ContactRepository {
     int updated = create
       .update(CONTACTS)
       .set(CONTACTS.FULL_NAME, contact.getFullName())
-      .set(CONTACTS.DESCRIPTION, contact.getDescription())
+      .set(CONTACTS.DESCRIPTION, (contact.getDescription() == null || contact.getDescription().isEmpty()) ? null : contact.getDescription())
       .set(CONTACTS.CHANGED_BY, "test")
       .set(CONTACTS.CHANGED_AT, currentOffsetDateTime())
       .where(

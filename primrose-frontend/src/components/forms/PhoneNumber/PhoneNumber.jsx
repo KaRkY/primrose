@@ -12,7 +12,7 @@ const PhoneNumber = ({ classes, types, defaultType }) => (
         <MenuItem key={key} value={key}>{types[key]}</MenuItem>
       ))}
     </TextField>
-    <TextField className={classnames(classes.margin, classes.text)} name="phoneNumber" label="Phone number" />
+    <TextField className={classnames(classes.margin, classes.text)} name="value" label="Phone number" />
   </div>
 );
 

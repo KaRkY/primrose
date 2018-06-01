@@ -12,7 +12,7 @@ const Email = ({ classes, types }) => (
         <MenuItem key={key} value={key}>{types[key]}</MenuItem>
       ))}
     </TextField>
-    <TextField className={classnames(classes.margin, classes.text)} name="email" label="Email" />
+    <TextField className={classnames(classes.margin, classes.text)} name="value" label="Email" />
   </div>
 );
 
