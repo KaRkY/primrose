@@ -1,5 +1,8 @@
 import React from "react";
 import * as actions from "../../actions";
+import * as location from "../../store/location";
+import * as page from "../../store/page";
+import * as title from "../../store/title";
 
 import App from "../../components/App";
 import Nav from "../../components/Nav"
@@ -15,49 +18,58 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import ContactsIcon from "@material-ui/icons/Contacts";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 
-const Main = ({
-  classes,
-  title,
-  ...props
-}) => (
-    <App
-      toolbar={{
-        title,
-        actions: (
-          <PopupPanel
-            className={classes.profilePanel}
-            component={props => (
-              <IconButton
-                variant="raised"
-                color="inherit"
-                {...props}
-              >
-                <AccountCircleIcon />
-              </IconButton>
-            )}
-          >
-            <Avatar>RS</Avatar>
-            <Typography>Delaaaaaaaaaaaa</Typography>
-          </PopupPanel>
-        )
-      }}
+import Connect from "../../components/Connect";
 
-      navigation={
-        <Nav
-          items={[
-            { to: actions.dashboardPage(), name: "Dashboard", exact: true, icon: <DashboardIcon />, },
-            { to: actions.customerListPage({ force: true }), name: "Customers", icon: <AccountBoxIcon />, },
-            { to: actions.contactListPage({ force: true }), name: "Contacts", icon: <ContactsIcon />, },
-            { separator: true },
-            { to: actions.markdownExamplePage({ force: true }), name: "Markdown example", },
-          ]}
-        />
-      }
+const Main = ({ classes }) => (
+  <Connect mapStateToProps={state => ({
+    title: title.getTitle(state),
+    page: page.getComponent(state),
+    pageType: location.getPageType(state),
+    isLoading: page.isLoading(state),
+    error: page.getError(state),
+    pathname: location.getCurrentPathname(state),
+  })}>
+    {state => (
+      <App
+        toolbar={{
+          title: state.title,
+          actions: (
+            <PopupPanel
+              className={classes.profilePanel}
+              component={props => (
+                <IconButton
+                  variant="raised"
+                  color="inherit"
+                  {...props}
+                >
+                  <AccountCircleIcon />
+                </IconButton>
+              )}
+            >
+              <Avatar>RS</Avatar>
+              <Typography>Delaaaaaaaaaaaa</Typography>
+            </PopupPanel>
+          )
+        }}
 
-      content={
-        <Switcher title={title} {...props} />
-      }
-    />
-  );
+        navigation={
+          <Nav
+            items={[
+              { to: actions.dashboardPage(), name: "Dashboard", exact: true, icon: <DashboardIcon />, },
+              { to: actions.customerListPage({ force: true }), name: "Customers", icon: <AccountBoxIcon />, },
+              { to: actions.contactListPage({ force: true }), name: "Contacts", icon: <ContactsIcon />, },
+              { separator: true },
+              { to: actions.markdownExamplePage({ force: true }), name: "Markdown example", },
+            ]}
+          />
+        }
+
+        content={
+          <Switcher {...state} />
+        }
+      />
+    )}
+  </Connect>
+);
 
 export default Main;

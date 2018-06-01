@@ -1,78 +1,90 @@
 import React from "react";
 
+import * as actions from "../../actions";
+import * as location from "../../store/location";
+import * as contactList from "../../store/contactList";
+
 import DataGrid from "../../components/DataGrid";
 import Paged from "../../components/Paged";
+import Connect from "../../components/Connect";
 
 const ContactList = ({
   classes,
-  contacts,
-  pagination,
-  totalSize,
-  handleList,
-  handleView,
-  handleNew,
-  handleUpdate,
 }) => (
-  <Paged pagination={pagination} onChange={handleList}>
-    {paged => (
-      <DataGrid
-        getRowId="code"
-        
-        rows={contacts}
+    <Connect
+      mapStateToProps={
+        state => ({
+          contacts: contactList.getData(state),
+          pagination: location.getCurrentPagination(state),
+          totalSize: contactList.getCount(state),
+        })
+      }
 
-        columns={[
-          { name: "code", title: "Code" },
-          { name: "fullName", title: "Name" },
-          { name: "primaryEmail", title: "Primary email" },
-          { name: "primaryPhone", title: "Primary phone" },
-        ]}
+      mapDispatchToProps={dispatch => ({
+        handleList: payload => dispatch(actions.contactListPage(payload)),
+        handleView: (event, payload) => dispatch(actions.contactViewPage(payload)),
+        handleNew: () => dispatch(actions.contactNewPage()),
+        handleUpdate: (event, payload) => dispatch(actions.contactUpdatePage(payload)),
+      })}
+    >
+      {state => (
+        <Paged pagination={state.pagination} onChange={state.handleList}>
+          {paged => (
+            <DataGrid
+              getRowId="code"
 
-        pagination={{
-          totalSize,
-          page: paged.pagination.page,
-          size: paged.pagination.size,
-          onPageChange: paged.onPaged("page"),
-          onPageSizeChange: paged.onPaged("size"),
-        }}
+              rows={state.contacts}
 
-        sorting={{
-          sort: paged.pagination.sort,
-          onChange: paged.onPaged("sort")
-        }}
+              columns={[
+                { name: "code", title: "Code" },
+                { name: "fullName", title: "Name" },
+                { name: "primaryEmail", title: "Primary email" },
+                { name: "primaryPhone", title: "Primary phone" },
+              ]}
 
-        selecting={{
-          rowIds: paged.pagination.selected || [],
-          onSelectRowsChange: paged.onPaged("selected"),
-        }}
+              pagination={{
+                totalSize: state.totalSize,
+                page: paged.pagination.page,
+                size: paged.pagination.size,
+                onPageChange: paged.onPaged("page"),
+                onPageSizeChange: paged.onPaged("size"),
+              }}
 
-        sending={{
-          text: "Send contact",
-          onEvent: console.log,
-        }}
+              sorting={{
+                sort: paged.pagination.sort,
+                onChange: paged.onPaged("sort")
+              }}
 
-        opening={{
-          text: "Open contact",
-          onEvent: handleView,
-        }}
+              selecting={{
+                rowIds: paged.pagination.selected || [],
+                onSelectRowsChange: paged.onPaged("selected"),
+              }}
 
-        editing={{
-          text: "Update contact",
-          onEvent: handleUpdate,
-        }}
+              opening={{
+                text: "Open contact",
+                onEvent: state.handleView,
+              }}
 
-        removing={{
-          text: "Remove contact",
-          onEvent: console.log,
-        }}
+              editing={{
+                text: "Update contact",
+                onEvent: state.handleUpdate,
+              }}
 
-        adding={{
-          text: "Add contact",
-          onEvent: handleNew,
-        }}
-      />
-    )}
-  </Paged>
-);
+              removing={{
+                text: "Remove contact",
+                onEvent: console.log,
+              }}
+
+              adding={{
+                text: "Add contact",
+                onEvent: state.handleNew,
+              }}
+            />
+          )}
+        </Paged>
+      )}
+    </Connect>
+  );
 
 
 export default ContactList;

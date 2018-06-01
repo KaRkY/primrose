@@ -1,13 +1,19 @@
 import React from "react";
+import * as markdownExample from "../../store/markdownExample";
 
 import MarkdownElement from "../../components/MarkdownElement";
+import Connect from "../../components/Connect";
 
-const Dashboard = ({ classes, width, style, customer }) => (
-  <React.Fragment>
-    <MarkdownElement 
-    text={customer} 
-    />
-  </React.Fragment>
+const MarkdownExample = () => (
+  <Connect mapStateToProps={state => ({
+    markdown: markdownExample.getData(state),
+  })}>
+    {state => (
+      <MarkdownElement
+        text={state.markdown}
+      />
+    )}
+  </Connect>
 );
 
-export default Dashboard;
+export default MarkdownExample;

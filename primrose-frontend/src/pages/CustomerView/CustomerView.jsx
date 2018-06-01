@@ -5,9 +5,7 @@ import Typography from "@material-ui/core/Typography";
 
 import Connect from "../../components/Connect";
 
-const CustomerView = ({
-  customer,
-}) => (
+const CustomerView = () => (
     <Connect mapStateToProps={state => ({
       customer: customerView.getData(state),
     })}>

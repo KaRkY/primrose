@@ -1,6 +1,7 @@
 import React from "react";
 import * as customers from "../../api/customers";
 import * as customerUpdate from "../../store/customerUpdate";
+import * as actions from "../../actions";
 import meta from "../../store/meta";
 
 import Button from "@material-ui/core/Button";
@@ -17,26 +18,25 @@ import { Compose } from "react-powerplug";
 
 const CustomerUpdate = ({
   classes,
-  customer,
-  customerCode,
   handleView,
-  customerTypes,
-  customerRelationTypes,
-  emailTypes,
-  phoneNumberTypes,
 }) => (
-
     <Compose components={[
       NotificationConsumer,
-      <Connect mapStateToProps={
-        state => ({
-          customer: customerUpdate.getData(state),
-          customerTypes: meta.customerTypes.getData(state),
-          customerRelationTypes: meta.customerRelationTypes.getData(state),
-          emailTypes: meta.emailTypes.getData(state),
-          phoneNumberTypes: meta.phoneNumberTypes.getData(state),
-        })
-      } />]
+      <Connect
+        mapStateToProps={
+          state => ({
+            customer: customerUpdate.getData(state),
+            customerTypes: meta.customerTypes.getData(state),
+            customerRelationTypes: meta.customerRelationTypes.getData(state),
+            emailTypes: meta.emailTypes.getData(state),
+            phoneNumberTypes: meta.phoneNumberTypes.getData(state),
+          })
+        }
+
+        mapDispatchToProps={{
+          handleView: actions.customerViewPage
+        }}
+      />]
     }>
       {(notify, state) => (
         <Form
@@ -45,7 +45,7 @@ const CustomerUpdate = ({
           onSubmit={values => {
             return customers.update(values)
               .then(response => {
-                handleView(response.data.result);
+                state.handleView(response.data.result);
               })
               .catch(error => {
                 notify.push({ text: error.message });
