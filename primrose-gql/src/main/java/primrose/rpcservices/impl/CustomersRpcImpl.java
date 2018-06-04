@@ -47,7 +47,7 @@ public class CustomersRpcImpl implements CustomersRpc {
   }
 
   @Override
-  public Customer get(CustomerCode customerCode) {
+  public Customer read(CustomerCode customerCode) {
     return customerService.get(customerCode);
   }
 

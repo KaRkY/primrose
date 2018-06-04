@@ -1,8 +1,12 @@
 package primrose.config;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.MessageCodesResolver;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.google.common.base.CaseFormat;
@@ -13,6 +17,14 @@ import com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceImplExporter;
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
   private static Converter<String, String> CASE_CONVERT = CaseFormat.UPPER_CAMEL.converterTo(CaseFormat.LOWER_HYPHEN);
+
+  @Autowired
+  private List<HandlerMethodArgumentResolver> resolvers;
+
+  @Override
+  public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+    resolvers.addAll(this.resolvers);
+  }
 
   @Bean
   public MessageCodesResolver messageCode() {
@@ -32,7 +44,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     };
   }
 
-  @Bean
+ /* @Bean
   public static AutoJsonRpcServiceImplExporter exporter(ErrorResolver resolver) {
     AutoJsonRpcServiceImplExporter exporter = new AutoJsonRpcServiceImplExporter();
     exporter.setErrorResolver(resolver);
@@ -41,5 +53,5 @@ public class WebConfiguration implements WebMvcConfigurer {
     exporter.setRegisterTraceInterceptor(true);
     exporter.setAllowLessParams(true);
     return exporter;
-  }
+  }*/
 }

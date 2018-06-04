@@ -14,10 +14,10 @@ public interface CustomersRpc {
 
   CustomerCode create(@JsonRpcParam("customer") Customer customer);
 
+  Customer read(@JsonRpcParam("customerCode") CustomerCode customerCode);
+
   CustomerCode update(@JsonRpcParam("customer") Customer customer);
 
   ListResult<CustomerPreview> list(@JsonRpcParam("pagination") Pagination pagination);
-
-  Customer get(@JsonRpcParam("customerCode") CustomerCode customerCode);
 
 }
